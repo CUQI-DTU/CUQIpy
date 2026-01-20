@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.logd
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.logd

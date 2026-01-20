@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.rv
+=========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: LMRF.rv

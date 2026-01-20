@@ -1,0 +1,45 @@
+StepExpansion
+=============
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: StepExpansion
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~StepExpansion.__init__
+      ~StepExpansion.fun2par
+      ~StepExpansion.fun2vec
+      ~StepExpansion.par2fun
+      ~StepExpansion.plot
+      ~StepExpansion.plot_envelope
+      ~StepExpansion.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~StepExpansion.fun_dim
+      ~StepExpansion.fun_is_array
+      ~StepExpansion.fun_shape
+      ~StepExpansion.funvec_dim
+      ~StepExpansion.funvec_shape
+      ~StepExpansion.grid
+      ~StepExpansion.n_steps
+      ~StepExpansion.par_dim
+      ~StepExpansion.par_shape
+      ~StepExpansion.variables
+   
+   

@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.current\_point
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ULA.current_point

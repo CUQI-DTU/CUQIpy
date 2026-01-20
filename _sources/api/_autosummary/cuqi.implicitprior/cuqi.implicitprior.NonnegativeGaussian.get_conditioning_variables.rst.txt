@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.get\_conditioning\_variables
+===================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.get_conditioning_variables

@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.transformation
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.transformation

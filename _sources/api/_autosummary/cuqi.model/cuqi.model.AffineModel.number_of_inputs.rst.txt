@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.number\_of\_inputs
+=========================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: AffineModel.number_of_inputs

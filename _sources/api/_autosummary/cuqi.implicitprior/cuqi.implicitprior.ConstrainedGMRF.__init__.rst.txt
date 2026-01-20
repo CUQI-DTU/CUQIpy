@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.\_\_init\_\_
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.__init__

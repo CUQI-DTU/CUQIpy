@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.FD\_enabled
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.FD_enabled

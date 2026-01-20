@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.gradient
+===================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. automethod:: Likelihood.gradient

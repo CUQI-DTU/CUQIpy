@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.dim
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.dim

@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.copy
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.copy

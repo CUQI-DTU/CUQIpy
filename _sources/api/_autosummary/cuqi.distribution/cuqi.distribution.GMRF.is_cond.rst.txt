@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.is\_cond
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.is_cond

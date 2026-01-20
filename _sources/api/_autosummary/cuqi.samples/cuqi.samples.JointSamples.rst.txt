@@ -1,0 +1,35 @@
+JointSamples
+============
+
+.. currentmodule:: cuqi.samples
+
+.. autoclass:: JointSamples
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~JointSamples.__init__
+      ~JointSamples.burnthin
+      ~JointSamples.clear
+      ~JointSamples.copy
+      ~JointSamples.fromkeys
+      ~JointSamples.get
+      ~JointSamples.items
+      ~JointSamples.keys
+      ~JointSamples.pop
+      ~JointSamples.popitem
+      ~JointSamples.setdefault
+      ~JointSamples.update
+      ~JointSamples.values
+   
+   
+
+   
+   
+   

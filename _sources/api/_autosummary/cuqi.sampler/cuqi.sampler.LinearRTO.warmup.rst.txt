@@ -1,0 +1,6 @@
+cuqi.sampler.LinearRTO.warmup
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: LinearRTO.warmup

@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.assemble
+========================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: TimeDependentLinearPDE.assemble

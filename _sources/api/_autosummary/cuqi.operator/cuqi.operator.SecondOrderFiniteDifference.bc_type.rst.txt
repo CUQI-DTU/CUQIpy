@@ -1,0 +1,6 @@
+cuqi.operator.SecondOrderFiniteDifference.bc\_type
+==================================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: SecondOrderFiniteDifference.bc_type

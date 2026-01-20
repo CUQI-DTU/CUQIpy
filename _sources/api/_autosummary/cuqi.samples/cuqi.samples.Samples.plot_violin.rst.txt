@@ -1,0 +1,6 @@
+cuqi.samples.Samples.plot\_violin
+=================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.plot_violin

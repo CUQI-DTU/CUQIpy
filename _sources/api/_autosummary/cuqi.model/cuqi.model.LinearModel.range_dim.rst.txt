@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.range\_dim
+=================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: LinearModel.range_dim

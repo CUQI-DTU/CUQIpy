@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.FD\_enabled
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointDistribution.FD_enabled

@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.sample
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.sample

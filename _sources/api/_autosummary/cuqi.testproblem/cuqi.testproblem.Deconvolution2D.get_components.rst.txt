@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution2D.get\_components
+================================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconvolution2D.get_components

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.logd
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.logd

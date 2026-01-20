@@ -1,0 +1,6 @@
+cuqi.model.Model.domain\_geometry
+=================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: Model.domain_geometry

@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.to\_likelihood
+========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.to_likelihood

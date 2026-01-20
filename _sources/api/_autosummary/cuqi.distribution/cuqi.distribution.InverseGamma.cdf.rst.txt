@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.cdf
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.cdf

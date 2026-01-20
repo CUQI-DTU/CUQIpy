@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.set\_history
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.set_history

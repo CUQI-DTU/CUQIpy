@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.gradient
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.gradient

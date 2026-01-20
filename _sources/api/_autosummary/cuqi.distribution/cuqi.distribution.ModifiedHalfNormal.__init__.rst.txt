@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.\_\_init\_\_
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.__init__

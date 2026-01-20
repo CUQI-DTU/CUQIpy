@@ -1,0 +1,6 @@
+ProjectBox
+==========
+
+.. currentmodule:: cuqi.solver
+
+.. autofunction:: ProjectBox

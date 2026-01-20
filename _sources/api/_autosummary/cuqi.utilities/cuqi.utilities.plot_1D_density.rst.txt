@@ -1,0 +1,6 @@
+plot\_1D\_density
+=================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: plot_1D_density

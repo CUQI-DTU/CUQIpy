@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.get\_parameter\_names
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Lognormal.get_parameter_names

@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.name
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Laplace.name

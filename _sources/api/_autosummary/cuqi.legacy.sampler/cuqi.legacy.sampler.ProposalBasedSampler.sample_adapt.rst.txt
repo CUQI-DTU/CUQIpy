@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.ProposalBasedSampler.sample\_adapt
+======================================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: ProposalBasedSampler.sample_adapt

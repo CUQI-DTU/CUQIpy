@@ -1,0 +1,6 @@
+cuqi.sampler.MH.geometry
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MH.geometry

@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.argmin
+===========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.argmin

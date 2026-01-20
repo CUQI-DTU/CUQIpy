@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.__init__

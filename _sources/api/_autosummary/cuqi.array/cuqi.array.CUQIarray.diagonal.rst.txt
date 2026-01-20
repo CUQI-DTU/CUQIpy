@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.diagonal
+=============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.diagonal

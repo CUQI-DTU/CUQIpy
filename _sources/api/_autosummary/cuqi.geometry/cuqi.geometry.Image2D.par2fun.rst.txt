@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.par2fun
+=============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Image2D.par2fun

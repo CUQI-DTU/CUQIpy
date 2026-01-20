@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.set\_history
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.set_history

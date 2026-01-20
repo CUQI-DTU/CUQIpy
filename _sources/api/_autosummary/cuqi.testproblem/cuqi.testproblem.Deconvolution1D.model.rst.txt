@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution1D.model
+======================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deconvolution1D.model

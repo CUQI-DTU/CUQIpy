@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.is\_cond
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Lognormal.is_cond

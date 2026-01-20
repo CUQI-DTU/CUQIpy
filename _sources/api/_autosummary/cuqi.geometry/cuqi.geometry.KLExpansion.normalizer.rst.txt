@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.normalizer
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.normalizer

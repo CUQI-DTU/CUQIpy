@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.name
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.name

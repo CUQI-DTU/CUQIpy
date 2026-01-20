@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.logd
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.logd

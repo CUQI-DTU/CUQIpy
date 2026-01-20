@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.range\_dim
+==============================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: PDEModel.range_dim

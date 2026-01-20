@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.get\_mutable\_variables
+=========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.get_mutable_variables

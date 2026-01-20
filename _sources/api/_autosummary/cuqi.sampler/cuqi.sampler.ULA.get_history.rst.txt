@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.get\_history
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.get_history

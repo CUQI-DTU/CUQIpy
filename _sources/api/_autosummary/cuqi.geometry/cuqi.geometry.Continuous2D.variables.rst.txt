@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous2D.variables
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Continuous2D.variables

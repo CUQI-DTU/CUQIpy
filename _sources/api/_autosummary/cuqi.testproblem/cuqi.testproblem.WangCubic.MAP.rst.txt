@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.MAP
+==============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: WangCubic.MAP

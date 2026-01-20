@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.initialize
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.initialize

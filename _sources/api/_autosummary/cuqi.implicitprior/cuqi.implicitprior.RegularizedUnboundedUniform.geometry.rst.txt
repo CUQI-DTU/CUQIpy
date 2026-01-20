@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.geometry
+=======================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.geometry

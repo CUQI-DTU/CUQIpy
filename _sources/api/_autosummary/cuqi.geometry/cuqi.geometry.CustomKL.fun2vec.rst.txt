@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.fun2vec
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: CustomKL.fun2vec

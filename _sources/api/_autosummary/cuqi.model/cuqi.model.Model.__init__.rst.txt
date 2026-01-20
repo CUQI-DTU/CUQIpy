@@ -1,0 +1,6 @@
+cuqi.model.Model.\_\_init\_\_
+=============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: Model.__init__

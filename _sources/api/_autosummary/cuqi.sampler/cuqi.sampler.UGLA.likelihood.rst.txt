@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.likelihood
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: UGLA.likelihood

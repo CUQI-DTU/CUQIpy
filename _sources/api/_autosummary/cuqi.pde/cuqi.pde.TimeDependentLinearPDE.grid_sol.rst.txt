@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.grid\_sol
+=========================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: TimeDependentLinearPDE.grid_sol

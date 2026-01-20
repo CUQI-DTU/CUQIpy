@@ -1,0 +1,6 @@
+cuqi.solver.ScipyMaximizer.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: ScipyMaximizer.__init__

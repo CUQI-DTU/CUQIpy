@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.solver
+========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: RegularizedLinearRTO.solver

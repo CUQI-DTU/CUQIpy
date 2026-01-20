@@ -1,0 +1,43 @@
+Discrete
+========
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: Discrete
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Discrete.__init__
+      ~Discrete.fun2par
+      ~Discrete.fun2vec
+      ~Discrete.par2fun
+      ~Discrete.plot
+      ~Discrete.plot_envelope
+      ~Discrete.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Discrete.fun_dim
+      ~Discrete.fun_is_array
+      ~Discrete.fun_shape
+      ~Discrete.funvec_dim
+      ~Discrete.funvec_shape
+      ~Discrete.par_dim
+      ~Discrete.par_shape
+      ~Discrete.variables
+   
+   

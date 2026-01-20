@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.FD\_enabled
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.FD_enabled

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.\_\_init\_\_
+================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.__init__

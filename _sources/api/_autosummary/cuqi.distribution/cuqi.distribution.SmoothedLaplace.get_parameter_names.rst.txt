@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.get\_parameter\_names
+=======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.get_parameter_names

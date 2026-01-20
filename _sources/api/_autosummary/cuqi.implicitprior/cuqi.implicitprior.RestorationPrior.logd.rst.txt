@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.logd
+========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.logd

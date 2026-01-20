@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.get\_mutable\_variables
+======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.get_mutable_variables

@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.regularization\_options
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.regularization_options

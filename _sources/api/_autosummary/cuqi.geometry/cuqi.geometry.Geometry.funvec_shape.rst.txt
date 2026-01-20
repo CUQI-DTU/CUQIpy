@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.funvec\_shape
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Geometry.funvec_shape

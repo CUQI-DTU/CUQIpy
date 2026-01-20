@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.geometry
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Uniform.geometry

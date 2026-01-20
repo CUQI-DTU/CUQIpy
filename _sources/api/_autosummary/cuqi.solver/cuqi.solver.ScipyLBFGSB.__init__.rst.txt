@@ -1,0 +1,6 @@
+cuqi.solver.ScipyLBFGSB.\_\_init\_\_
+====================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: ScipyLBFGSB.__init__

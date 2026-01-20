@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.observe
+=======================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: TimeDependentLinearPDE.observe

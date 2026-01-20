@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.set\_state
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Conjugate.set_state

@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion\_Full.\_\_init\_\_
+============================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: KLExpansion_Full.__init__

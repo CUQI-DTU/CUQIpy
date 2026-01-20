@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.target
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Direct.target

@@ -1,0 +1,49 @@
+PCN
+===
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: PCN
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PCN.__init__
+      ~PCN.get_history
+      ~PCN.get_samples
+      ~PCN.get_state
+      ~PCN.initialize
+      ~PCN.load_checkpoint
+      ~PCN.reinitialize
+      ~PCN.sample
+      ~PCN.save_checkpoint
+      ~PCN.set_history
+      ~PCN.set_state
+      ~PCN.step
+      ~PCN.tune
+      ~PCN.validate_target
+      ~PCN.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PCN.current_point
+      ~PCN.dim
+      ~PCN.geometry
+      ~PCN.likelihood
+      ~PCN.prior
+      ~PCN.target
+   
+   

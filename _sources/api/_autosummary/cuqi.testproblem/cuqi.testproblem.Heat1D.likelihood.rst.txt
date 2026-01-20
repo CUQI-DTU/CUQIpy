@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat1D.likelihood
+==================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Heat1D.likelihood

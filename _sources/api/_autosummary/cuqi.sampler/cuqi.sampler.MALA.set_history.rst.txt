@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.set\_history
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.set_history

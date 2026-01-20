@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution1D.\_\_init\_\_
+=============================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconvolution1D.__init__

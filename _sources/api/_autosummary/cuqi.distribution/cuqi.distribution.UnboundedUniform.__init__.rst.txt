@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.\_\_init\_\_
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.__init__

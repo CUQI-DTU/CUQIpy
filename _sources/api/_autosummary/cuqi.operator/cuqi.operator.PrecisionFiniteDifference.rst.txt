@@ -1,0 +1,36 @@
+PrecisionFiniteDifference
+=========================
+
+.. currentmodule:: cuqi.operator
+
+.. autoclass:: PrecisionFiniteDifference
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PrecisionFiniteDifference.__init__
+      ~PrecisionFiniteDifference.get_matrix
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PrecisionFiniteDifference.T
+      ~PrecisionFiniteDifference.bc_type
+      ~PrecisionFiniteDifference.dim
+      ~PrecisionFiniteDifference.num_nodes
+      ~PrecisionFiniteDifference.physical_dim
+      ~PrecisionFiniteDifference.shape
+   
+   

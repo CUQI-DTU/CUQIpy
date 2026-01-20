@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.get\_conditioning\_variables
+=====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.get_conditioning_variables

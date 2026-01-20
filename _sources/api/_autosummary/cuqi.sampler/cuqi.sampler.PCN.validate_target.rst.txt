@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.validate\_target
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.validate_target

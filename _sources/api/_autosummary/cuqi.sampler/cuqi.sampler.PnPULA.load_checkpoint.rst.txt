@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.load\_checkpoint
+====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.load_checkpoint

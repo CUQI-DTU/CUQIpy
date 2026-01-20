@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat1D.posterior
+=================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Heat1D.posterior

@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.cdf
+==========================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.cdf

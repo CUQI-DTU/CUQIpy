@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.searchsorted
+=================================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.searchsorted

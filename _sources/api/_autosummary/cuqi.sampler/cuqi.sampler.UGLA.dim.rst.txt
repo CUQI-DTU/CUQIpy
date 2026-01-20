@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.dim
+=====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: UGLA.dim

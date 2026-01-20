@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.disable\_FD
+======================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. automethod:: Likelihood.disable_FD

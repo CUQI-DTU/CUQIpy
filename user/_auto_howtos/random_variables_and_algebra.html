@@ -1,0 +1,961 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Random Variables and Algebra in CUQIpy &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/random_variables_and_algebra';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Time Dependent Linear PDE" href="time_dependent_linear_pde.html" />
+    <link rel="prev" title="How to sample with MYULA" href="myula.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="deconvolution_2d.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defining_posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_2d.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joint_distribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_input.html">Multiple input model: bathtub demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_dependent_linear_pde.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uq_in_deconvolution_1d.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Random Variables and Algebra in CUQIpy</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-random-variables-and-algebra-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="random-variables-and-algebra-in-cuqipy">
+<span id="sphx-glr-user-auto-howtos-random-variables-and-algebra-py"></span><h1>Random Variables and Algebra in CUQIpy<a class="headerlink" href="#random-variables-and-algebra-in-cuqipy" title="Link to this heading">#</a></h1>
+<p>CUQIpy provides a simple algebraic framework for defining and manipulating
+random variables.</p>
+<p>In this example, we demonstrate how to define random variables, apply algebraic
+operations on them, and finally use them in Bayesian Problems.</p>
+<section id="defining-random-variables">
+<h2>Defining Random Variables<a class="headerlink" href="#defining-random-variables" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Random variables can be defined by either initialising the RandomVariable class</span>
+<span class="c1"># with a distribution object or by retrieving the `rv` attribute of a distribution.</span>
+<span class="c1"># The distribution object can be any distribution from the `cuqi.distribution` module.</span>
+
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Normal</span>
+<span class="kn">from</span> <span class="nn">cuqi.algebra</span> <span class="kn">import</span> <span class="n">RandomVariable</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+</pre></div>
+</div>
+</section>
+<section id="recording-algebraic-operations">
+<h2>Recording Algebraic Operations<a class="headerlink" href="#recording-algebraic-operations" title="Link to this heading">#</a></h2>
+<p>We can now perform some algebraic operations on the random variables. The
+operations are recorded in a computational graph, which can be evaluated
+later.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Basic operations: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x + y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x - y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x * y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x / y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Basic operations:
+
+x + y yields:
+Transformed Random Variable
+Expression: x + y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+x - y yields:
+Transformed Random Variable
+Expression: x - y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+x * y yields:
+Transformed Random Variable
+Expression: x * y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+x / y yields:
+Transformed Random Variable
+Expression: x / y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Complex operations: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x**2 + 2*x*y + y**2 yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(x + y)**2 yields</span><span class="se">\n</span><span class="si">{</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Complex operations:
+
+x**2 + 2*x*y + y**2 yields:
+Transformed Random Variable
+Expression: x^2 + (x * 2) * y + y^2
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+(x + y)**2 yields
+Transformed Random Variable
+Expression: (x + y)^2
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Array operations: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x[0] + y[1] yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Array operations:
+
+x[0] + y[1] yields:
+Transformed Random Variable
+Expression: x[0] + y[1]
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+</pre></div>
+</div>
+</section>
+<section id="utilizing-the-recorded-operations">
+<h2>Utilizing the recorded operations<a class="headerlink" href="#utilizing-the-recorded-operations" title="Link to this heading">#</a></h2>
+<p>We can evaluate the recorded operations by calling the random variable object
+with the desired values for the random variables.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a new random variable &#39;z&#39;</span>
+<span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+<span class="c1"># Evaluate the expression (using the __call__ method)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;z=</span><span class="si">{</span><span class="n">z</span><span class="o">.</span><span class="n">expression</span><span class="si">}</span><span class="s2"> evaluated at x=1, y=2 yields: </span><span class="si">{</span><span class="n">z</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>z=(x + y)^2 evaluated at x=1, y=2 yields: 9
+</pre></div>
+</div>
+</section>
+<section id="building-bayesian-problems">
+<h2>Building Bayesian Problems<a class="headerlink" href="#building-bayesian-problems" title="Link to this heading">#</a></h2>
+<p>Random variables can be used to define Bayesian problems. In this example we build
+an example Bayesian problem using the Deconvolution1D test problem.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution1D</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">GMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.algebra</span> <span class="kn">import</span> <span class="n">RandomVariable</span>
+<span class="kn">from</span> <span class="nn">cuqi.problem</span> <span class="kn">import</span> <span class="n">BayesianProblem</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">JointDistribution</span>
+<span class="kn">from</span> <span class="nn">cuqi.sampler</span> <span class="kn">import</span> <span class="n">HybridGibbs</span><span class="p">,</span> <span class="n">LinearRTO</span><span class="p">,</span> <span class="n">Conjugate</span><span class="p">,</span> <span class="n">ConjugateApprox</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># Forward model</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">Deconvolution1D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+
+<span class="c1"># Bayesian Problem (defined using Random Variables)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">GMRF</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">),</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+
+<span class="c1"># Combine into a Bayesian Problem and perform UQ</span>
+<span class="n">BP</span> <span class="o">=</span> <span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="n">BP</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+<span class="n">BP</span><span class="o">.</span><span class="n">UQ</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">})</span>
+
+<span class="c1"># Random variables can also be used to define JointDistribution. Here we solve the same</span>
+<span class="c1"># problem above by explictly forming a target distribution and then drawing samples with</span>
+<span class="c1"># the HybridGibbs sampler.</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">JointDistribution</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">)(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+
+<span class="c1"># Sampling strategy</span>
+<span class="n">sampling_strategy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;x&quot;</span> <span class="p">:</span> <span class="n">LinearRTO</span><span class="p">(),</span>
+    <span class="s2">&quot;s&quot;</span> <span class="p">:</span> <span class="n">Conjugate</span><span class="p">(),</span>
+    <span class="s2">&quot;d&quot;</span> <span class="p">:</span> <span class="n">Conjugate</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1"># Gibbs sampler</span>
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">HybridGibbs</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">sampling_strategy</span><span class="p">)</span>
+
+<span class="c1"># Run sampler</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
+
+<span class="c1"># Plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_random_variables_and_algebra_001.png" srcset="../../_images/sphx_glr_random_variables_and_algebra_001.png" alt="random variables and algebra" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_random_variables_and_algebra_002.png" srcset="../../_images/sphx_glr_random_variables_and_algebra_002.png" alt="s, s" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_random_variables_and_algebra_003.png" srcset="../../_images/sphx_glr_random_variables_and_algebra_003.png" alt="d, d" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_random_variables_and_algebra_004.png" srcset="../../_images/sphx_glr_random_variables_and_algebra_004.png" alt="random variables and algebra" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Computing 1000 samples
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using cuqi.sampler HybridGibbs sampler
+burn-in: 20%
+
+Automatically determined sampling strategy:
+        x: LinearRTO (mcmc.sampler)
+        s: Conjugate (mcmc.sampler)
+        d: Conjugate (mcmc.sampler)
+
+
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   8%|▊         | 15/200 [00:00&lt;00:01, 147.83it/s]
+Warmup:  15%|█▌        | 30/200 [00:00&lt;00:01, 147.46it/s]
+Warmup:  22%|██▎       | 45/200 [00:00&lt;00:01, 147.46it/s]
+Warmup:  30%|███       | 60/200 [00:00&lt;00:00, 147.34it/s]
+Warmup:  38%|███▊      | 75/200 [00:00&lt;00:00, 147.55it/s]
+Warmup:  45%|████▌     | 90/200 [00:00&lt;00:00, 147.71it/s]
+Warmup:  52%|█████▎    | 105/200 [00:00&lt;00:00, 147.77it/s]
+Warmup:  60%|██████    | 120/200 [00:00&lt;00:00, 147.77it/s]
+Warmup:  68%|██████▊   | 135/200 [00:00&lt;00:00, 147.90it/s]
+Warmup:  75%|███████▌  | 150/200 [00:01&lt;00:00, 147.95it/s]
+Warmup:  82%|████████▎ | 165/200 [00:01&lt;00:00, 148.02it/s]
+Warmup:  90%|█████████ | 180/200 [00:01&lt;00:00, 148.00it/s]
+Warmup:  98%|█████████▊| 195/200 [00:01&lt;00:00, 148.01it/s]
+Warmup: 100%|██████████| 200/200 [00:01&lt;00:00, 147.80it/s]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   2%|▏         | 15/1000 [00:00&lt;00:06, 148.30it/s]
+Sample:   3%|▎         | 30/1000 [00:00&lt;00:06, 148.21it/s]
+Sample:   4%|▍         | 45/1000 [00:00&lt;00:06, 147.88it/s]
+Sample:   6%|▌         | 60/1000 [00:00&lt;00:06, 148.05it/s]
+Sample:   8%|▊         | 75/1000 [00:00&lt;00:06, 147.95it/s]
+Sample:   9%|▉         | 90/1000 [00:00&lt;00:06, 148.15it/s]
+Sample:  10%|█         | 105/1000 [00:00&lt;00:06, 147.71it/s]
+Sample:  12%|█▏        | 120/1000 [00:00&lt;00:05, 147.76it/s]
+Sample:  14%|█▎        | 135/1000 [00:00&lt;00:05, 147.73it/s]
+Sample:  15%|█▌        | 150/1000 [00:01&lt;00:05, 147.42it/s]
+Sample:  16%|█▋        | 165/1000 [00:01&lt;00:05, 147.57it/s]
+Sample:  18%|█▊        | 180/1000 [00:01&lt;00:05, 147.67it/s]
+Sample:  20%|█▉        | 195/1000 [00:01&lt;00:05, 147.79it/s]
+Sample:  21%|██        | 210/1000 [00:01&lt;00:05, 147.86it/s]
+Sample:  22%|██▎       | 225/1000 [00:01&lt;00:05, 147.96it/s]
+Sample:  24%|██▍       | 240/1000 [00:01&lt;00:05, 148.02it/s]
+Sample:  26%|██▌       | 255/1000 [00:01&lt;00:05, 148.09it/s]
+Sample:  27%|██▋       | 270/1000 [00:01&lt;00:04, 148.00it/s]
+Sample:  28%|██▊       | 285/1000 [00:01&lt;00:04, 148.04it/s]
+Sample:  30%|███       | 300/1000 [00:02&lt;00:04, 148.01it/s]
+Sample:  32%|███▏      | 315/1000 [00:02&lt;00:04, 148.27it/s]
+Sample:  33%|███▎      | 330/1000 [00:02&lt;00:04, 148.25it/s]
+Sample:  34%|███▍      | 345/1000 [00:02&lt;00:04, 148.29it/s]
+Sample:  36%|███▌      | 360/1000 [00:02&lt;00:04, 148.30it/s]
+Sample:  38%|███▊      | 375/1000 [00:02&lt;00:04, 148.25it/s]
+Sample:  39%|███▉      | 390/1000 [00:02&lt;00:04, 148.27it/s]
+Sample:  40%|████      | 405/1000 [00:02&lt;00:04, 148.30it/s]
+Sample:  42%|████▏     | 420/1000 [00:02&lt;00:03, 148.26it/s]
+Sample:  44%|████▎     | 435/1000 [00:02&lt;00:03, 148.33it/s]
+Sample:  45%|████▌     | 450/1000 [00:03&lt;00:03, 148.33it/s]
+Sample:  46%|████▋     | 465/1000 [00:03&lt;00:03, 148.32it/s]
+Sample:  48%|████▊     | 480/1000 [00:03&lt;00:03, 148.21it/s]
+Sample:  50%|████▉     | 495/1000 [00:03&lt;00:03, 148.09it/s]
+Sample:  51%|█████     | 510/1000 [00:03&lt;00:03, 147.99it/s]
+Sample:  52%|█████▎    | 525/1000 [00:03&lt;00:03, 148.01it/s]
+Sample:  54%|█████▍    | 540/1000 [00:03&lt;00:03, 148.17it/s]
+Sample:  56%|█████▌    | 555/1000 [00:03&lt;00:03, 148.28it/s]
+Sample:  57%|█████▋    | 570/1000 [00:03&lt;00:02, 148.20it/s]
+Sample:  58%|█████▊    | 585/1000 [00:03&lt;00:02, 148.10it/s]
+Sample:  60%|██████    | 600/1000 [00:04&lt;00:02, 148.18it/s]
+Sample:  62%|██████▏   | 615/1000 [00:04&lt;00:02, 148.31it/s]
+Sample:  63%|██████▎   | 630/1000 [00:04&lt;00:02, 148.30it/s]
+Sample:  64%|██████▍   | 645/1000 [00:04&lt;00:02, 148.28it/s]
+Sample:  66%|██████▌   | 660/1000 [00:04&lt;00:02, 148.01it/s]
+Sample:  68%|██████▊   | 675/1000 [00:04&lt;00:02, 148.07it/s]
+Sample:  69%|██████▉   | 690/1000 [00:04&lt;00:02, 148.17it/s]
+Sample:  70%|███████   | 705/1000 [00:04&lt;00:01, 148.19it/s]
+Sample:  72%|███████▏  | 720/1000 [00:04&lt;00:01, 148.09it/s]
+Sample:  74%|███████▎  | 735/1000 [00:04&lt;00:01, 148.14it/s]
+Sample:  75%|███████▌  | 750/1000 [00:05&lt;00:01, 148.28it/s]
+Sample:  76%|███████▋  | 765/1000 [00:05&lt;00:01, 148.36it/s]
+Sample:  78%|███████▊  | 780/1000 [00:05&lt;00:01, 148.44it/s]
+Sample:  80%|███████▉  | 795/1000 [00:05&lt;00:01, 148.32it/s]
+Sample:  81%|████████  | 810/1000 [00:05&lt;00:01, 148.24it/s]
+Sample:  82%|████████▎ | 825/1000 [00:05&lt;00:01, 148.20it/s]
+Sample:  84%|████████▍ | 840/1000 [00:05&lt;00:01, 148.23it/s]
+Sample:  86%|████████▌ | 855/1000 [00:05&lt;00:00, 148.15it/s]
+Sample:  87%|████████▋ | 870/1000 [00:05&lt;00:00, 148.24it/s]
+Sample:  88%|████████▊ | 885/1000 [00:05&lt;00:00, 148.14it/s]
+Sample:  90%|█████████ | 900/1000 [00:06&lt;00:00, 147.90it/s]
+Sample:  92%|█████████▏| 915/1000 [00:06&lt;00:00, 148.12it/s]
+Sample:  93%|█████████▎| 930/1000 [00:06&lt;00:00, 148.12it/s]
+Sample:  94%|█████████▍| 945/1000 [00:06&lt;00:00, 148.26it/s]
+Sample:  96%|█████████▌| 960/1000 [00:06&lt;00:00, 148.18it/s]
+Sample:  98%|█████████▊| 975/1000 [00:06&lt;00:00, 148.28it/s]
+Sample:  99%|█████████▉| 990/1000 [00:06&lt;00:00, 148.39it/s]
+Sample: 100%|██████████| 1000/1000 [00:06&lt;00:00, 148.13it/s]
+Elapsed time: 8.1125168800354
+Plotting results
+
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   8%|▊         | 15/200 [00:00&lt;00:01, 147.52it/s]
+Warmup:  15%|█▌        | 30/200 [00:00&lt;00:01, 147.98it/s]
+Warmup:  22%|██▎       | 45/200 [00:00&lt;00:01, 148.21it/s]
+Warmup:  30%|███       | 60/200 [00:00&lt;00:00, 148.18it/s]
+Warmup:  38%|███▊      | 75/200 [00:00&lt;00:00, 148.12it/s]
+Warmup:  45%|████▌     | 90/200 [00:00&lt;00:00, 148.04it/s]
+Warmup:  52%|█████▎    | 105/200 [00:00&lt;00:00, 148.14it/s]
+Warmup:  60%|██████    | 120/200 [00:00&lt;00:00, 148.06it/s]
+Warmup:  68%|██████▊   | 135/200 [00:00&lt;00:00, 148.03it/s]
+Warmup:  75%|███████▌  | 150/200 [00:01&lt;00:00, 147.77it/s]
+Warmup:  82%|████████▎ | 165/200 [00:01&lt;00:00, 146.97it/s]
+Warmup:  90%|█████████ | 180/200 [00:01&lt;00:00, 147.33it/s]
+Warmup:  98%|█████████▊| 195/200 [00:01&lt;00:00, 147.65it/s]
+Warmup: 100%|██████████| 200/200 [00:01&lt;00:00, 147.78it/s]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   2%|▏         | 15/1000 [00:00&lt;00:06, 147.92it/s]
+Sample:   3%|▎         | 30/1000 [00:00&lt;00:06, 147.93it/s]
+Sample:   4%|▍         | 45/1000 [00:00&lt;00:06, 147.86it/s]
+Sample:   6%|▌         | 60/1000 [00:00&lt;00:06, 148.07it/s]
+Sample:   8%|▊         | 75/1000 [00:00&lt;00:06, 148.13it/s]
+Sample:   9%|▉         | 90/1000 [00:00&lt;00:06, 148.19it/s]
+Sample:  10%|█         | 105/1000 [00:00&lt;00:06, 148.23it/s]
+Sample:  12%|█▏        | 120/1000 [00:00&lt;00:05, 148.28it/s]
+Sample:  14%|█▎        | 135/1000 [00:00&lt;00:05, 148.37it/s]
+Sample:  15%|█▌        | 150/1000 [00:01&lt;00:05, 148.18it/s]
+Sample:  16%|█▋        | 165/1000 [00:01&lt;00:05, 148.17it/s]
+Sample:  18%|█▊        | 180/1000 [00:01&lt;00:05, 147.97it/s]
+Sample:  20%|█▉        | 195/1000 [00:01&lt;00:05, 148.01it/s]
+Sample:  21%|██        | 210/1000 [00:01&lt;00:05, 148.03it/s]
+Sample:  22%|██▎       | 225/1000 [00:01&lt;00:05, 148.08it/s]
+Sample:  24%|██▍       | 240/1000 [00:01&lt;00:05, 148.13it/s]
+Sample:  26%|██▌       | 255/1000 [00:01&lt;00:05, 148.24it/s]
+Sample:  27%|██▋       | 270/1000 [00:01&lt;00:04, 148.25it/s]
+Sample:  28%|██▊       | 285/1000 [00:01&lt;00:04, 148.28it/s]
+Sample:  30%|███       | 300/1000 [00:02&lt;00:04, 148.33it/s]
+Sample:  32%|███▏      | 315/1000 [00:02&lt;00:04, 148.45it/s]
+Sample:  33%|███▎      | 330/1000 [00:02&lt;00:04, 148.42it/s]
+Sample:  34%|███▍      | 345/1000 [00:02&lt;00:04, 148.43it/s]
+Sample:  36%|███▌      | 360/1000 [00:02&lt;00:04, 148.57it/s]
+Sample:  38%|███▊      | 375/1000 [00:02&lt;00:04, 148.47it/s]
+Sample:  39%|███▉      | 390/1000 [00:02&lt;00:04, 148.39it/s]
+Sample:  40%|████      | 405/1000 [00:02&lt;00:04, 148.09it/s]
+Sample:  42%|████▏     | 420/1000 [00:02&lt;00:03, 148.12it/s]
+Sample:  44%|████▎     | 435/1000 [00:02&lt;00:03, 148.05it/s]
+Sample:  45%|████▌     | 450/1000 [00:03&lt;00:03, 147.88it/s]
+Sample:  46%|████▋     | 465/1000 [00:03&lt;00:03, 147.94it/s]
+Sample:  48%|████▊     | 480/1000 [00:03&lt;00:03, 148.00it/s]
+Sample:  50%|████▉     | 495/1000 [00:03&lt;00:03, 148.23it/s]
+Sample:  51%|█████     | 510/1000 [00:03&lt;00:03, 148.24it/s]
+Sample:  52%|█████▎    | 525/1000 [00:03&lt;00:03, 148.28it/s]
+Sample:  54%|█████▍    | 540/1000 [00:03&lt;00:03, 148.20it/s]
+Sample:  56%|█████▌    | 555/1000 [00:03&lt;00:03, 148.25it/s]
+Sample:  57%|█████▋    | 570/1000 [00:03&lt;00:02, 148.26it/s]
+Sample:  58%|█████▊    | 585/1000 [00:03&lt;00:02, 148.36it/s]
+Sample:  60%|██████    | 600/1000 [00:04&lt;00:02, 148.37it/s]
+Sample:  62%|██████▏   | 615/1000 [00:04&lt;00:02, 148.29it/s]
+Sample:  63%|██████▎   | 630/1000 [00:04&lt;00:02, 148.26it/s]
+Sample:  64%|██████▍   | 645/1000 [00:04&lt;00:02, 148.23it/s]
+Sample:  66%|██████▌   | 660/1000 [00:04&lt;00:02, 148.34it/s]
+Sample:  68%|██████▊   | 675/1000 [00:04&lt;00:02, 148.09it/s]
+Sample:  69%|██████▉   | 690/1000 [00:04&lt;00:02, 148.13it/s]
+Sample:  70%|███████   | 705/1000 [00:04&lt;00:01, 148.15it/s]
+Sample:  72%|███████▏  | 720/1000 [00:04&lt;00:01, 148.17it/s]
+Sample:  74%|███████▎  | 735/1000 [00:04&lt;00:01, 148.23it/s]
+Sample:  75%|███████▌  | 750/1000 [00:05&lt;00:01, 148.32it/s]
+Sample:  76%|███████▋  | 765/1000 [00:05&lt;00:01, 148.29it/s]
+Sample:  78%|███████▊  | 780/1000 [00:05&lt;00:01, 147.87it/s]
+Sample:  80%|███████▉  | 795/1000 [00:05&lt;00:01, 148.07it/s]
+Sample:  81%|████████  | 810/1000 [00:05&lt;00:01, 148.24it/s]
+Sample:  82%|████████▎ | 825/1000 [00:05&lt;00:01, 148.26it/s]
+Sample:  84%|████████▍ | 840/1000 [00:05&lt;00:01, 148.42it/s]
+Sample:  86%|████████▌ | 855/1000 [00:05&lt;00:00, 148.32it/s]
+Sample:  87%|████████▋ | 870/1000 [00:05&lt;00:00, 148.38it/s]
+Sample:  88%|████████▊ | 885/1000 [00:05&lt;00:00, 148.54it/s]
+Sample:  90%|█████████ | 900/1000 [00:06&lt;00:00, 148.49it/s]
+Sample:  92%|█████████▏| 915/1000 [00:06&lt;00:00, 148.48it/s]
+Sample:  93%|█████████▎| 930/1000 [00:06&lt;00:00, 148.37it/s]
+Sample:  94%|█████████▍| 945/1000 [00:06&lt;00:00, 148.46it/s]
+Sample:  96%|█████████▌| 960/1000 [00:06&lt;00:00, 148.56it/s]
+Sample:  98%|█████████▊| 975/1000 [00:06&lt;00:00, 148.54it/s]
+Sample:  99%|█████████▉| 990/1000 [00:06&lt;00:00, 148.43it/s]
+Sample: 100%|██████████| 1000/1000 [00:06&lt;00:00, 148.25it/s]
+
+[&lt;matplotlib.lines.Line2D object at 0x7fa8afdbaa20&gt;, &lt;matplotlib.lines.Line2D object at 0x7fa8afdb9010&gt;, &lt;matplotlib.collections.FillBetweenPolyCollection object at 0x7fa8aff06e70&gt;]
+</pre></div>
+</div>
+<p>Conditioning on random variables (example 1)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+
+<span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span>
+
+<span class="n">z</span><span class="o">.</span><span class="n">condition</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">z</span><span class="o">.</span><span class="n">condition</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Transformed Random Variable
+Expression: x + y
+Components:
+    x ~ CUQI Gaussian. Conditioning variables [&#39;s&#39;].
+    y ~ CUQI Gaussian.
+</pre></div>
+</div>
+<p>Or conditioning on the variables s, or d</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">z</span><span class="o">.</span><span class="n">condition</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Transformed Random Variable
+Expression: x + y
+Components:
+    x ~ CUQI Gaussian.
+    y ~ CUQI Gaussian. Conditioning variables [&#39;d&#39;].
+</pre></div>
+</div>
+<p>Conditioning on random variables (example 2)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution1D</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">GMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.algebra</span> <span class="kn">import</span> <span class="n">RandomVariable</span>
+<span class="kn">from</span> <span class="nn">cuqi.problem</span> <span class="kn">import</span> <span class="n">BayesianProblem</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Forward model</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">Deconvolution1D</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+
+<span class="c1"># Bayesian Problem (defined using Random Variables)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">GMRF</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">),</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">rv</span>
+
+
+<span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span>
+
+<span class="n">z</span><span class="o">.</span><span class="n">condition</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Transformed Random Variable
+Expression: [0. 0. 0. 0.] + y
+Components:
+    y ~ CUQI Gaussian. Conditioning variables [&#39;s&#39;].
+</pre></div>
+</div>
+</section>
+<section id="sampling-from-random-variables">
+<h2>Sampling from random variables<a class="headerlink" href="#sampling-from-random-variables" title="Link to this heading">#</a></h2>
+<p>Random variables can be sampled using the <cite>sample</cite> method. The method returns a
+sample from the distribution of the random variable.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample from x: </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Sample from x: 1.5313150719729232
+</pre></div>
+</div>
+<p>This can be combined with algebraic operations to sample from more complex
+random variables.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">25</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample from z: </span><span class="si">{</span><span class="n">z</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Sample from z: 25.609017298194665
+</pre></div>
+</div>
+</section>
+<section id="constructing-a-beta-distribution-using-gamma-random-variables">
+<h2>Constructing a Beta distribution using Gamma random variables<a class="headerlink" href="#constructing-a-beta-distribution-using-gamma-random-variables" title="Link to this heading">#</a></h2>
+<p>Random variables can also be combined to create new distributions.
+This is primarily useful for sampling at this stage.
+For example, a Beta distribution can be constructed from two Gamma distributions:
+If X ~ Gamma(a1, 1) and Y ~ Gamma(a2, 1), then Z = X / (X + Y) ~ Beta(a1, a2).
+We illustrate this by comparing samples from a Beta distribution to samples
+constructed using two Gamma distributions.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Beta</span><span class="p">,</span> <span class="n">Gamma</span>
+
+<span class="c1"># Define the shape parameters of the Beta distribution</span>
+<span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span>
+
+<span class="c1"># Step 1: Directly define a Beta distribution</span>
+<span class="n">z_ref</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Beta</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">))</span>
+
+<span class="c1"># Step 2: Construct the Beta distribution using Gamma random variables</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Gamma</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># X ~ Gamma(a1, 1)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Gamma</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># Y ~ Gamma(a2, 1)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span>                   <span class="c1"># Z ~ Beta(a1, a2)</span>
+
+<span class="c1"># Step 3: Sample from both distributions</span>
+<span class="n">z_samples</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>       <span class="c1"># Samples from constructed Beta distribution</span>
+<span class="n">z_ref_samples</span> <span class="o">=</span> <span class="n">z_ref</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>  <span class="c1"># Samples from direct Beta distribution</span>
+
+<span class="c1"># Step 4: Plot histograms of the samples for comparison</span>
+<span class="n">z_samples</span><span class="o">.</span><span class="n">hist_chain</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">z_ref_samples</span><span class="o">.</span><span class="n">hist_chain</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_random_variables_and_algebra_005.png" srcset="../../_images/sphx_glr_random_variables_and_algebra_005.png" alt="random variables and algebra" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;BarContainer object of 100 artists&gt;
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 17.916 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-random-variables-and-algebra-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e59f31edae604d6d70272bf0506a89f7/random_variables_and_algebra.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">random_variables_and_algebra.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/55ba9497ce51acaa3cf019bb82ae9b33/random_variables_and_algebra.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">random_variables_and_algebra.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ac3320485b6246c0e1a8866dfccc4829/random_variables_and_algebra.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">random_variables_and_algebra.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-random-variables">Defining Random Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recording-algebraic-operations">Recording Algebraic Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utilizing-the-recorded-operations">Utilizing the recorded operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-bayesian-problems">Building Bayesian Problems</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-from-random-variables">Sampling from random variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constructing-a-beta-distribution-using-gamma-random-variables">Constructing a Beta distribution using Gamma random variables</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/random_variables_and_algebra.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

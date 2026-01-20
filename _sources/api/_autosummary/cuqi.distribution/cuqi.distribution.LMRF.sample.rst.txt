@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.sample
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: LMRF.sample

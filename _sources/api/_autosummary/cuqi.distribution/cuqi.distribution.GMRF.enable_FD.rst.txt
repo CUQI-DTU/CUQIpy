@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.enable\_FD
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.enable_FD

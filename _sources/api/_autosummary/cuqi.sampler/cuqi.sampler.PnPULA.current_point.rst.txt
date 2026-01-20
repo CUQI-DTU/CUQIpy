@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.current\_point
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PnPULA.current_point

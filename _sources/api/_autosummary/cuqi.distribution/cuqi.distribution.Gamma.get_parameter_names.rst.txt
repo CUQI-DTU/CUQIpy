@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.get\_parameter\_names
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.get_parameter_names

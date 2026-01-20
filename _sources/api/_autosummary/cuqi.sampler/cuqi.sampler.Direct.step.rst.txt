@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.step
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.step

@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.logpdf
+============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.logpdf

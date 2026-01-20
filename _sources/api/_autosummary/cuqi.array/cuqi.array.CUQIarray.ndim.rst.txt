@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.ndim
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.ndim

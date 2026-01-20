@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.get\_matrix
+==================================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: LinearModel.get_matrix

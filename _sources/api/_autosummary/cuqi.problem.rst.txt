@@ -1,0 +1,37 @@
+problem
+=======
+
+Module path: cuqi.problem
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.problem
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.problem
+    :nosignatures:
+    :recursive:
+
+   
+      BayesianProblem
+   
+   
+
+   
+   
+   
+
+
+

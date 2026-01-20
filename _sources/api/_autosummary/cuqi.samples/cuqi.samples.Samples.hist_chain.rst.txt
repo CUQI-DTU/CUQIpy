@@ -1,0 +1,6 @@
+cuqi.samples.Samples.hist\_chain
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.hist_chain

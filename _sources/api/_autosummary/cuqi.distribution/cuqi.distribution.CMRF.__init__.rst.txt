@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: CMRF.__init__

@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.FD\_epsilon
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.FD_epsilon

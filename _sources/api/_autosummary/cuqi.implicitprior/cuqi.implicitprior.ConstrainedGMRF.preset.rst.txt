@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.preset
+=========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.preset

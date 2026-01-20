@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.fun2par
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: MappedGeometry.fun2par

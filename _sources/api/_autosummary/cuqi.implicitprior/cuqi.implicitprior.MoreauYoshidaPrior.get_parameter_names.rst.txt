@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.get\_parameter\_names
+===========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.get_parameter_names

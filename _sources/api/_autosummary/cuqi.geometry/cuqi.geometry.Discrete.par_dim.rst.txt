@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.par\_dim
+===============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Discrete.par_dim

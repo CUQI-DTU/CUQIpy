@@ -1,0 +1,1369 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.samples._samples &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/samples/_samples';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.samples._samples</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.samples._samples</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">cuqi.diagnostics</span> <span class="kn">import</span> <span class="n">Geweke</span>
+<span class="kn">from</span> <span class="nn">cuqi.geometry</span> <span class="kn">import</span> <span class="n">_DefaultGeometry1D</span><span class="p">,</span> <span class="n">Continuous2D</span><span class="p">,</span> <span class="n">Image2D</span>
+<span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">from</span> <span class="nn">cuqi.utilities</span> <span class="kn">import</span> <span class="n">force_ndarray</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">arviz</span>  <span class="c1"># Plotting tool</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">arviz</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">arviz_import_error</span> <span class="o">=</span> <span class="n">e</span>
+
+
+<span class="k">def</span> <span class="nf">_check_for_arviz</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">arviz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The arviz package is required for this functionality. &quot;</span>\
+            <span class="o">+</span> <span class="s2">&quot;Please make sure arviz is installed. &quot;</span>\
+            <span class="o">+</span> <span class="s2">&quot;See below for the original error message:</span><span class="se">\n</span><span class="s2">&quot;</span>\
+            <span class="o">+</span> <span class="n">arviz_import_error</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Samples">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.html#cuqi.samples.Samples">[docs]</a>
+<span class="k">class</span> <span class="nc">Samples</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object used to store samples from distributions. </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samples : ndarray</span>
+<span class="sd">        Contains the raw samples as a numpy array indexed by the last axis of the array.</span>
+
+<span class="sd">    geometry : cuqi.geometry.Geometry, default None</span>
+<span class="sd">        Contains the geometry related of the samples</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Samples.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.__init__.html#cuqi.samples.Samples.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_par</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_vec</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span> <span class="o">=</span> <span class="n">is_par</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span> <span class="o">=</span> <span class="n">is_vec</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_sub_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new Samples object with the samples indexed by indices.&quot;&quot;&quot;</span>
+        <span class="n">sub_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">indices</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="n">sub_samples</span> <span class="o">=</span> <span class="n">sub_samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">Samples</span><span class="p">(</span><span class="n">sub_samples</span><span class="p">,</span>
+                       <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+                       <span class="n">is_par</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">,</span>
+                       <span class="n">is_vec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an iterator over the samples&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the shape of samples.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Ns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of samples&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">_DefaultGeometry1D</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_vec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_vec</span>
+    
+    <span class="nd">@is_vec</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">is_vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set is_vec to False when is_par is True&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_vec</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">funvals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new Samples object of sample function values. If samples are already function values, the Samples object itself is returned.&quot;&quot;&quot;</span> 
+
+        <span class="c1"># Return self if the samples are function values</span>
+        <span class="c1"># i.e. not parameters or vector representations</span>
+        <span class="c1"># of function values</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        
+        <span class="c1"># Set conversion method either par2fun or vec2fun</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">:</span>
+            <span class="n">convert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par2fun</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">convert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">vec2fun</span>
+
+        <span class="c1"># Convert the samples to function values</span>
+        
+        <span class="c1"># If the function representation is an array, return funvals samples</span>
+        <span class="c1"># as an array, else, return a list of function values </span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun_is_array</span><span class="p">:</span>
+            <span class="n">funvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun_shape</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">funvals</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">funvals</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+
+        <span class="c1"># Check if the function values are in vector representations after</span>
+        <span class="c1"># conversion</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">funvals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">funvals</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">is_vec</span> <span class="o">=</span> <span class="kc">True</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_vec</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Create and return a new Samples object of function values</span>
+        <span class="k">return</span> <span class="n">Samples</span><span class="p">(</span><span class="n">funvals</span><span class="p">,</span> <span class="n">is_par</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_vec</span><span class="o">=</span><span class="n">is_vec</span><span class="p">,</span>
+                       <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+            
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new Samples object of samples in vector form. If samples are already in vector form (e.g. samples of parameter values, or samples of function values that are already converted to vector format), the Samples object itself is returned.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Return self if the samples are in vector form</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="c1"># In the remaining case, the samples are function values</span>
+        <span class="c1"># Set conversion method to fun2vec </span>
+        <span class="n">convert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun2vec</span>
+
+        <span class="c1"># Convert the samples to vector form</span>
+        <span class="n">vecvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">funvec_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">vecvals</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Create and return a new Samples object of vector samples</span>
+        <span class="k">return</span> <span class="n">Samples</span><span class="p">(</span><span class="n">vecvals</span><span class="p">,</span> <span class="n">is_par</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">,</span> <span class="n">is_vec</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If `self.is_par` is False, returns a new Samples object of sample parameters by converting the function values to parameters. If `self.is_par` is True, returns the Samples object itself.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Return self if the samples are parameters</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        
+        <span class="c1"># Set conversion method fun2par or vec2fun(fun2par(...))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span>
+            <span class="n">convert</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun2par</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">convert</span> <span class="o">=</span> \
+                <span class="k">lambda</span> <span class="n">vec</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">vec2fun</span><span class="p">(</span><span class="n">vec</span><span class="p">))</span>
+            
+        <span class="c1"># Convert the samples to parameter values</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Create and return a new Samples object of parameters</span>
+        <span class="k">return</span> <span class="n">Samples</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">is_par</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_vec</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_geometry_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">:</span> <span class="c1"># if parameters</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par_dim</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span> <span class="c1"># if not parameters but vector representation of function</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">funvec_dim</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># if function values</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun_dim</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_geometry_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">:</span> <span class="c1"># if parameters</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par_shape</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span> <span class="c1"># if not parameters but vector representation of function</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">funvec_shape</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># if function values</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun_shape</span>
+
+    <span class="nd">@geometry</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">inGeometry</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">inGeometry</span>
+
+    <span class="k">def</span> <span class="nf">_process_is_par_kwarg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plotting_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the plotting dictionary by setting the is_par attribute</span>
+<span class="sd">        of plotting_dict to the value of self.is_par&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;is_par&quot;</span> <span class="ow">in</span> <span class="n">plotting_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot pass is_par as a plotting argument. &quot;</span><span class="o">+</span>
+                <span class="s2">&quot;is_par is determined automatically by the samples object.&quot;</span><span class="p">)</span>
+        <span class="n">plotting_dict</span><span class="p">[</span><span class="s2">&quot;is_par&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span>
+
+    <span class="k">def</span> <span class="nf">_convert_to_funvals_if_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts the input value to function values if the value is a vector </span>
+<span class="sd">        representation of function values&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">vec2fun</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        
+    <span class="k">def</span> <span class="nf">_compute_numpy_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the numpy method `method` to `self.samples`. Additional </span>
+<span class="sd">        arguments `args` and keyword arguments `kwargs` are passed to the numpy</span>
+<span class="sd">        method `method`.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Compute the statistics and catch TypeError if the samples does</span>
+        <span class="c1"># not have the correct data type</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2"> added message: Cannot compute statistics for the given samples. Only numpy arrays are supported. Consider using the property vector to convert the samples to vector representation, e.g. my_samples.vector, to be able to compute statistics on the samples. See below for the original error message:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">raise</span> <span class="n">e</span>
+   
+        <span class="k">return</span> <span class="n">stats</span>
+    
+    <span class="k">def</span> <span class="nf">_raise_error_if_not_vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises an error if the samples are not in vector form when calling a</span>
+<span class="sd">        method that requires the samples to be in vector form.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Raise an error if the samples are not in vector form</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot perform &quot;</span><span class="o">+</span><span class="n">method_name</span><span class="o">+</span><span class="s2">&quot; on samples that are not in &quot;</span><span class="o">+</span>
+                <span class="s2">&quot;vector form. Consider using the property vector to convert &quot;</span><span class="o">+</span>
+                <span class="s2">&quot;the samples to vector representation, e.g. my_samples.vector, &quot;</span><span class="o">+</span>
+                <span class="s2">&quot;before calling &quot;</span><span class="o">+</span><span class="n">method_name</span><span class="o">+</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Samples.burnthin">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.burnthin.html#cuqi.samples.Samples.burnthin">[docs]</a>
+    <span class="k">def</span> <span class="nf">burnthin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove burn-in and thin samples. </span>
+<span class="sd">        The burnthinned samples are returned as a new Samples object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Nb : int</span>
+<span class="sd">            Number of samples to remove as burn-in from the start of the chain.</span>
+<span class="sd">        </span>
+<span class="sd">        Nt : int</span>
+<span class="sd">            Thin samples by selecting every Nt sample in the chain (after burn-in)</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        ----------</span>
+<span class="sd">        # Remove 100 samples burn in and select every 2nd sample after burn-in</span>
+<span class="sd">        # Store as new samples object</span>
+<span class="sd">        S_burnthin = S.burnthin(100,2) </span>
+
+<span class="sd">        # Same thing as above, but replace existing samples object</span>
+<span class="sd">        # (the burn-in and thinned samples are lost)</span>
+<span class="sd">        S = S.burnthin(100,2) </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">Nb</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of burn-in </span><span class="si">{</span><span class="n">Nb</span><span class="si">}</span><span class="s2"> is greater than or equal number of samples </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">new_samples</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_samples</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">Nb</span><span class="p">::</span><span class="n">Nt</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">new_samples</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_mean">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_mean.html#cuqi.samples.Samples.plot_mean">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot pointwise mean of the samples</span>
+
+<span class="sd">        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.</span>
+<span class="sd">        See documentation of `self.geometry` for options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        
+        <span class="c1"># If mean is function in vector form, convert to function values</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_funvals_if_needed</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span>
+
+        <span class="c1"># Plot mean according to geometry</span>
+        <span class="n">ax</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sample mean&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_median">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_median.html#cuqi.samples.Samples.plot_median">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot pointwise median of the samples</span>
+
+<span class="sd">        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.</span>
+<span class="sd">        See documentation of `self.geometry` for options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">median</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+
+        <span class="c1"># If median is function in vector form, convert to function values</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_funvals_if_needed</span><span class="p">(</span><span class="n">median</span><span class="p">)</span>
+
+        <span class="c1"># Plot median according to geometry</span>
+        <span class="n">ax</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">median</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Pointwise sample median&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_variance">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_variance.html#cuqi.samples.Samples.plot_variance">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_variance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot pointwise variance of the samples</span>
+
+<span class="sd">        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.</span>
+<span class="sd">        See documentation of `self.geometry` for options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="p">()</span>
+
+        <span class="c1"># If variance is function in vector form, convert to function values</span>
+        <span class="n">variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_funvals_if_needed</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span>
+
+        <span class="c1"># Plot variance according to geometry</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">variance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sample variance&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_ci_width">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_ci_width.html#cuqi.samples.Samples.plot_ci_width">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_ci_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">percent</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot width of the pointwise credibility intervals of the samples</span>
+
+<span class="sd">        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.</span>
+<span class="sd">        See documentation of `self.geometry` for options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">ci_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ci_width</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+
+        <span class="c1"># If ci_width is function in vector form, convert to function values</span>
+        <span class="n">ci_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_funvals_if_needed</span><span class="p">(</span><span class="n">ci_width</span><span class="p">)</span>
+
+        <span class="c1"># Plot width of credibility intervals according to geometry</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ci_width</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Width of sample credibility intervals&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="Samples.mean">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.mean.html#cuqi.samples.Samples.mean">[docs]</a>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute mean of the samples.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_numpy_stats</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Samples.median">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.median.html#cuqi.samples.Samples.median">[docs]</a>
+    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute pointwise median of the samples&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_numpy_stats</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Samples.variance">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.variance.html#cuqi.samples.Samples.variance">[docs]</a>
+    <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute pointwise variance of the samples&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_numpy_stats</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Samples.compute_ci">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.compute_ci.html#cuqi.samples.Samples.compute_ci">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_ci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="mi">95</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute pointwise credibility intervals of the samples.&quot;&quot;&quot;</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="o">-</span><span class="n">percent</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">up</span> <span class="o">=</span> <span class="mi">100</span><span class="o">-</span><span class="n">lb</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_numpy_stats</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">,</span> <span class="p">[</span><span class="n">lb</span><span class="p">,</span> <span class="n">up</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> </div>
+
+
+<div class="viewcode-block" id="Samples.ci_width">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.ci_width.html#cuqi.samples.Samples.ci_width">[docs]</a>
+    <span class="k">def</span> <span class="nf">ci_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span> <span class="o">=</span> <span class="mi">95</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute width of the pointwise credibility intervals of the samples&quot;&quot;&quot;</span>
+        <span class="n">lo_conf</span><span class="p">,</span> <span class="n">up_conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_ci</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">up_conf</span><span class="o">-</span><span class="n">lo_conf</span></div>
+
+    
+<div class="viewcode-block" id="Samples.std">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.std.html#cuqi.samples.Samples.std">[docs]</a>
+    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute pointwise standard deviation of the samples&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_numpy_stats</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_std">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_std.html#cuqi.samples.Samples.plot_std">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot pointwise standard deviation of the samples</span>
+
+<span class="sd">        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.</span>
+<span class="sd">        See documentation of `self.geometry` for options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Compute std assuming samples are index in last dimension of nparray</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        
+        <span class="c1"># If std is function in vector form, convert to function values</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_funvals_if_needed</span><span class="p">(</span><span class="n">std</span><span class="p">)</span>
+
+        <span class="c1"># Plot std according to geometry</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sample standard deviation&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot.html#cuqi.samples.Samples.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sample_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Plots one or more samples. &quot;&quot;&quot;</span>
+        <span class="n">Ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ns</span>
+        <span class="n">Np</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># Number of samples to plot if Ns &gt; 5</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sample_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Ns</span><span class="o">&gt;</span><span class="n">Np</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Plotting </span><span class="si">{}</span><span class="s2"> randomly selected samples&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Np</span><span class="p">))</span>
+            <span class="n">sample_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_random_indices</span><span class="p">(</span><span class="n">Np</span><span class="p">,</span> <span class="n">Ns</span><span class="p">)</span>
+        <span class="n">plot_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_samples</span><span class="p">(</span><span class="n">sample_indices</span><span class="p">)</span>
+
+        <span class="c1"># If samples are function values in vector form, convert to function</span>
+        <span class="c1"># values</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span>
+            <span class="n">plot_samples</span> <span class="o">=</span> <span class="n">plot_samples</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">samples</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot_samples</span> <span class="o">=</span> <span class="n">plot_samples</span><span class="o">.</span><span class="n">samples</span>
+
+        <span class="c1"># Plot samples according to geometry</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">plot_samples</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="Samples.plot_chain">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_chain.html#cuqi.samples.Samples.plot_chain">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raise_error_if_not_vec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_chain</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry_dim</span>
+        <span class="n">Nv</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># Max number of variables to plot if none are chosen</span>
+        <span class="c1"># If no variables are given we randomly select some at random</span>
+        <span class="k">if</span> <span class="n">variable_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Nv</span><span class="o">&lt;</span><span class="n">dim</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selecting </span><span class="si">{</span><span class="n">Nv</span><span class="si">}</span><span class="s2"> randomly chosen variables&quot;</span><span class="p">)</span>
+            <span class="n">variable_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_random_indices</span><span class="p">(</span><span class="n">Nv</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;label&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Argument &#39;label&#39; cannot be passed by the user&quot;</span><span class="p">)</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="c1">#Convert to np array for better slicing</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">,:]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lines</span></div>
+
+    
+<div class="viewcode-block" id="Samples.hist_chain">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.hist_chain.html#cuqi.samples.Samples.hist_chain">[docs]</a>
+    <span class="k">def</span> <span class="nf">hist_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">variable_indices</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Plots samples histogram of variables with indices specified in variable_indices. &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raise_error_if_not_vec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hist_chain</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;label&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Argument &#39;label&#39; cannot be passed by the user&quot;</span><span class="p">)</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="c1">#Convert to np array for better slicing</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">,:]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">patches</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_ci">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_ci.html#cuqi.samples.Samples.plot_ci">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_ci</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">plot_envelope_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the credibility interval for the samples according to the geometry.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        percent : int</span>
+<span class="sd">            The percent credibility to plot (i.e. 95, 99 etc.)</span>
+<span class="sd">        </span>
+<span class="sd">        exact : ndarray, default None</span>
+<span class="sd">            The exact value (for comparison)</span>
+<span class="sd">        plot_envelope_kwargs : dict, default {}</span>
+<span class="sd">            Keyword arguments for the plot_envelope method</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plotting_objects : list</span>
+<span class="sd">            If 1D plots are generated, the list contains </span>
+<span class="sd">            :class:`~matplotlib.lines.Line2D` object of the mean plot, </span>
+<span class="sd">            :class:`~matplotlib.lines.Line2D` object of the exact value plot,</span>
+<span class="sd">            and :class:`~matplotlib.collections.PolyCollection`</span>
+<span class="sd">            or :class:`~matplotlib.container.ErrorbarContainer`</span>
+<span class="sd">            object of the ci envelope plot, respectively.</span>
+
+<span class="sd">            If 2D plots are generated, the list contains</span>
+<span class="sd">            :class:`~matplotlib.collections.PolyCollection` or </span>
+<span class="sd">            :class:`~matplotlib.image.AxesImage` objects</span>
+<span class="sd">            for the mean, exact value, ci lower bound, ci upper</span>
+<span class="sd">            bound, and the ci width, respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Compute statistics</span>
+        <span class="n">lo_conf</span><span class="p">,</span> <span class="n">up_conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_ci</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+
+        <span class="c1">#Extract plotting keywords and put into plot_envelope</span>
+        <span class="k">if</span> <span class="n">plot_envelope_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plot_envelope_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">pe_kwargs</span> <span class="o">=</span> <span class="n">plot_envelope_kwargs</span>
+
+        <span class="c1"># is_par is determined automatically from self.is_par </span>
+        <span class="c1"># Depending on the value of self.is_par, the computed statistics below</span>
+        <span class="c1"># (mean, lo_conf,up_conf) are either parameter values or function values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_is_par_kwarg</span><span class="p">(</span><span class="n">pe_kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Create a copy of kwargs without is_par</span>
+        <span class="n">kwargs_copy</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">kwargs_copy</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;is_par&quot;</span><span class="p">)</span>
+
+        <span class="c1">#User cannot ask for computing statistics on function values then plotting on parameter space</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_par</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;plot_par&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]</span> <span class="ow">or</span>\
+                    <span class="s2">&quot;plot_par&quot;</span> <span class="ow">in</span> <span class="n">pe_kwargs</span> <span class="ow">and</span> <span class="n">pe_kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]:</span>
+                <span class="c1">#TODO: could be allowed if the underlying plotting functions will convert the samples to parameter space</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot plot credible interval on parameter space if the samples are in the function space.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set plot_par value to be passed to Geometry.plot_envelope and Geometry.plot.</span>
+        <span class="k">if</span> <span class="s2">&quot;plot_par&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">pe_kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pe_kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Continuous2D</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Image2D</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;plot_par&quot;</span><span class="p">]:</span>
+
+            <span class="c1"># Create variables for returned values from geometry plotting methods</span>
+            <span class="n">im_mn</span><span class="p">,</span> <span class="n">im_ex</span><span class="p">,</span> <span class="n">im_lo</span><span class="p">,</span> <span class="n">im_up</span><span class="p">,</span> <span class="n">im_wd</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="c1">#fig.add_subplot(2,2,1)</span>
+            <span class="n">im_mn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_copy</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Sample mean&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1">#fig.add_subplot(2,2,3)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+                <span class="n">im_ex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exact</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Exact&quot;</span><span class="p">)</span>
+            <span class="c1">#fig.add_subplot(2,2,2)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">im_wd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">up_conf</span><span class="o">-</span><span class="n">lo_conf</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Width of credibility interval&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">im_up</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">up_conf</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Upper credibility interval limit&quot;</span><span class="p">)</span>
+            <span class="c1">#fig.add_subplot(2,2,4)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">im_lo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lo_conf</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Lower credibility interval limit&quot;</span><span class="p">)</span>
+
+            <span class="n">plotting_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">im_mn</span><span class="p">,</span> <span class="n">im_ex</span><span class="p">,</span> <span class="n">im_lo</span><span class="p">,</span> <span class="n">im_up</span><span class="p">,</span> <span class="n">im_wd</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create variables for returned values from geometry plotting methods</span>
+            <span class="n">lci</span><span class="p">,</span> <span class="n">lmn</span><span class="p">,</span> <span class="n">lex</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="n">lci</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot_envelope</span><span class="p">(</span>
+                <span class="n">lo_conf</span><span class="p">,</span> <span class="n">up_conf</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s1">&#39;dodgerblue&#39;</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">pe_kwargs</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">percent</span><span class="si">}</span><span class="s2">% Credibility Interval&quot;</span><span class="p">)</span>
+
+            <span class="n">lmn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_copy</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1">#TODO: Allow exact to be defined in different space than mean?</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exact</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">):</span>
+                    <span class="n">lex</span> <span class="o">=</span> <span class="n">exact</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exact&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">lex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">exact</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exact&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+            <span class="n">plotting_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">lmn</span><span class="p">,</span> <span class="n">lex</span><span class="p">,</span> <span class="n">lci</span><span class="p">]</span>
+        
+        <span class="c1"># Form a list of the matplotlib objects that were plotted</span>
+        <span class="c1"># Note that in 1D case, `self.geometry.plot` returns a list of</span>
+        <span class="c1"># one object that we need to extract, hence we use indexing: obj[0].</span>
+        <span class="n">plotting_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">and</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+                            <span class="k">else</span> <span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">plotting_objects</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">plotting_objects</span></div>
+
+
+
+<div class="viewcode-block" id="Samples.diagnostics">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.diagnostics.html#cuqi.samples.Samples.diagnostics">[docs]</a>
+    <span class="k">def</span> <span class="nf">diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Conducts diagnostics on the chain (Geweke test). &quot;&quot;&quot;</span>
+        <span class="c1"># Geweke test</span>
+        <span class="n">Geweke</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_autocorrelation">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_autocorrelation.html#cuqi.samples.Samples.plot_autocorrelation">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_autocorrelation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_lag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the autocorrelation function of one or more variables in a single chain.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable_indices : list, optional</span>
+<span class="sd">            List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.</span>
+
+<span class="sd">        max_lag : int, optional</span>
+<span class="sd">            Maximum lag to calculate autocorrelation. Defaults to 100 or number of samples,</span>
+<span class="sd">            whichever is smaller.</span>
+
+<span class="sd">        combined: bool, default=True</span>
+<span class="sd">            Flag for combining multiple chains into a single chain. If False, chains will be</span>
+<span class="sd">            plotted separately. Note multiple chains are not fully supported yet.</span>
+
+<span class="sd">        Any remaining keyword arguments will be passed to the arviz plotting tool.</span>
+<span class="sd">        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_autocorr.html.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: matplotlib axes or bokeh figures</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry_dim</span>
+        <span class="n">Nv</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># Max number of variables to plot if none are chosen</span>
+
+        <span class="c1"># If no variables are given we randomly select some at random</span>
+        <span class="k">if</span> <span class="n">variable_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Nv</span><span class="o">&lt;</span><span class="n">dim</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selecting 5 randomly chosen variables&quot;</span><span class="p">)</span>
+            <span class="n">variable_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_random_indices</span><span class="p">(</span><span class="n">Nv</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># Convert to arviz InferenceData object</span>
+        <span class="n">datadict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_arviz_inferencedata</span><span class="p">(</span><span class="n">variable_indices</span><span class="p">)</span>
+        
+        <span class="c1"># Plot autocorrelation using arviz</span>
+        <span class="n">_check_for_arviz</span><span class="p">()</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">arviz</span><span class="o">.</span><span class="n">plot_autocorr</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="n">max_lag</span><span class="o">=</span><span class="n">max_lag</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="n">combined</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">axis</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_trace">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_trace.html#cuqi.samples.Samples.plot_trace">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a traceplot of the samples consisting of 1) a histogram/density plot of the samples and 2) an MCMC chain plot.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable_indices : list, optional</span>
+<span class="sd">            List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.</span>
+
+<span class="sd">        exact : array-like, optional</span>
+<span class="sd">            Exact solution to compare with the samples.</span>
+
+<span class="sd">        combined : bool, default=True</span>
+<span class="sd">            Flag for combining multiple chains into a single chain. If False, chains will be</span>
+<span class="sd">            plotted separately. Note multiple chains are not fully supported yet.        </span>
+
+<span class="sd">        tight_layout: bool, default=True</span>
+<span class="sd">            Improves the layout of the traceplot for multiple variables by calling `plt.tight_layout()`.</span>
+<span class="sd">            Set to False if this causes issues.</span>
+
+<span class="sd">        Any remaining keyword arguments will be passed to the arviz plotting tool.</span>
+<span class="sd">        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_trace.html.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: matplotlib axes or bokeh figures  </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry_dim</span>
+        <span class="n">Nv</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># Max number of variables to plot if none are chosen</span>
+
+        <span class="c1"># If no variables are given we randomly select some at random</span>
+        <span class="k">if</span> <span class="n">variable_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Nv</span><span class="o">&lt;</span><span class="n">dim</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selecting 5 randomly chosen variables&quot;</span><span class="p">)</span>
+            <span class="n">variable_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_random_indices</span><span class="p">(</span><span class="n">Nv</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># Convert to arviz InferenceData object</span>
+        <span class="n">datadict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_arviz_inferencedata</span><span class="p">(</span><span class="n">variable_indices</span><span class="p">)</span>
+
+        <span class="c1"># If exact solution is given, add it via lines argument to arviz using the variable names</span>
+        <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># Convert exact to ndarray (in case single parameter etc.)</span>
+            <span class="n">exact</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">exact</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Attempt to extract variables of the exact solution if given in full dimension</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exact</span><span class="p">)</span> <span class="o">==</span> <span class="n">dim</span><span class="p">:</span>
+                <span class="n">exact</span> <span class="o">=</span> <span class="n">exact</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">]</span>
+
+            <span class="c1"># If exact is given in reduced dimension, check that the number of variables match</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable_indices</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exact</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The shape of the exact argument </span><span class="si">{</span><span class="n">exact</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> must match the number of variables to be plotted by variable indices </span><span class="si">{</span><span class="n">variable_indices</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Extract variable names</span>
+            <span class="n">par_names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">variable_indices</span><span class="p">]</span>
+
+            <span class="c1"># Arviz style adding lines to traceplot</span>
+            <span class="k">if</span> <span class="s2">&quot;lines&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The lines argument is already defined in kwargs. Please remove it to use the exact keyword argument.&quot;</span><span class="p">)</span>
+            
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="n">par_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">{},</span> <span class="n">exact</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">))])</span>
+
+        <span class="c1"># Plot using arviz</span>
+        <span class="n">_check_for_arviz</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span>  <span class="n">arviz</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="n">combined</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Improves subplot spacing</span>
+        <span class="k">if</span> <span class="n">tight_layout</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span> 
+
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_pair">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_pair.html#cuqi.samples.Samples.plot_pair">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;scatter&quot;</span><span class="p">,</span> <span class="n">marginals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot marginals using a scatter, kde and/or hexbin matrix.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable_indices : list, optional</span>
+<span class="sd">            List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.</span>
+
+<span class="sd">        kind : str or List[str], default=&quot;scatter&quot;</span>
+<span class="sd">            Type of plot to display (scatter, kde and/or hexbin)</span>
+
+<span class="sd">        marginals: bool, optional, default=False</span>
+<span class="sd">            If True pairplot will include marginal distributions for every variable</span>
+
+<span class="sd">        Any remaining keyword arguments will be passed to the arviz plotting tool.</span>
+<span class="sd">        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_pair.html.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: matplotlib axes or bokeh figures  </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry_dim</span>
+        <span class="n">Nv</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># Max number of variables to plot if none are chosen</span>
+
+        <span class="c1"># If no variables are given we randomly select some at random</span>
+        <span class="k">if</span> <span class="n">variable_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Nv</span><span class="o">&lt;</span><span class="n">dim</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selecting 5 randomly chosen variables&quot;</span><span class="p">)</span>
+            <span class="n">variable_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_random_indices</span><span class="p">(</span><span class="n">Nv</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># Convert to arviz InferenceData object</span>
+        <span class="n">datadict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_arviz_inferencedata</span><span class="p">(</span><span class="n">variable_indices</span><span class="p">)</span>
+
+        <span class="n">_check_for_arviz</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span>  <span class="n">arviz</span><span class="o">.</span><span class="n">plot_pair</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span> <span class="n">marginals</span><span class="o">=</span><span class="n">marginals</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_select_random_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Selects a random number (sorted) of indices defined by input number from a total number. If total&gt;=dim returns all. &quot;&quot;&quot;</span>
+        <span class="n">total</span>
+        <span class="k">if</span> <span class="n">total</span><span class="o">&lt;=</span><span class="n">number</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">indices</span>
+
+<div class="viewcode-block" id="Samples.to_arviz_inferencedata">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.to_arviz_inferencedata.html#cuqi.samples.Samples.to_arviz_inferencedata">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_arviz_inferencedata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return arviz InferenceData object of samples for the given variable indices&quot;&quot;&quot;</span>
+        <span class="c1"># If samples are not in a vector representation, i.e. the samples is</span>
+        <span class="c1"># not a 2D numpy array, we cannot convert to arviz InferenceData object</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_vec</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Samples are not in a vector representation. &quot;</span><span class="o">+</span> 
+                <span class="s2">&quot;Cannot convert to arviz InferenceData object. Consider using &quot;</span><span class="o">+</span>
+                <span class="s2">&quot;the `Samples` property `vector` to convert to vector &quot;</span><span class="o">+</span>
+                <span class="s2">&quot;representation.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If no variable indices given we convert all</span>
+        <span class="k">if</span> <span class="n">variable_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">variable_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_geometry_dim</span><span class="p">)</span>
+
+        <span class="c1"># Get variable names from geometry</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="c1">#Convert to np array for better slicing</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="c1"># Construct inference data structure</span>
+        <span class="n">datadict</span> <span class="o">=</span>  <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="n">variable_indices</span><span class="p">,:]))</span>
+
+        <span class="k">return</span> <span class="n">datadict</span></div>
+
+        
+<div class="viewcode-block" id="Samples.compute_ess">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.compute_ess.html#cuqi.samples.Samples.compute_ess">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_ess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute effective sample size (ESS) of samples.</span>
+<span class="sd">        </span>
+<span class="sd">        Any remaining keyword arguments will be passed to the arviz computing tool.</span>
+<span class="sd">        See https://arviz-devs.github.io/arviz/api/generated/arviz.ess.html.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Numpy array with effective sample size for each variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_check_for_arviz</span><span class="p">()</span>
+        <span class="n">ESS_xarray</span> <span class="o">=</span> <span class="n">arviz</span><span class="o">.</span><span class="n">ess</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_arviz_inferencedata</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ESS_items</span> <span class="o">=</span> <span class="n">ESS_xarray</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="n">ESS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ESS_items</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ESS_items</span><span class="p">):</span>
+            <span class="n">ESS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ESS</span></div>
+
+
+<div class="viewcode-block" id="Samples.compute_rhat">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.compute_rhat.html#cuqi.samples.Samples.compute_rhat">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_rhat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chains</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute rhat value of samples given list of cuqi.samples.Samples objects (chains) to compare with.</span>
+<span class="sd">        </span>
+<span class="sd">        Here rhat values close to 1 indicates the chains have converged to the same distribution.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        chains : list (or a single Samples object)</span>
+<span class="sd">            List of cuqi.samples.Samples objects each representing a single MCMC chain to compare with.</span>
+<span class="sd">            Each Samples object must have the same geometry as the original Samples object.</span>
+
+<span class="sd">        Any remaining keyword arguments will be passed to the arviz computing tool.</span>
+<span class="sd">        See https://arviz-devs.github.io/arviz/api/generated/arviz.rhat.html.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Numpy array with rhat values for each variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If single Samples object put into a list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chains</span><span class="p">,</span> <span class="n">Samples</span><span class="p">):</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="p">[</span><span class="n">chains</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chains</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Chains needs to be a list&quot;</span><span class="p">)</span>
+
+        <span class="n">n_chains</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chains</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_chains</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">!=</span> <span class="n">chains</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Geometry of chain </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> does not match Samples geometry.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Raw samples within each chain must have len(shape)==2, i.e. (variable, draws) structure.&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Get variable names from geometry</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="c1">#Convert to np array for better slicing</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="c1"># Construct full samples for all chains</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_chains</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">samples</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">chain</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chains</span><span class="p">):</span>
+            <span class="n">samples</span><span class="p">[:,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">samples</span>
+
+        <span class="c1"># Construct inference data structure</span>
+        <span class="n">datadict</span> <span class="o">=</span>  <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span><span class="n">samples</span><span class="p">))</span>
+
+        <span class="c1"># Compute rhat</span>
+        <span class="n">_check_for_arviz</span><span class="p">()</span>
+        <span class="n">RHAT_xarray</span> <span class="o">=</span> <span class="n">arviz</span><span class="o">.</span><span class="n">rhat</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Convert to numpy array</span>
+        <span class="n">RHAT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_geometry_shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">RHAT_xarray</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">RHAT</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">RHAT</span></div>
+
+
+<div class="viewcode-block" id="Samples.plot_violin">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.Samples.plot_violin.html#cuqi.samples.Samples.plot_violin">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_violin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a violin plot of the samples. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable_indices : list, optional</span>
+<span class="sd">            List of variable indices to plot.</span>
+<span class="sd">            If no input is given and less than 8 variables exist all</span>
+<span class="sd">            are plotted and with more 8 are randomly chosen.</span>
+
+<span class="sd">        Any remaining keyword arguments will be passed to the arviz plotting tool.</span>
+<span class="sd">        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_violin.html.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: matplotlib axes or bokeh figures</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry_dim</span>
+        <span class="n">Nv</span> <span class="o">=</span> <span class="mi">8</span> <span class="c1"># Max number of variables to plot if none are chosen</span>
+
+        <span class="c1"># If no variables are given we randomly select some at random</span>
+        <span class="k">if</span> <span class="n">variable_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Nv</span><span class="o">&lt;</span><span class="n">dim</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selecting </span><span class="si">{</span><span class="n">Nv</span><span class="si">}</span><span class="s2"> randomly chosen variables&quot;</span><span class="p">)</span>
+            <span class="n">variable_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_random_indices</span><span class="p">(</span><span class="n">Nv</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># Convert to arviz InferenceData object</span>
+        <span class="n">datadict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_arviz_inferencedata</span><span class="p">(</span><span class="n">variable_indices</span><span class="p">)</span>
+
+        <span class="c1"># Plot using arviz</span>
+        <span class="n">_check_for_arviz</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span>  <span class="n">arviz</span><span class="o">.</span><span class="n">plot_violin</span><span class="p">(</span><span class="n">datadict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ax</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="k">return</span> <span class="s2">&quot;CUQIpy Samples:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;---------------</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;Ns (number of samples):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ns</span><span class="p">)</span> <span class="o">+</span> \
+               <span class="s2">&quot;Geometry:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span> <span class="o">+</span> \
+               <span class="s2">&quot;Shape:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> \
+               <span class="s2">&quot;Samples:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="JointSamples">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.JointSamples.html#cuqi.samples.JointSamples">[docs]</a>
+<span class="k">class</span> <span class="nc">JointSamples</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; An object used to store samples from :class:`cuqi.distribution.JointDistribution`. </span>
+
+<span class="sd">    This object is a simple overload of the dictionary class to allow easy access to certain methods </span>
+<span class="sd">    of Samples objects without having to iterate over each key in the dictionary. </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="JointSamples.burnthin">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.samples/cuqi.samples.JointSamples.burnthin.html#cuqi.samples.JointSamples.burnthin">[docs]</a>
+    <span class="k">def</span> <span class="nf">burnthin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove burn-in and thin samples for all samples in the dictionary. Returns a copy of the samples stored in the dictionary. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JointSamples</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">samples</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">,</span> <span class="n">Nt</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="k">return</span> <span class="s2">&quot;CUQIpy JointSamples Dict:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;-------------------------</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> \
+               <span class="s2">&quot;Keys:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">+</span> \
+               <span class="s2">&quot;Ns (number of samples):</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">samples</span><span class="o">.</span><span class="n">Ns</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span> <span class="o">+</span> \
+               <span class="s2">&quot;Geometry:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">samples</span><span class="o">.</span><span class="n">geometry</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span> <span class="o">+</span> \
+               <span class="s2">&quot;Shape:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.sqrtcov
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.sqrtcov

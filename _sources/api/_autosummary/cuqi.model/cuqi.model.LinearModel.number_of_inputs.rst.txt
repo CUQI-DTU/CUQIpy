@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.number\_of\_inputs
+=========================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: LinearModel.number_of_inputs

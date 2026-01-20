@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.dim
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.dim

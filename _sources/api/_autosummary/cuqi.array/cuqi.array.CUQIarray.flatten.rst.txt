@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.flatten
+============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.flatten

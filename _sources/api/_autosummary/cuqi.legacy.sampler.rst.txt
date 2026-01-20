@@ -1,0 +1,50 @@
+sampler
+=======
+
+Module path: cuqi.legacy.sampler
+
+.. currentmodule:: cuqi.legacy
+
+.. automodule:: cuqi.legacy.sampler
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.legacy.sampler
+    :nosignatures:
+    :recursive:
+
+   
+      CWMH
+      Conjugate
+      ConjugateApprox
+      Gibbs
+      LinearRTO
+      MALA
+      MH
+      NUTS
+      ProposalBasedSampler
+      RegularizedLinearRTO
+      Sampler
+      UGLA
+      ULA
+      pCN
+   
+   
+
+   
+   
+   
+
+
+

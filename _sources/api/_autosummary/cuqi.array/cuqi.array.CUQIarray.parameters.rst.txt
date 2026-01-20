@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.parameters
+===============================
+
+.. currentmodule:: cuqi.array
+
+.. autoproperty:: CUQIarray.parameters

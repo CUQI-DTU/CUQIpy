@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.geometry
+==========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: RegularizedLinearRTO.geometry

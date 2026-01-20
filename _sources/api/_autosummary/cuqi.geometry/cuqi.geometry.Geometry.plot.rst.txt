@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.plot
+===========================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Geometry.plot

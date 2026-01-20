@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.copy
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.copy

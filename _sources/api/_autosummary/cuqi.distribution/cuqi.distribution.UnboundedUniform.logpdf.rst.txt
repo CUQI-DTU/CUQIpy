@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.logpdf
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.logpdf

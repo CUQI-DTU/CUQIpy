@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.\_\_init\_\_
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Uniform.__init__

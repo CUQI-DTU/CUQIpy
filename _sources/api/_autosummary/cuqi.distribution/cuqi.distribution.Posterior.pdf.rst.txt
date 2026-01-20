@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.pdf
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.pdf

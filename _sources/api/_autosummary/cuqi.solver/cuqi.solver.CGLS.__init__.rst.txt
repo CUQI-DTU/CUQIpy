@@ -1,0 +1,6 @@
+cuqi.solver.CGLS.\_\_init\_\_
+=============================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: CGLS.__init__

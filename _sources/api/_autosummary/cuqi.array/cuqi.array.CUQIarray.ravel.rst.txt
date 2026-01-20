@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.ravel
+==========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.ravel

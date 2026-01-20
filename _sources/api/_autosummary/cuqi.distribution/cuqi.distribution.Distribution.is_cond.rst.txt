@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.is\_cond
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Distribution.is_cond

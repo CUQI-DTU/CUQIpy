@@ -1,0 +1,875 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Multiple input model: bathtub demo &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/multiple_input';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Setting a Bayesian model with multiple likelihoods" href="multiple_likelihoods.html" />
+    <link rel="prev" title="Joint Distribution tutorial" href="joint_distribution.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="deconvolution_2d.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defining_posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_2d.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joint_distribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Multiple input model: bathtub demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_variables_and_algebra.html">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_dependent_linear_pde.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uq_in_deconvolution_1d.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Multiple input model: bathtub demo</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-multiple-input-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="multiple-input-model-bathtub-demo">
+<span id="sphx-glr-user-auto-howtos-multiple-input-py"></span><h1>Multiple input model: bathtub demo<a class="headerlink" href="#multiple-input-model-bathtub-demo" title="Link to this heading">#</a></h1>
+<p>This is a demo for bathtub water temperature and volume model using CUQIpy.
+We have measurements of the temperature and volume of the water in the bathtub
+and want to infer the temperature and volume of the hot water and the cold water
+that were used to fill in the bathtub</p>
+<section id="import-libraries">
+<h2>Import libraries<a class="headerlink" href="#import-libraries" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</section>
+<section id="define-the-forward-map">
+<h2>Define the forward map<a class="headerlink" href="#define-the-forward-map" title="Link to this heading">#</a></h2>
+<p><cite>h_v</cite> is the volume of hot water, <cite>h_t</cite> is the temperature of hot water,
+<cite>c_v</cite> is the volume of cold water, and <cite>c_t</cite> is the temperature of cold water.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">forward_map</span><span class="p">(</span><span class="n">h_v</span><span class="p">,</span> <span class="n">h_t</span><span class="p">,</span> <span class="n">c_v</span><span class="p">,</span> <span class="n">c_t</span><span class="p">):</span>
+    <span class="c1"># volume</span>
+    <span class="n">volume</span> <span class="o">=</span> <span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span>
+    <span class="c1"># temperature</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">*</span> <span class="n">h_t</span> <span class="o">+</span> <span class="n">c_v</span> <span class="o">*</span> <span class="n">c_t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">volume</span><span class="p">,</span> <span class="n">temp</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,)</span>
+</pre></div>
+</div>
+</section>
+<section id="define-gradient-functions-with-respect-to-the-unknown-parameters">
+<h2>Define gradient functions with respect to the unknown parameters<a class="headerlink" href="#define-gradient-functions-with-respect-to-the-unknown-parameters" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the gradient with respect to h_v</span>
+<span class="k">def</span> <span class="nf">gradient_h_v</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">h_v</span><span class="p">,</span> <span class="n">h_t</span><span class="p">,</span> <span class="n">c_v</span><span class="p">,</span> <span class="n">c_t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">direction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">h_t</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">*</span> <span class="n">h_t</span> <span class="o">+</span> <span class="n">c_v</span> <span class="o">*</span> <span class="n">c_t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># Define the gradient with respect to h_t</span>
+<span class="k">def</span> <span class="nf">gradient_h_t</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">h_v</span><span class="p">,</span> <span class="n">h_t</span><span class="p">,</span> <span class="n">c_v</span><span class="p">,</span> <span class="n">c_t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">))</span> <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Define the gradient with respect to c_v</span>
+<span class="k">def</span> <span class="nf">gradient_c_v</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">h_v</span><span class="p">,</span> <span class="n">h_t</span><span class="p">,</span> <span class="n">c_v</span><span class="p">,</span> <span class="n">c_t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">direction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">c_t</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">*</span> <span class="n">h_t</span> <span class="o">+</span> <span class="n">c_v</span> <span class="o">*</span> <span class="n">c_t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># Define the gradient with respect to c_t</span>
+<span class="k">def</span> <span class="nf">gradient_c_t</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">h_v</span><span class="p">,</span> <span class="n">h_t</span><span class="p">,</span> <span class="n">c_v</span><span class="p">,</span> <span class="n">c_t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">c_v</span> <span class="o">/</span> <span class="p">(</span><span class="n">h_v</span> <span class="o">+</span> <span class="n">c_v</span><span class="p">))</span> <span class="o">*</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="define-domain-geometry-and-range-geometry">
+<h2>Define domain geometry and range geometry<a class="headerlink" href="#define-domain-geometry-and-range-geometry" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">domain_geometry</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Discrete</span><span class="p">([</span><span class="s1">&#39;h_v&#39;</span><span class="p">]),</span>
+    <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Discrete</span><span class="p">([</span><span class="s1">&#39;h_t&#39;</span><span class="p">]),</span>
+    <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Discrete</span><span class="p">([</span><span class="s1">&#39;c_v&#39;</span><span class="p">]),</span>
+    <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Discrete</span><span class="p">([</span><span class="s1">&#39;c_t&#39;</span><span class="p">])</span>
+<span class="p">)</span>
+
+<span class="n">range_geometry</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Discrete</span><span class="p">([</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span><span class="s1">&#39;volume&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="define-the-forward-model-object">
+<h2>Define the forward model object<a class="headerlink" href="#define-the-forward-model-object" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">forward</span><span class="o">=</span><span class="n">forward_map</span><span class="p">,</span>
+    <span class="n">gradient</span><span class="o">=</span><span class="p">(</span><span class="n">gradient_h_v</span><span class="p">,</span> <span class="n">gradient_h_t</span><span class="p">,</span> <span class="n">gradient_c_v</span><span class="p">,</span> <span class="n">gradient_c_t</span><span class="p">),</span>
+    <span class="n">domain_geometry</span><span class="o">=</span><span class="n">domain_geometry</span><span class="p">,</span>
+    <span class="n">range_geometry</span><span class="o">=</span><span class="n">range_geometry</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="experiment-with-partial-evaluation-of-the-model">
+<h2>Experiment with partial evaluation of the model<a class="headerlink" href="#experiment-with-partial-evaluation-of-the-model" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">model()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">model(h_v = 50)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="p">(</span><span class="n">h_v</span><span class="o">=</span><span class="mi">50</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">model(h_v = 50, h_t = 60)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="p">(</span><span class="n">h_v</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">h_t</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">model(h_v = 50, h_t = 60, c_v = 30)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model</span><span class="p">(</span><span class="n">h_v</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">h_t</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">c_v</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">model(h_v = 50, h_t = 60, c_v = 30, c_t = 10)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">(</span><span class="n">h_v</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">h_t</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">c_v</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">c_t</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>model()
+ CUQI Model: _ProductGeometry(
+                Discrete[1]
+                Discrete[1]
+                Discrete[1]
+                Discrete[1]
+            ) -&gt; Discrete[2].
+    Forward parameters: [&#39;h_v&#39;, &#39;h_t&#39;, &#39;c_v&#39;, &#39;c_t&#39;].
+
+model(h_v = 50)
+ CUQI Model: _ProductGeometry(
+                Discrete[1]
+                Discrete[1]
+                Discrete[1]
+            ) -&gt; Discrete[2].
+    Forward parameters: [&#39;h_t&#39;, &#39;c_v&#39;, &#39;c_t&#39;].
+
+model(h_v = 50, h_t = 60)
+ CUQI Model: _ProductGeometry(
+                Discrete[1]
+                Discrete[1]
+            ) -&gt; Discrete[2].
+    Forward parameters: [&#39;c_v&#39;, &#39;c_t&#39;].
+
+model(h_v = 50, h_t = 60, c_v = 30)
+ CUQI Model: Discrete[1] -&gt; Discrete[2].
+    Forward parameters: [&#39;c_t&#39;].
+
+model(h_v = 50, h_t = 60, c_v = 30, c_t = 10)
+ [80.   41.25]
+</pre></div>
+</div>
+</section>
+<section id="define-prior-distributions-for-the-unknown-parameters">
+<h2>Define prior distributions for the unknown parameters<a class="headerlink" href="#define-prior-distributions-for-the-unknown-parameters" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">h_v_dist</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">domain_geometry</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">h_t_dist</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">domain_geometry</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">c_v_dist</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">domain_geometry</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">c_t_dist</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">TruncatedNormal</span><span class="p">(</span>
+    <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">domain_geometry</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="define-a-data-distribution">
+<h2>Define a data distribution<a class="headerlink" href="#define-a-data-distribution" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">data_dist</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span>
+    <span class="n">mean</span><span class="o">=</span><span class="n">model</span><span class="p">(</span><span class="n">h_v_dist</span><span class="p">,</span> <span class="n">h_t_dist</span><span class="p">,</span> <span class="n">c_v_dist</span><span class="p">,</span> <span class="n">c_t_dist</span><span class="p">),</span>
+    <span class="n">cov</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="define-a-joint-distribution-of-prior-and-data-distributions">
+<h2>Define a joint distribution of prior and data distributions<a class="headerlink" href="#define-a-joint-distribution-of-prior-and-data-distributions" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">joint_dist</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">JointDistribution</span><span class="p">(</span>
+    <span class="n">data_dist</span><span class="p">,</span>
+    <span class="n">h_v_dist</span><span class="p">,</span>
+    <span class="n">h_t_dist</span><span class="p">,</span>
+    <span class="n">c_v_dist</span><span class="p">,</span>
+    <span class="n">c_t_dist</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="define-the-posterior-distribution-by-setting-the-observed-data">
+<h2>Define the posterior distribution by setting the observed data<a class="headerlink" href="#define-the-posterior-distribution-by-setting-the-observed-data" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume measured volume is 60 gallons and measured temperature is 38 degrees</span>
+<span class="c1"># celsius</span>
+<span class="n">posterior</span> <span class="o">=</span> <span class="n">joint_dist</span><span class="p">(</span><span class="n">data_dist</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">38</span><span class="p">]))</span>
+</pre></div>
+</div>
+</section>
+<section id="experiment-with-conditioning-the-posterior-distribution">
+<h2>Experiment with conditioning the posterior distribution<a class="headerlink" href="#experiment-with-conditioning-the-posterior-distribution" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">,</span> <span class="n">posterior</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">posterior(h_v_dist = 50)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">posterior</span><span class="p">(</span><span class="n">h_v_dist</span><span class="o">=</span><span class="mi">50</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">posterior(h_v_dist = 50, h_t_dist = 60)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">posterior</span><span class="p">(</span><span class="n">h_v_dist</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">h_t_dist</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">posterior(h_v_dist = 50, h_t_dist = 60, c_v_dist = 30)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">posterior</span><span class="p">(</span><span class="n">h_v_dist</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">h_t_dist</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">c_v_dist</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>posterior JointDistribution(
+    Equation:
+        p(h_v_dist,h_t_dist,c_v_dist,c_t_dist|data_dist) ∝ L(h_t_dist,h_v_dist,c_t_dist,c_v_dist|data_dist)p(h_v_dist)p(h_t_dist)p(c_v_dist)p(c_t_dist)
+    Densities:
+        data_dist ~ CUQI Gaussian Likelihood function. Parameters [&#39;h_v_dist&#39;, &#39;h_t_dist&#39;, &#39;c_v_dist&#39;, &#39;c_t_dist&#39;].
+        h_v_dist ~ CUQI Uniform.
+        h_t_dist ~ CUQI Uniform.
+        c_v_dist ~ CUQI Uniform.
+        c_t_dist ~ CUQI TruncatedNormal.
+ )
+
+posterior(h_v_dist = 50)
+ JointDistribution(
+    Equation:
+        p(h_t_dist,c_v_dist,c_t_dist|data_dist,h_v_dist) ∝ L(h_t_dist,c_t_dist,c_v_dist|data_dist)p(h_t_dist)p(c_v_dist)p(c_t_dist)
+    Densities:
+        data_dist ~ CUQI Gaussian Likelihood function. Parameters [&#39;h_t_dist&#39;, &#39;c_v_dist&#39;, &#39;c_t_dist&#39;].
+        h_v_dist ~ EvaluatedDensity(-4.0943445622221)
+        h_t_dist ~ CUQI Uniform.
+        c_v_dist ~ CUQI Uniform.
+        c_t_dist ~ CUQI TruncatedNormal.
+ )
+
+posterior(h_v_dist = 50, h_t_dist = 60)
+ JointDistribution(
+    Equation:
+        p(c_v_dist,c_t_dist|data_dist,h_v_dist,h_t_dist) ∝ L(c_t_dist,c_v_dist|data_dist)p(c_v_dist)p(c_t_dist)
+    Densities:
+        data_dist ~ CUQI Gaussian Likelihood function. Parameters [&#39;c_v_dist&#39;, &#39;c_t_dist&#39;].
+        h_v_dist ~ EvaluatedDensity(-4.0943445622221)
+        h_t_dist ~ EvaluatedDensity(-3.4011973816621555)
+        c_v_dist ~ CUQI Uniform.
+        c_t_dist ~ CUQI TruncatedNormal.
+ )
+
+posterior(h_v_dist = 50, h_t_dist = 60, c_v_dist = 30)
+ Posterior(
+    Equation:
+         p(c_t_dist|data_dist) ∝ L(c_t_dist|data_dist)p(c_t_dist)
+    Densities:
+        data_dist ~ CUQI Gaussian Likelihood function. Parameters [&#39;c_t_dist&#39;].
+        c_t_dist ~ CUQI TruncatedNormal.
+ )
+</pre></div>
+</div>
+</section>
+<section id="sample-from-the-joint-posterior-distribution">
+<h2>Sample from the joint (posterior) distribution<a class="headerlink" href="#sample-from-the-joint-posterior-distribution" title="Link to this heading">#</a></h2>
+<p>First define sampling strategy for Gibbs sampling</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">sampling_strategy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;h_v_dist&quot;</span><span class="p">:</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">MH</span><span class="p">(</span>
+        <span class="n">scale</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">30</span><span class="p">])),</span>
+    <span class="s2">&quot;h_t_dist&quot;</span><span class="p">:</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">MALA</span><span class="p">(</span>
+        <span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">50</span><span class="p">])),</span>
+    <span class="s2">&quot;c_v_dist&quot;</span><span class="p">:</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">MALA</span><span class="p">(</span>
+        <span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">30</span><span class="p">])),</span>
+    <span class="s2">&quot;c_t_dist&quot;</span><span class="p">:</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">MALA</span><span class="p">(</span>
+        <span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">])),</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Then create the sampler and sample the posterior distribution</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">hybridGibbs</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">HybridGibbs</span><span class="p">(</span>
+    <span class="n">posterior</span><span class="p">,</span>
+    <span class="n">sampling_strategy</span><span class="o">=</span><span class="n">sampling_strategy</span><span class="p">)</span>
+
+<span class="n">hybridGibbs</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">hybridGibbs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">hybridGibbs</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Warmup:   0%|          | 0/100 [00:00&lt;?, ?it/s]
+Warmup:  23%|██▎       | 23/100 [00:00&lt;00:00, 228.53it/s]
+Warmup:  46%|████▌     | 46/100 [00:00&lt;00:00, 225.42it/s]
+Warmup:  69%|██████▉   | 69/100 [00:00&lt;00:00, 224.17it/s]
+Warmup:  92%|█████████▏| 92/100 [00:00&lt;00:00, 223.92it/s]
+Warmup: 100%|██████████| 100/100 [00:00&lt;00:00, 224.23it/s]
+
+Sample:   0%|          | 0/2000 [00:00&lt;?, ?it/s]
+Sample:   1%|          | 23/2000 [00:00&lt;00:08, 223.83it/s]
+Sample:   2%|▏         | 46/2000 [00:00&lt;00:08, 223.83it/s]
+Sample:   3%|▎         | 69/2000 [00:00&lt;00:08, 223.59it/s]
+Sample:   5%|▍         | 92/2000 [00:00&lt;00:08, 222.99it/s]
+Sample:   6%|▌         | 115/2000 [00:00&lt;00:08, 225.24it/s]
+Sample:   7%|▋         | 138/2000 [00:00&lt;00:08, 226.33it/s]
+Sample:   8%|▊         | 161/2000 [00:00&lt;00:08, 226.95it/s]
+Sample:   9%|▉         | 184/2000 [00:00&lt;00:07, 227.77it/s]
+Sample:  10%|█         | 207/2000 [00:00&lt;00:07, 228.23it/s]
+Sample:  12%|█▏        | 230/2000 [00:01&lt;00:07, 228.74it/s]
+Sample:  13%|█▎        | 253/2000 [00:01&lt;00:07, 228.58it/s]
+Sample:  14%|█▍        | 276/2000 [00:01&lt;00:07, 228.77it/s]
+Sample:  15%|█▍        | 299/2000 [00:01&lt;00:07, 228.98it/s]
+Sample:  16%|█▌        | 323/2000 [00:01&lt;00:07, 229.32it/s]
+Sample:  17%|█▋        | 346/2000 [00:01&lt;00:07, 228.89it/s]
+Sample:  18%|█▊        | 369/2000 [00:01&lt;00:07, 229.06it/s]
+Sample:  20%|█▉        | 392/2000 [00:01&lt;00:07, 226.58it/s]
+Sample:  21%|██        | 415/2000 [00:01&lt;00:06, 227.39it/s]
+Sample:  22%|██▏       | 438/2000 [00:01&lt;00:06, 227.93it/s]
+Sample:  23%|██▎       | 461/2000 [00:02&lt;00:06, 228.38it/s]
+Sample:  24%|██▍       | 484/2000 [00:02&lt;00:06, 228.51it/s]
+Sample:  25%|██▌       | 508/2000 [00:02&lt;00:06, 229.01it/s]
+Sample:  27%|██▋       | 532/2000 [00:02&lt;00:06, 229.31it/s]
+Sample:  28%|██▊       | 555/2000 [00:02&lt;00:06, 229.50it/s]
+Sample:  29%|██▉       | 579/2000 [00:02&lt;00:06, 229.90it/s]
+Sample:  30%|███       | 602/2000 [00:02&lt;00:06, 229.86it/s]
+Sample:  31%|███▏      | 625/2000 [00:02&lt;00:05, 229.46it/s]
+Sample:  32%|███▏      | 648/2000 [00:02&lt;00:05, 228.92it/s]
+Sample:  34%|███▎      | 671/2000 [00:02&lt;00:05, 228.65it/s]
+Sample:  35%|███▍      | 694/2000 [00:03&lt;00:05, 228.31it/s]
+Sample:  36%|███▌      | 717/2000 [00:03&lt;00:05, 226.36it/s]
+Sample:  37%|███▋      | 740/2000 [00:03&lt;00:05, 226.46it/s]
+Sample:  38%|███▊      | 763/2000 [00:03&lt;00:05, 226.57it/s]
+Sample:  39%|███▉      | 786/2000 [00:03&lt;00:05, 227.42it/s]
+Sample:  40%|████      | 809/2000 [00:03&lt;00:05, 227.74it/s]
+Sample:  42%|████▏     | 832/2000 [00:03&lt;00:05, 228.08it/s]
+Sample:  43%|████▎     | 855/2000 [00:03&lt;00:05, 227.73it/s]
+Sample:  44%|████▍     | 878/2000 [00:03&lt;00:04, 228.08it/s]
+Sample:  45%|████▌     | 901/2000 [00:03&lt;00:04, 228.24it/s]
+Sample:  46%|████▌     | 924/2000 [00:04&lt;00:04, 228.75it/s]
+Sample:  47%|████▋     | 947/2000 [00:04&lt;00:04, 228.73it/s]
+Sample:  48%|████▊     | 970/2000 [00:04&lt;00:04, 228.84it/s]
+Sample:  50%|████▉     | 993/2000 [00:04&lt;00:04, 228.78it/s]
+Sample:  51%|█████     | 1016/2000 [00:04&lt;00:04, 228.85it/s]
+Sample:  52%|█████▏    | 1039/2000 [00:04&lt;00:04, 229.01it/s]
+Sample:  53%|█████▎    | 1062/2000 [00:04&lt;00:04, 228.96it/s]
+Sample:  54%|█████▍    | 1085/2000 [00:04&lt;00:04, 228.67it/s]
+Sample:  55%|█████▌    | 1108/2000 [00:04&lt;00:03, 228.60it/s]
+Sample:  57%|█████▋    | 1131/2000 [00:04&lt;00:03, 228.69it/s]
+Sample:  58%|█████▊    | 1154/2000 [00:05&lt;00:03, 228.78it/s]
+Sample:  59%|█████▉    | 1177/2000 [00:05&lt;00:03, 228.60it/s]
+Sample:  60%|██████    | 1200/2000 [00:05&lt;00:03, 228.55it/s]
+Sample:  61%|██████    | 1223/2000 [00:05&lt;00:03, 228.78it/s]
+Sample:  62%|██████▏   | 1246/2000 [00:05&lt;00:03, 228.76it/s]
+Sample:  63%|██████▎   | 1269/2000 [00:05&lt;00:03, 228.72it/s]
+Sample:  65%|██████▍   | 1292/2000 [00:05&lt;00:03, 228.63it/s]
+Sample:  66%|██████▌   | 1315/2000 [00:05&lt;00:03, 228.28it/s]
+Sample:  67%|██████▋   | 1338/2000 [00:05&lt;00:02, 227.95it/s]
+Sample:  68%|██████▊   | 1361/2000 [00:05&lt;00:02, 228.21it/s]
+Sample:  69%|██████▉   | 1384/2000 [00:06&lt;00:02, 228.47it/s]
+Sample:  70%|███████   | 1407/2000 [00:06&lt;00:02, 228.29it/s]
+Sample:  72%|███████▏  | 1430/2000 [00:06&lt;00:02, 228.65it/s]
+Sample:  73%|███████▎  | 1453/2000 [00:06&lt;00:02, 228.53it/s]
+Sample:  74%|███████▍  | 1476/2000 [00:06&lt;00:02, 228.55it/s]
+Sample:  75%|███████▍  | 1499/2000 [00:06&lt;00:02, 228.65it/s]
+Sample:  76%|███████▌  | 1522/2000 [00:06&lt;00:02, 228.60it/s]
+Sample:  77%|███████▋  | 1545/2000 [00:06&lt;00:01, 228.66it/s]
+Sample:  78%|███████▊  | 1568/2000 [00:06&lt;00:01, 228.76it/s]
+Sample:  80%|███████▉  | 1591/2000 [00:06&lt;00:01, 228.66it/s]
+Sample:  81%|████████  | 1614/2000 [00:07&lt;00:01, 229.06it/s]
+Sample:  82%|████████▏ | 1637/2000 [00:07&lt;00:01, 228.66it/s]
+Sample:  83%|████████▎ | 1660/2000 [00:07&lt;00:01, 228.82it/s]
+Sample:  84%|████████▍ | 1683/2000 [00:07&lt;00:01, 228.92it/s]
+Sample:  85%|████████▌ | 1706/2000 [00:07&lt;00:01, 228.84it/s]
+Sample:  86%|████████▋ | 1729/2000 [00:07&lt;00:01, 228.08it/s]
+Sample:  88%|████████▊ | 1752/2000 [00:07&lt;00:01, 228.40it/s]
+Sample:  89%|████████▉ | 1775/2000 [00:07&lt;00:00, 228.37it/s]
+Sample:  90%|████████▉ | 1798/2000 [00:07&lt;00:00, 228.52it/s]
+Sample:  91%|█████████ | 1821/2000 [00:07&lt;00:00, 228.82it/s]
+Sample:  92%|█████████▏| 1844/2000 [00:08&lt;00:00, 228.88it/s]
+Sample:  93%|█████████▎| 1867/2000 [00:08&lt;00:00, 228.61it/s]
+Sample:  94%|█████████▍| 1890/2000 [00:08&lt;00:00, 228.67it/s]
+Sample:  96%|█████████▌| 1913/2000 [00:08&lt;00:00, 228.47it/s]
+Sample:  97%|█████████▋| 1936/2000 [00:08&lt;00:00, 228.61it/s]
+Sample:  98%|█████████▊| 1959/2000 [00:08&lt;00:00, 228.18it/s]
+Sample:  99%|█████████▉| 1982/2000 [00:08&lt;00:00, 228.55it/s]
+Sample: 100%|██████████| 2000/2000 [00:08&lt;00:00, 228.31it/s]
+</pre></div>
+</div>
+</section>
+<section id="show-results-mean-and-trace-plots">
+<h2>Show results (mean and trace plots)<a class="headerlink" href="#show-results-mean-and-trace-plots" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute mean values</span>
+<span class="n">mean_h_v</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="s1">&#39;h_v_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">mean_h_t</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="s1">&#39;h_t_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">mean_c_v</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="s1">&#39;c_v_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">mean_c_t</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="s1">&#39;c_t_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># Print mean values</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean h_v: </span><span class="si">{</span><span class="n">mean_h_v</span><span class="si">}</span><span class="s2">, Mean h_t: </span><span class="si">{</span><span class="n">mean_h_t</span><span class="si">}</span><span class="s2">, Mean c_v: </span><span class="si">{</span><span class="n">mean_c_v</span><span class="si">}</span><span class="s2">, Mean c_t: </span><span class="si">{</span><span class="n">mean_c_t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Measured volume:&quot;</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean predicted volume:&quot;</span><span class="p">,</span> <span class="n">mean_h_v</span> <span class="o">+</span> <span class="n">mean_c_v</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Measured temperature:&quot;</span><span class="p">,</span> <span class="mi">38</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean predicted temperature:&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">mean_h_v</span> <span class="o">*</span> <span class="n">mean_h_t</span> <span class="o">+</span> <span class="n">mean_c_v</span> <span class="o">*</span> <span class="n">mean_c_t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mean_h_v</span> <span class="o">+</span> <span class="n">mean_c_v</span><span class="p">))</span>
+
+<span class="c1"># Plot trace of samples</span>
+<span class="n">samples</span><span class="p">[</span><span class="s1">&#39;h_v_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">();</span>
+<span class="n">samples</span><span class="p">[</span><span class="s1">&#39;h_t_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">();</span>
+<span class="n">samples</span><span class="p">[</span><span class="s1">&#39;c_v_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">();</span>
+<span class="n">samples</span><span class="p">[</span><span class="s1">&#39;c_t_dist&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">();</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_multiple_input_001.png" srcset="../../_images/sphx_glr_multiple_input_001.png" alt="h_v, h_v" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_multiple_input_002.png" srcset="../../_images/sphx_glr_multiple_input_002.png" alt="h_t, h_t" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_multiple_input_003.png" srcset="../../_images/sphx_glr_multiple_input_003.png" alt="c_v, c_v" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_multiple_input_004.png" srcset="../../_images/sphx_glr_multiple_input_004.png" alt="c_t, c_t" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean h_v: [41.55520127], Mean h_t: [50.59359085], Mean c_v: [18.43870192], Mean c_t: [10.69268246]
+Measured volume: 60
+Mean predicted volume: [59.99390319]
+
+Measured temperature: 38
+Mean predicted temperature: [38.3303288]
+
+array([[&lt;Axes: title={&#39;center&#39;: &#39;c_t&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;c_t&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.577 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-multiple-input-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/046f8cb9c094807cb77c83084c7780c9/multiple_input.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">multiple_input.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/b93cab75c3f2b8a20c5be4fd104f571e/multiple_input.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">multiple_input.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/bd077e813b768ce5a48dfdae000a4c73/multiple_input.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">multiple_input.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#import-libraries">Import libraries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-forward-map">Define the forward map</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-gradient-functions-with-respect-to-the-unknown-parameters">Define gradient functions with respect to the unknown parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-domain-geometry-and-range-geometry">Define domain geometry and range geometry</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-forward-model-object">Define the forward model object</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experiment-with-partial-evaluation-of-the-model">Experiment with partial evaluation of the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-prior-distributions-for-the-unknown-parameters">Define prior distributions for the unknown parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-a-data-distribution">Define a data distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-a-joint-distribution-of-prior-and-data-distributions">Define a joint distribution of prior and data distributions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-posterior-distribution-by-setting-the-observed-data">Define the posterior distribution by setting the observed data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experiment-with-conditioning-the-posterior-distribution">Experiment with conditioning the posterior distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-from-the-joint-posterior-distribution">Sample from the joint (posterior) distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#show-results-mean-and-trace-plots">Show results (mean and trace plots)</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/multiple_input.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

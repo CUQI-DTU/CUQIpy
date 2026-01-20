@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.is\_cond
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.is_cond

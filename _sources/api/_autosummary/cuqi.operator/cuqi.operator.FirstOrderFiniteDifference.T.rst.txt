@@ -1,0 +1,6 @@
+cuqi.operator.FirstOrderFiniteDifference.T
+==========================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: FirstOrderFiniteDifference.T

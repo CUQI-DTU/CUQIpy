@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.pCN.sample
+==============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: pCN.sample

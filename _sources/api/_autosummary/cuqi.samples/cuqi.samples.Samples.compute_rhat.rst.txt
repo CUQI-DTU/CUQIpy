@@ -1,0 +1,6 @@
+cuqi.samples.Samples.compute\_rhat
+==================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.compute_rhat

@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.dim
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.dim

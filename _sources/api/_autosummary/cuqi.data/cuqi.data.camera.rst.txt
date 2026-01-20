@@ -1,0 +1,6 @@
+camera
+======
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: camera

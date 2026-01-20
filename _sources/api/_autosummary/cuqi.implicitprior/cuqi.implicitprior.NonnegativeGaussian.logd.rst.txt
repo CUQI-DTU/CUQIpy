@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.logd
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.logd

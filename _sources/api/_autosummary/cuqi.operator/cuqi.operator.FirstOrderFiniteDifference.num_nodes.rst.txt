@@ -1,0 +1,6 @@
+cuqi.operator.FirstOrderFiniteDifference.num\_nodes
+===================================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: FirstOrderFiniteDifference.num_nodes

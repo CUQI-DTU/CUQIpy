@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.get\_parameter\_names
+========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.get_parameter_names

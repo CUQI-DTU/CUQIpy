@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.geometry
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Direct.geometry

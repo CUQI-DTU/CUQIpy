@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.\_\_init\_\_
+=========================================
+
+.. currentmodule:: cuqi.problem
+
+.. automethod:: BayesianProblem.__init__

@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.rv
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.rv

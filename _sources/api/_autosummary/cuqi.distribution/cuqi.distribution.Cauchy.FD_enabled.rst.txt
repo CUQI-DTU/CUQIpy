@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.FD\_enabled
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Cauchy.FD_enabled

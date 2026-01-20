@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.get\_history
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.get_history

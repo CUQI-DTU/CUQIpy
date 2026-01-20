@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.ML
+=============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: WangCubic.ML

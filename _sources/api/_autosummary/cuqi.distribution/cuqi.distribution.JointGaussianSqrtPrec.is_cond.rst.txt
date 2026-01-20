@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.is\_cond
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointGaussianSqrtPrec.is_cond

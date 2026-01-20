@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.name
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: CMRF.name

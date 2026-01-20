@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.constraint\_options
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.constraint_options

@@ -1,0 +1,6 @@
+cuqi.model.Model.domain\_dim
+============================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: Model.domain_dim

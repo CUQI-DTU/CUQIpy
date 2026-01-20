@@ -1,0 +1,6 @@
+cuqi.sampler.MH.initialize
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.initialize

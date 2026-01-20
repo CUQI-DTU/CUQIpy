@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.imag
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.imag

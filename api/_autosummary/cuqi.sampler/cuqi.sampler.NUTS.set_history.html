@@ -1,0 +1,659 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>cuqi.sampler.NUTS.set_history &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.set_history';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="cuqi.sampler.NUTS.set_state" href="cuqi.sampler.NUTS.set_state.html" />
+    <link rel="prev" title="cuqi.sampler.NUTS.save_checkpoint" href="cuqi.sampler.NUTS.save_checkpoint.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../cuqi.html">cuqi</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.algebra.html">algebra</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.algebra/cuqi.algebra.Node.html">Node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.algebra/cuqi.algebra.RandomVariable.html">RandomVariable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.algebra/cuqi.algebra.VariableNode.html">VariableNode</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.array.html">array</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.array/cuqi.array.CUQIarray.html">CUQIarray</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../cuqi.config.html">config</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.data.html">data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.astronaut.html">astronaut</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.camera.html">camera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.cat.html">cat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.cookie.html">cookie</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.grains.html">grains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.imresize.html">imresize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.p_power.html">p_power</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.rgb2gray.html">rgb2gray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.satellite.html">satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.shepp_logan.html">shepp_logan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.threephases.html">threephases</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.density.html">density</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.density/cuqi.density.Density.html">Density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.density/cuqi.density.EvaluatedDensity.html">EvaluatedDensity</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.diagnostics.html">diagnostics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.diagnostics/cuqi.diagnostics.Geweke.html">Geweke</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.diagnostics/cuqi.diagnostics.spectrum.html">spectrum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.diagnostics/cuqi.diagnostics.spectrum0.html">spectrum0</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.distribution.html">distribution</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Beta.html">Beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.CMRF.html">CMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Cauchy.html">Cauchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Distribution.html">Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.DistributionGallery.html">DistributionGallery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.GMRF.html">GMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Gamma.html">Gamma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Gaussian.html">Gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.InverseGamma.html">InverseGamma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.JointDistribution.html">JointDistribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.JointGaussianSqrtPrec.html">JointGaussianSqrtPrec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.LMRF.html">LMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Laplace.html">Laplace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Lognormal.html">Lognormal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.ModifiedHalfNormal.html">ModifiedHalfNormal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.MultipleLikelihoodPosterior.html">MultipleLikelihoodPosterior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Normal.html">Normal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Posterior.html">Posterior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.SmoothedLaplace.html">SmoothedLaplace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.TruncatedNormal.html">TruncatedNormal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.UnboundedUniform.html">UnboundedUniform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Uniform.html">Uniform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.UserDefinedDistribution.html">UserDefinedDistribution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.experimental.html">experimental</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.experimental/cuqi.experimental.SamplerRecommender.html">SamplerRecommender</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.geometry.html">geometry</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Continuous.html">Continuous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Continuous1D.html">Continuous1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Continuous2D.html">Continuous2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.CustomKL.html">CustomKL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Discrete.html">Discrete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Geometry.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Image2D.html">Image2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.KLExpansion.html">KLExpansion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.KLExpansion_Full.html">KLExpansion_Full</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.MappedGeometry.html">MappedGeometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.StepExpansion.html">StepExpansion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.implicitprior.html">implicitprior</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.ConstrainedGMRF.html">ConstrainedGMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.ConstrainedGaussian.html">ConstrainedGaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.MoreauYoshidaPrior.html">MoreauYoshidaPrior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.NonnegativeGMRF.html">NonnegativeGMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.NonnegativeGaussian.html">NonnegativeGaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.RegularizedGMRF.html">RegularizedGMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.RegularizedGaussian.html">RegularizedGaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.RegularizedUnboundedUniform.html">RegularizedUnboundedUniform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.RestorationPrior.html">RestorationPrior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.implicitprior/cuqi.implicitprior.TweediePrior.html">TweediePrior</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.legacy.html">legacy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.legacy.sampler.html">sampler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.likelihood.html">likelihood</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.likelihood/cuqi.likelihood.Likelihood.html">Likelihood</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.likelihood/cuqi.likelihood.UserDefinedLikelihood.html">UserDefinedLikelihood</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.model.html">model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.AffineModel.html">AffineModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.LinearModel.html">LinearModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.PDEModel.html">PDEModel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.operator.html">operator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.FirstOrderFiniteDifference.html">FirstOrderFiniteDifference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.Operator.html">Operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.PrecisionFiniteDifference.html">PrecisionFiniteDifference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.SecondOrderFiniteDifference.html">SecondOrderFiniteDifference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.pde.html">pde</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.FD_spatial_gradient.html">FD_spatial_gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.LinearPDE.html">LinearPDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.PDE.html">PDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.SteadyStateLinearPDE.html">SteadyStateLinearPDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.TimeDependentLinearPDE.html">TimeDependentLinearPDE</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.problem.html">problem</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.problem/cuqi.problem.BayesianProblem.html">BayesianProblem</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../cuqi.sampler.html">sampler</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.CWMH.html">CWMH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.Conjugate.html">Conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.ConjugateApprox.html">ConjugateApprox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.Direct.html">Direct</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.HybridGibbs.html">HybridGibbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.LinearRTO.html">LinearRTO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.MALA.html">MALA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.MH.html">MH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.MYULA.html">MYULA</a></li>
+<li class="toctree-l3 current active"><a class="reference internal" href="cuqi.sampler.NUTS.html">NUTS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.PCN.html">PCN</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.PnPULA.html">PnPULA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.ProposalBasedSampler.html">ProposalBasedSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.RegularizedLinearRTO.html">RegularizedLinearRTO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.Sampler.html">Sampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.UGLA.html">UGLA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.sampler.ULA.html">ULA</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.samples.html">samples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.samples/cuqi.samples.JointSamples.html">JointSamples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.samples/cuqi.samples.Samples.html">Samples</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.solver.html">solver</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ProjectBox.html">ProjectBox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ProjectNonnegative.html">ProjectNonnegative</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ProximalL1.html">ProximalL1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ADMM.html">ADMM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.CGLS.html">CGLS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.FISTA.html">FISTA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.LM.html">LM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.PDHG.html">PDHG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ScipyLBFGSB.html">ScipyLBFGSB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ScipyLSQ.html">ScipyLSQ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ScipyLinearLSQ.html">ScipyLinearLSQ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ScipyMaximizer.html">ScipyMaximizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.ScipyMinimizer.html">ScipyMinimizer</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.testproblem.html">testproblem</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Abel1D.html">Abel1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Deconvolution1D.html">Deconvolution1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Deconvolution2D.html">Deconvolution2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Heat1D.html">Heat1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Poisson1D.html">Poisson1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.WangCubic.html">WangCubic</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.utilities.html">utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.approx_derivative.html">approx_derivative</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.approx_gradient.html">approx_gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.check_if_conditional_from_attr.html">check_if_conditional_from_attr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.count_constant_components_1D.html">count_constant_components_1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.count_constant_components_2D.html">count_constant_components_2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.count_nonzero.html">count_nonzero</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.count_within_bounds.html">count_within_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.force_ndarray.html">force_ndarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_direct_attributes.html">get_direct_attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_indirect_variables.html">get_indirect_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_non_default_args.html">get_non_default_args</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_writeable_attributes.html">get_writeable_attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_writeable_properties.html">get_writeable_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.infer_len.html">infer_len</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.piecewise_linear_1D_DoF.html">piecewise_linear_1D_DoF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.plot_1D_density.html">plot_1D_density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.plot_2D_density.html">plot_2D_density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.sparse_cholesky.html">sparse_cholesky</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.ProblemInfo.html">ProblemInfo</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../cuqi.html" class="nav-link">cuqi</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../cuqi.sampler.html" class="nav-link">sampler</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="cuqi.sampler.NUTS.html" class="nav-link">NUTS</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.sampler.NUTS.set_history</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cuqi-sampler-nuts-set-history">
+<h1>cuqi.sampler.NUTS.set_history<a class="headerlink" href="#cuqi-sampler-nuts-set-history" title="Link to this heading">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuqi.sampler.NUTS.set_history">
+<span class="sig-prename descclassname"><span class="pre">NUTS.</span></span><span class="sig-name descname"><span class="pre">set_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">history</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuqi.sampler.NUTS.set_history" title="Link to this definition">#</a></dt>
+<dd><p>Set the history of the sampler.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuqi.sampler.NUTS.set_history"><code class="docutils literal notranslate"><span class="pre">NUTS.set_history()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.set_history.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.cdf
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.cdf

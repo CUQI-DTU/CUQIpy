@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.pdf
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.pdf

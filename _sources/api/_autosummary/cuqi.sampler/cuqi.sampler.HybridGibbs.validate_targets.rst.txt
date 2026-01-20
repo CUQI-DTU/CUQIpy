@@ -1,0 +1,6 @@
+cuqi.sampler.HybridGibbs.validate\_targets
+==========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: HybridGibbs.validate_targets

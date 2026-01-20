@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.model
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Posterior.model

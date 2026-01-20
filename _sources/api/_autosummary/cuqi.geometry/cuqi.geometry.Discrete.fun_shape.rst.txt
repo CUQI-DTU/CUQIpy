@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.fun\_shape
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Discrete.fun_shape

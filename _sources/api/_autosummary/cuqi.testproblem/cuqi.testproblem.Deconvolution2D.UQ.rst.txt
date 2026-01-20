@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution2D.UQ
+===================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconvolution2D.UQ

@@ -1,0 +1,37 @@
+array
+=====
+
+Module path: cuqi.array
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.array
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.array
+    :nosignatures:
+    :recursive:
+
+   
+      CUQIarray
+   
+   
+
+   
+   
+   
+
+
+

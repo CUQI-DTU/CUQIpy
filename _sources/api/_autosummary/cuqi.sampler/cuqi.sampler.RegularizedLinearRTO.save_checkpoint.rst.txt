@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.save\_checkpoint
+==================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: RegularizedLinearRTO.save_checkpoint

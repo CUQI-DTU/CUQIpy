@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.gradient
+========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.gradient

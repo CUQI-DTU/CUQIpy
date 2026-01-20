@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.rv
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RestorationPrior.rv

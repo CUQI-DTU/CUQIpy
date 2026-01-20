@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.enable\_FD
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.enable_FD

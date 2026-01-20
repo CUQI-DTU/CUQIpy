@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.ctypes
+===========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.ctypes

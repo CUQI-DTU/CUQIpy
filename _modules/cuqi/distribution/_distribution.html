@@ -1,0 +1,849 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.distribution._distribution &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/distribution/_distribution';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.distribution._distribution</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.distribution._distribution</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">cuqi.density</span> <span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">EvaluatedDensity</span>
+<span class="kn">from</span> <span class="nn">cuqi.likelihood</span> <span class="kn">import</span> <span class="n">Likelihood</span>
+<span class="kn">from</span> <span class="nn">cuqi.samples</span> <span class="kn">import</span> <span class="n">Samples</span>
+<span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">from</span> <span class="nn">cuqi.geometry</span> <span class="kn">import</span> <span class="n">_DefaultGeometry1D</span><span class="p">,</span> <span class="n">_DefaultGeometry2D</span><span class="p">,</span> <span class="n">Geometry</span>
+<span class="kn">from</span> <span class="nn">cuqi.utilities</span> <span class="kn">import</span> <span class="n">infer_len</span><span class="p">,</span> <span class="n">get_writeable_attributes</span><span class="p">,</span> <span class="n">get_writeable_properties</span><span class="p">,</span> <span class="n">get_non_default_args</span><span class="p">,</span> <span class="n">get_indirect_variables</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> <span class="c1"># To be replaced by cuqi.array_api</span>
+
+<span class="c1"># ========== Abstract distribution class ===========</span>
+<div class="viewcode-block" id="Distribution">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.html#cuqi.distribution.Distribution">[docs]</a>
+<span class="k">class</span> <span class="nc">Distribution</span><span class="p">(</span><span class="n">Density</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Abstract Base Class for Distributions.</span>
+
+<span class="sd">    Handles functionality for pdf evaluation, sampling, geometries and conditioning.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str, default None</span>
+<span class="sd">        Name of distribution.</span>
+<span class="sd">    </span>
+<span class="sd">    geometry : Geometry, default _DefaultGeometry (or None)</span>
+<span class="sd">        Geometry of distribution.</span>
+
+<span class="sd">    is_symmetric : bool, default None</span>
+<span class="sd">        Indicator if distribution is symmetric.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    A distribution can be conditional if one or more mutable variables are unspecified.</span>
+<span class="sd">    A mutable variable can be unspecified in one of two ways:</span>
+
+<span class="sd">    1. The variable is set to None.</span>
+<span class="sd">    2. The variable is set to a callable function with non-default arguments.</span>
+
+<span class="sd">    The conditioning variables of a conditional distribution are then defined to be the</span>
+<span class="sd">    mutable variable itself (in case 1) or the parameters to the callable function (in case 2).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Distribution.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.__init__.html#cuqi.distribution.Distribution.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the core properties of the distribution.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str, default None</span>
+<span class="sd">            Name of distribution.</span>
+
+<span class="sd">        geometry : Geometry, default _DefaultGeometry (or None)</span>
+<span class="sd">            Geometry of distribution.</span>
+
+<span class="sd">        is_symmetric : bool, default None</span>
+<span class="sd">            Indicator if distribution is symmetric.</span>
+<span class="sd">                        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_symmetric</span> <span class="o">=</span> <span class="n">is_symmetric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the dimension of the distribution based on the geometry.</span>
+<span class="sd">    </span>
+<span class="sd">        If the dimension can not be inferred, None is returned.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par_dim</span>
+
+    <span class="k">def</span> <span class="nf">_infer_dim_of_mutable_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Infer the dimension of the mutable variables of the distribution. &quot;&quot;&quot;</span>
+        <span class="c1"># Get all mutable variables</span>
+        <span class="n">mutable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span>
+
+        <span class="c1"># Check if mutable_vars is empty, no dimension can be inferred</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mutable_vars</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Loop over mutable variables and get range dimension of each and get the maximum</span>
+        <span class="n">max_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">infer_len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">))</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">mutable_vars</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">max_len</span> <span class="k">if</span> <span class="n">max_len</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the geometry of the distribution.</span>
+
+<span class="sd">        The geometry can be automatically inferred from the mutable variables of the distribution.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span> 
+
+        <span class="n">inferred_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_dim_of_mutable_variables</span><span class="p">()</span>
+        <span class="n">geometry_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span><span class="o">.</span><span class="n">par_dim</span>
+
+        <span class="n">is_inferred_multivariate</span> <span class="o">=</span> <span class="n">inferred_dim</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">inferred_dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="c1"># Flag indicating whether distribution geometry matches inferred dimension</span>
+        <span class="n">geometry_matches_inferred_dim</span> <span class="o">=</span> <span class="p">(</span><span class="n">geometry_dim</span> <span class="o">==</span> <span class="n">inferred_dim</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">geometry_dim</span> <span class="ow">and</span> <span class="n">inferred_dim</span><span class="p">)</span> <span class="k">else</span> <span class="kc">True</span>
+
+        <span class="c1"># If inconsistent geometry dimensions, raise an exception</span>
+        <span class="c1"># If scalar inferred dimension, we allow geometry to take precedence</span>
+        <span class="k">if</span> <span class="n">is_inferred_multivariate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">geometry_matches_inferred_dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Inconsistent distribution geometry attribute </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span><span class="si">}</span><span class="s2"> and inferred &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;dimension from distribution variables </span><span class="si">{</span><span class="n">inferred_dim</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If Geometry dimension is None, update it with the inferred dimension</span>
+        <span class="k">if</span> <span class="n">inferred_dim</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span><span class="o">.</span><span class="n">par_dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">inferred_dim</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span><span class="o">.</span><span class="n">par_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check if dist has a name, if so we provide it to the geometry</span>
+        <span class="c1"># We do not use self.name to potentially infer it from python stack.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span><span class="o">.</span><span class="n">_variable_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span>
+
+    <span class="nd">@geometry</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">_DefaultGeometry2D</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>           
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">_DefaultGeometry1D</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Geometry</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The attribute &#39;geometry&#39; should be of type &#39;int&#39; or &#39;cuqi.geometry.Geometry&#39;, or None.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Distribution.logd">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.logd.html#cuqi.distribution.Distribution.logd">[docs]</a>
+    <span class="k">def</span> <span class="nf">logd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  Evaluate the un-normalized log density function of the distribution.</span>
+
+<span class="sd">        The log density function is equal to the log probability density function (logpdf) of a distribution</span>
+<span class="sd">        plus an additive constant.</span>
+
+<span class="sd">        It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.</span>
+
+<span class="sd">        All distributions are required to implement an un-normalized log density function, but not required</span>
+<span class="sd">        implement the log probability density function (logpdf). For MCMC sampling, the log density function is</span>
+<span class="sd">        used to sample from the distribution for efficient sampling.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get the (potential) conditioning variables</span>
+        <span class="n">cond_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">()</span>
+
+        <span class="c1"># If distribution is conditional, we first condition before evaluating the log density</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_args_add_to_kwargs</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Check enough arguments are specified</span>
+            <span class="n">not_enough_args</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1"># Conditional variables + main parameter</span>
+            <span class="k">if</span> <span class="n">not_enough_args</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logd</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">: To evaluate the log density all conditioning variables and main&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; parameter must be specified. Conditioning variables are: </span><span class="si">{</span><span class="n">cond_vars</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Check if all conditioning variables are specified</span>
+            <span class="n">all_cond_vars_specified</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cond_vars</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">all_cond_vars_specified</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">logd</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">: To evaluate the log density all conditioning variables must be&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; specified. Conditioning variables are: </span><span class="si">{</span><span class="n">cond_vars</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Extract exactly the conditioning variables from kwargs</span>
+            <span class="n">cond_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cond_vars</span><span class="p">}</span>
+
+            <span class="c1"># Condition the distribution on the conditioning variables</span>
+            <span class="n">new_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="o">**</span><span class="n">cond_kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Evaluate the log density of the conditioned distribution</span>
+            <span class="c1"># We use _main_parameter to avoid extracting the name if not necessary</span>
+            <span class="k">if</span> <span class="s2">&quot;_main_parameter&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">new_dist</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;_main_parameter&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">main_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cond_vars</span><span class="p">}</span>
+                <span class="k">return</span> <span class="n">new_dist</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="o">**</span><span class="n">main_params</span><span class="p">)</span>
+
+        <span class="c1"># Not conditional distribution, simply evaluate log density directly</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_logd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="c1"># Currently all distributions implement logpdf so we simply call this method.</span>
+
+<div class="viewcode-block" id="Distribution.logpdf">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.logpdf.html#cuqi.distribution.Distribution.logpdf">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">logpdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Evaluate the log probability density function of the distribution.</span>
+<span class="sd">        </span>
+<span class="sd">        If the logpdf is only needed for MCMC sampling, consider using the un-normalized</span>
+<span class="sd">        log density function :meth:`logd` instead of the logpdf for efficiency.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;_gradient is not implemented for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. &quot;</span> <span class="o">+</span>
+            <span class="s2">&quot;Consider enabling finite difference approximation of the &quot;</span> <span class="o">+</span>
+            <span class="sa">f</span><span class="s2">&quot;gradient by calling the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> method &quot;</span> <span class="o">+</span>
+            <span class="s2">&quot;enable_FD().&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Distribution.sample">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.sample.html#cuqi.distribution.Distribution.sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sample from the distribution. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cond</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot sample from conditional distribution. Missing conditioning variables: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get samples from the distribution sample method</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Store samples in cuqi samples object if more than 1 sample</span>
+        <span class="k">if</span> <span class="n">N</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span> <span class="c1">#Extract single value from numpy array</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">CUQIarray</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">Samples</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Distribution.pdf">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.pdf.html#cuqi.distribution.Distribution.pdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Evaluate the log probability density function of the distribution. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate new distribution conditioned on the input arguments.</span>
+<span class="sd">        </span>
+<span class="sd">        Positional arguments must follow the order of the parameter names of the distribution.</span>
+<span class="sd">        These can be accessed via the :meth:`get_parameter_names` method.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Store conditioning variables and mutable variables</span>
+        <span class="n">cond_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">()</span>
+        <span class="n">mutable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span>
+
+        <span class="c1"># We allow the use of positional arguments following the order of the parameter names</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_args_add_to_kwargs</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># EVALUATE CONDITIONAL DISTRIBUTION</span>
+        <span class="n">new_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_copy</span><span class="p">()</span> <span class="c1">#New cuqi distribution conditioned on the kwargs</span>
+        <span class="n">processed_kwargs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c1"># Keep track of processed (unique) elements in kwargs</span>
+
+        <span class="c1"># Check if kwargs contain any mutable variables that are not conditioning variables</span>
+        <span class="c1"># If so we raise an error since these are not allowed to be specified.</span>
+        <span class="k">for</span> <span class="n">kw_key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">kw_key</span> <span class="ow">in</span> <span class="n">mutable_vars</span> <span class="ow">and</span> <span class="n">kw_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cond_vars</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The mutable variable </span><span class="se">\&quot;</span><span class="si">{</span><span class="n">kw_key</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2"> is not a conditioning variable of this distribution.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Go through every mutable variable and assign value from kwargs if present</span>
+        <span class="k">for</span> <span class="n">var_key</span> <span class="ow">in</span> <span class="n">mutable_vars</span><span class="p">:</span>
+
+            <span class="c1"># If keyword directly specifies new value of variable we simply reassign</span>
+            <span class="k">if</span> <span class="n">var_key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">new_dist</span><span class="p">,</span> <span class="n">var_key</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_key</span><span class="p">))</span>
+                <span class="n">processed_kwargs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">var_key</span><span class="p">)</span>
+
+            <span class="c1"># If variable is callable we check if any keyword arguments</span>
+            <span class="c1"># can be used as arguments to the callable method.</span>
+            <span class="n">var_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_key</span><span class="p">)</span> <span class="c1"># Get current value of variable</span>
+            <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">var_val</span><span class="p">):</span>
+
+                <span class="n">accepted_keywords</span> <span class="o">=</span> <span class="n">get_non_default_args</span><span class="p">(</span><span class="n">var_val</span><span class="p">)</span>
+                <span class="n">remaining_keywords</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">accepted_keywords</span><span class="p">)</span>
+
+                <span class="c1"># Builds dict with arguments to call variable with</span>
+                <span class="n">var_args</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">kw_key</span><span class="p">,</span> <span class="n">kw_val</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">kw_key</span> <span class="ow">in</span> <span class="n">accepted_keywords</span><span class="p">:</span>
+                        <span class="n">var_args</span><span class="p">[</span><span class="n">kw_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">kw_val</span>
+                        <span class="n">remaining_keywords</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">kw_key</span><span class="p">)</span>
+
+                <span class="c1"># If any keywords matched we evaluate callable variable</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_args</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">accepted_keywords</span><span class="p">):</span>  <span class="c1">#All keywords found</span>
+                    <span class="c1"># Define variable as the output of callable function</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">new_dist</span><span class="p">,</span> <span class="n">var_key</span><span class="p">,</span> <span class="n">var_val</span><span class="p">(</span><span class="o">**</span><span class="n">var_args</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">var_args</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>                      <span class="c1">#Some keywords found</span>
+                    <span class="c1"># Define new partial function with partially defined args</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">hasattr</span><span class="p">(</span><span class="n">var_val</span><span class="p">,</span> <span class="s2">&quot;_supports_partial_eval&quot;</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">var_val</span><span class="o">.</span><span class="n">_supports_partial_eval</span>
+                    <span class="p">):</span>
+                        <span class="n">func</span> <span class="o">=</span> <span class="n">var_val</span><span class="p">(</span><span class="o">**</span><span class="n">var_args</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># If the callable does not support partial evaluation,</span>
+                        <span class="c1"># we use the partial function to set the variable</span>
+                        <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">var_val</span><span class="p">,</span> <span class="o">**</span><span class="n">var_args</span><span class="p">)</span>
+
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">new_dist</span><span class="p">,</span> <span class="n">var_key</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+                <span class="c1"># Store processed keywords</span>
+                <span class="n">processed_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">var_args</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Check if _main_parameter is specified in kwargs</span>
+        <span class="c1"># (This is added by the _parse_args_add_to_kwargs method)</span>
+        <span class="c1"># If so we convert to likelihood with that parameter.</span>
+        <span class="k">if</span> <span class="s2">&quot;_main_parameter&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">new_dist</span><span class="o">.</span><span class="n">to_likelihood</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;_main_parameter&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Check if any keywords were not used</span>
+        <span class="n">unused_kwargs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">processed_kwargs</span>
+
+        <span class="c1"># If any keywords were not used we must check name.</span>
+        <span class="c1"># We defer the checking of name to here since it</span>
+        <span class="c1"># can be slow to automatically determine the name</span>
+        <span class="c1"># of a distribution by walking the python stack.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unused_kwargs</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="c1"># If name matches we convert to likelihood</span>
+                <span class="k">return</span> <span class="n">new_dist</span><span class="o">.</span><span class="n">to_likelihood</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>  
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># KEYWORD ERROR CHECK</span>
+                <span class="k">for</span> <span class="n">kw_key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">kw_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">mutable_vars</span><span class="o">+</span><span class="n">cond_vars</span><span class="o">+</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The keyword </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> is not a mutable, conditioning variable or parameter name of this distribution.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kw_key</span><span class="p">))</span>       
+
+        <span class="k">return</span> <span class="n">new_dist</span>
+
+    <span class="c1"># Overload parent to add type hint.</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Distribution</span><span class="p">,</span> <span class="n">Likelihood</span><span class="p">,</span> <span class="n">EvaluatedDensity</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Distribution.get_conditioning_variables">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.get_conditioning_variables.html#cuqi.distribution.Distribution.get_conditioning_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conditioning_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the conditioning variables of this distribution (if any).&quot;&quot;&quot;</span>
+
+        <span class="c1"># Get all mutable variables</span>
+        <span class="n">mutable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span>
+
+        <span class="c1"># Loop over mutable variables and if None they are conditioning variables</span>
+        <span class="n">cond_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mutable_vars</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="c1"># Add any variables defined through callable functions</span>
+        <span class="n">cond_vars</span> <span class="o">+=</span> <span class="n">get_indirect_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cond_vars</span></div>
+
+
+<div class="viewcode-block" id="Distribution.get_mutable_variables">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.get_mutable_variables.html#cuqi.distribution.Distribution.get_mutable_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mutable_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return any public variable that is mutable (attribute or property) except those in the ignore_vars list&quot;&quot;&quot;</span>
+
+        <span class="c1"># If mutable variables are already cached, return them</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mutable_vars&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span>
+
+        <span class="c1"># Define list of ignored attributes and properties</span>
+        <span class="n">ignore_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;is_symmetric&#39;</span><span class="p">,</span> <span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;dim&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Get public attributes</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_writeable_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Get &quot;public&quot; properties (getter+setter)</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">get_writeable_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Cache the mutable variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">(</span><span class="n">attributes</span><span class="o">+</span><span class="n">properties</span><span class="p">)</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ignore_vars</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span></div>
+
+
+<div class="viewcode-block" id="Distribution.get_parameter_names">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.get_parameter_names.html#cuqi.distribution.Distribution.get_parameter_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_parameter_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_cond</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns True if instance (self) is a conditional distribution. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Distribution.to_likelihood">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.to_likelihood.html#cuqi.distribution.Distribution.to_likelihood">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert conditional distribution to a likelihood function given observed data&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cond</span><span class="p">:</span> <span class="c1"># If not conditional we create a constant density</span>
+            <span class="k">return</span> <span class="n">EvaluatedDensity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_parse_args_add_to_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond_vars</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Parse args and add to kwargs. The args are assumed to follow the order of the parameter names.</span>
+<span class="sd">        </span>
+<span class="sd">        This particular implementation avoids accessing .get_parameter_names() for speed and requires cond_vars to be passed.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_condition</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">: Unable to parse </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="s2"> arguments. Only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> allowed (conditioning variables + main parameter). Use keywords to modify mutable variables.&quot;</span><span class="p">)</span>
+            <span class="n">ordered_keys</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">cond_vars</span><span class="p">)</span> <span class="c1"># Args follow order of cond. vars</span>
+            <span class="n">ordered_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;_main_parameter&quot;</span><span class="p">)</span> <span class="c1"># Last arg is main parameter</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered_keys</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">ordered_keys</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_condition</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ordered_keys</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">}</span><span class="s2"> passed as both argument and keyword argument.</span><span class="se">\n</span><span class="s2">Arguments follow the listed conditioning variable order: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="n">ordered_keys</span><span class="p">[</span><span class="n">index</span><span class="p">]]</span> <span class="o">=</span> <span class="n">arg</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span> <span class="nf">_check_geometry_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Checks that the geometry of the distribution is consistent by calling the geometry property. Should be called at the end of __init__ of subclasses. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cond</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;CUQI </span><span class="si">{}</span><span class="s2">. Conditioning variables </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;CUQI </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return a random variable object representing the distribution. &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">cuqi.algebra</span> <span class="kn">import</span> <span class="n">RandomVariable</span>
+        <span class="k">return</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.name
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: InverseGamma.name

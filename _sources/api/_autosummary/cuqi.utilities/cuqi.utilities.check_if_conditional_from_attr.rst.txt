@@ -1,0 +1,6 @@
+check\_if\_conditional\_from\_attr
+==================================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: check_if_conditional_from_attr

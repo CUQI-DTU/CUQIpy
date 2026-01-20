@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.prec
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.prec

@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.pdf
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.pdf

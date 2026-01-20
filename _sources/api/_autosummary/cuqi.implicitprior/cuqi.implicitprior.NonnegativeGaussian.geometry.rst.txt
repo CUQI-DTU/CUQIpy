@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.geometry
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.geometry

@@ -1,0 +1,2173 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Uncertainty Quantification in one-dimensional deconvolution &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/uq_in_deconvolution_1d';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Background" href="../background/index.html" />
+    <link rel="prev" title="Time Dependent Linear PDE" href="time_dependent_linear_pde.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="deconvolution_2d.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defining_posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_2d.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joint_distribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_input.html">Multiple input model: bathtub demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_variables_and_algebra.html">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_dependent_linear_pde.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Uncertainty Quantification in one-dimensional deconvolution</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-uq-in-deconvolution-1d-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="uncertainty-quantification-in-one-dimensional-deconvolution">
+<span id="sphx-glr-user-auto-howtos-uq-in-deconvolution-1d-py"></span><h1>Uncertainty Quantification in one-dimensional deconvolution<a class="headerlink" href="#uncertainty-quantification-in-one-dimensional-deconvolution" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>This tutorial walks through the process of solving a simple 1D
+deconvolution problem in a Bayesian setting. It also shows how
+to define such a convolution model in CUQIpy.</p>
+</div></blockquote>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<p>We start by importing the necessary modules</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-forward-model">
+<h2>Setting up the forward model<a class="headerlink" href="#setting-up-the-forward-model" title="Link to this heading">#</a></h2>
+<p>We start by defining the forward model. In this case, we will use a simple
+convolution model. The forward model is defined by the following equation:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y} = \mathbf{A} \mathbf{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is the data, <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is the convolution (forward model)
+operator, and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is the solution.</p>
+<p>The easiest way to define the forward model is to use the testproblem module.
+This module contains a number of pre-defined test problems that contain the
+forward model and synthetic data. In this case, we will use the
+<a class="reference internal" href="../../api/_autosummary/cuqi.testproblem/cuqi.testproblem.Deconvolution1D.html#cuqi.testproblem.Deconvolution1D" title="cuqi.testproblem.Deconvolution1D"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.testproblem.Deconvolution1D</span></code></a> test problem. We extract the forward model
+and synthetic data from the test problem by calling the <code class="xref py py-func docutils literal notranslate"><span class="pre">get_components()</span></code>
+method.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Forward model and data</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">testproblem</span><span class="o">.</span><span class="n">Deconvolution1D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>There are many parameters that can be set when creating the test problem. For more details
+see the <a class="reference internal" href="../../api/_autosummary/cuqi.testproblem/cuqi.testproblem.Deconvolution1D.html#cuqi.testproblem.Deconvolution1D" title="cuqi.testproblem.Deconvolution1D"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.testproblem.Deconvolution1D</span></code></a> documentation. In this case, we will use
+the default parameters. The <code class="xref py py-func docutils literal notranslate"><span class="pre">get_components()</span></code> method returns the forward model,
+synthetic data, and a <code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemInfo</span></code> object that contains information about the
+test problem.</p>
+<p>Let’s take a look at the forward model</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>CUQI LinearModel: Continuous1D[128] -&gt; Continuous1D[128].
+    Forward parameters: [&#39;x&#39;].
+</pre></div>
+</div>
+<p>We see that the forward model is a a <a class="reference internal" href="../../api/_autosummary/cuqi.model/cuqi.model.LinearModel.html#cuqi.model.LinearModel" title="cuqi.model.LinearModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearModel</span></code></a> object. This
+object contains the forward model and the adjoint model. We also see that the domain and
+range of the forward model are both continuous 1D spaces. Finally, we see that the default
+forward parameters are set to <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+<p>Let’s take a look at the synthetic data and compare with the exact solution
+that we can find in the <code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemInfo</span></code> object.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Synthetic data&quot;</span><span class="p">)</span>
+<span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exact solution&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Deconvolution 1D problem&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_uq_in_deconvolution_1d_001.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_001.png" alt="Deconvolution 1D problem" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fa8afb79910&gt;
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-prior">
+<h2>Setting up the prior<a class="headerlink" href="#setting-up-the-prior" title="Link to this heading">#</a></h2>
+<p>We now need to define the prior distribution for the solution. In this case, we will use
+a Gaussian Markov Random Field (GMRF) prior. For more details on the GMRF prior, see the
+<a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.GMRF.html#cuqi.distribution.GMRF" title="cuqi.distribution.GMRF"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.distribution.GMRF</span></code></a> documentation.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">GMRF</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">),</span> <span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-likelihood">
+<h2>Setting up the likelihood<a class="headerlink" href="#setting-up-the-likelihood" title="Link to this heading">#</a></h2>
+<p>We now need to define the likelihood. First let us take a look at the information provided
+by the test problem.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">infoString</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Noise type: Additive Gaussian with std: 0.01
+</pre></div>
+</div>
+<p>We see that the noise level is known and that the noise is Gaussian. We can use this
+information to define the likelihood. In this case, we will use a <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.html#cuqi.distribution.Gaussian" title="cuqi.distribution.Gaussian"><code class="xref py py-class docutils literal notranslate"><span class="pre">Gaussian</span></code></a>
+distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="mf">0.01</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="bayesian-problem-joint-distribution">
+<h2>Bayesian problem (Joint distribution)<a class="headerlink" href="#bayesian-problem-joint-distribution" title="Link to this heading">#</a></h2>
+<p>After defining the prior and likelihood, we can now define the Bayesian problem. The
+Bayesian problem is defined by the joint distribution of the solution and the data.
+This can be seen when we print the Bayesian problem.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ JointDistribution(
+    Equation:
+        p(y,x) = p(y|x)p(x)
+    Densities:
+        y ~ CUQI Gaussian. Conditioning variables [&#39;x&#39;].
+        x ~ CUQI GMRF.
+ )
+</pre></div>
+</div>
+</section>
+<section id="setting-the-data-posterior">
+<h2>Setting the data (posterior)<a class="headerlink" href="#setting-the-data-posterior" title="Link to this heading">#</a></h2>
+<p>Now to set the data, we need to call the <a class="reference internal" href="../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.set_data.html#cuqi.problem.BayesianProblem.set_data" title="cuqi.problem.BayesianProblem.set_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_data()</span></code></a></p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ Posterior(
+    Equation:
+         p(x|y) ∝ L(x|y)p(x)
+    Densities:
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;].
+        x ~ CUQI GMRF.
+ )
+</pre></div>
+</div>
+</section>
+<section id="sampling-from-the-posterior">
+<h2>Sampling from the posterior<a class="headerlink" href="#sampling-from-the-posterior" title="Link to this heading">#</a></h2>
+<p>We can then use the automatic sampling method to sample from the posterior distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span> <span class="o">=</span> <span class="n">BP</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using cuqi.sampler LinearRTO sampler.
+burn-in: 20%
+
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  22%|██▏       | 43/200 [00:00&lt;00:00, 425.20it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  43%|████▎     | 86/200 [00:00&lt;00:00, 424.93it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  64%|██████▍   | 129/200 [00:00&lt;00:00, 424.69it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup:  86%|████████▌ | 172/200 [00:00&lt;00:00, 424.89it/s, acc rate: 100.00%]
+Warmup: 100%|██████████| 200/200 [00:00&lt;00:00, 424.92it/s, acc rate: 100.00%]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 43/1000 [00:00&lt;00:02, 429.04it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:   9%|▊         | 86/1000 [00:00&lt;00:02, 426.65it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 129/1000 [00:00&lt;00:02, 425.13it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 172/1000 [00:00&lt;00:01, 425.75it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 215/1000 [00:00&lt;00:01, 424.65it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 258/1000 [00:00&lt;00:01, 425.23it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  30%|███       | 301/1000 [00:00&lt;00:01, 425.11it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 344/1000 [00:00&lt;00:01, 424.37it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:00&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:01&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:01&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:01&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:01&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:01&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  39%|███▊      | 387/1000 [00:01&lt;00:01, 423.91it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 430/1000 [00:01&lt;00:01, 424.03it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 473/1000 [00:01&lt;00:01, 424.26it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 516/1000 [00:01&lt;00:01, 423.95it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 559/1000 [00:01&lt;00:01, 423.48it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 602/1000 [00:01&lt;00:00, 420.56it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 645/1000 [00:01&lt;00:00, 420.81it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 688/1000 [00:01&lt;00:00, 420.89it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 731/1000 [00:01&lt;00:00, 420.92it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 774/1000 [00:01&lt;00:00, 421.19it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:01&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 817/1000 [00:02&lt;00:00, 420.86it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 860/1000 [00:02&lt;00:00, 420.71it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 903/1000 [00:02&lt;00:00, 420.87it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  95%|█████████▍| 946/1000 [00:02&lt;00:00, 420.68it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 989/1000 [00:02&lt;00:00, 420.38it/s, acc rate: 100.00%]
+Sample: 100%|██████████| 1000/1000 [00:02&lt;00:00, 422.51it/s, acc rate: 100.00%]
+Elapsed time: 2.841097116470337
+</pre></div>
+</div>
+</section>
+<section id="plotting-the-results">
+<h2>Plotting the results<a class="headerlink" href="#plotting-the-results" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_uq_in_deconvolution_1d_002.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_002.png" alt="uq in deconvolution 1d" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D object at 0x7fa8b141b8c0&gt;, &lt;matplotlib.lines.Line2D object at 0x7fa8b14191c0&gt;, &lt;matplotlib.collections.FillBetweenPolyCollection object at 0x7fa8aff07110&gt;]
+</pre></div>
+</div>
+</section>
+<section id="unknown-noise-level">
+<h2>Unknown noise level<a class="headerlink" href="#unknown-noise-level" title="Link to this heading">#</a></h2>
+<p>In the previous example, we assumed that we knew the noise level of the data. In
+many cases, this is not the case. If we do not know the noise level, we can
+use a <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gamma.html#cuqi.distribution.Gamma" title="cuqi.distribution.Gamma"><code class="xref py py-class docutils literal notranslate"><span class="pre">Gamma</span></code></a> distribution to model the noise level.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="update-likelihood-with-unknown-noise-level">
+<h2>Update likelihood with unknown noise level<a class="headerlink" href="#update-likelihood-with-unknown-noise-level" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h2>Bayesian problem (Joint distribution)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ JointDistribution(
+    Equation:
+        p(y,x,s) = p(y|s,x)p(x)p(s)
+    Densities:
+        y ~ CUQI Gaussian. Conditioning variables [&#39;x&#39;, &#39;s&#39;].
+        x ~ CUQI GMRF.
+        s ~ CUQI Gamma.
+ )
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>Setting the data (posterior)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ JointDistribution(
+    Equation:
+        p(x,s|y) ∝ L(s,x|y)p(x)p(s)
+    Densities:
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;, &#39;s&#39;].
+        x ~ CUQI GMRF.
+        s ~ CUQI Gamma.
+ )
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>Sampling from the posterior<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span> <span class="o">=</span> <span class="n">BP</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using cuqi.sampler HybridGibbs sampler
+burn-in: 20%
+
+Automatically determined sampling strategy:
+        x: LinearRTO (mcmc.sampler)
+        s: Conjugate (mcmc.sampler)
+
+
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   9%|▉         | 18/200 [00:00&lt;00:01, 174.84it/s]
+Warmup:  18%|█▊        | 36/200 [00:00&lt;00:00, 175.00it/s]
+Warmup:  27%|██▋       | 54/200 [00:00&lt;00:00, 174.79it/s]
+Warmup:  36%|███▌      | 72/200 [00:00&lt;00:00, 174.83it/s]
+Warmup:  45%|████▌     | 90/200 [00:00&lt;00:00, 174.87it/s]
+Warmup:  54%|█████▍    | 108/200 [00:00&lt;00:00, 174.80it/s]
+Warmup:  63%|██████▎   | 126/200 [00:00&lt;00:00, 174.73it/s]
+Warmup:  72%|███████▏  | 144/200 [00:00&lt;00:00, 174.89it/s]
+Warmup:  81%|████████  | 162/200 [00:00&lt;00:00, 174.91it/s]
+Warmup:  90%|█████████ | 180/200 [00:01&lt;00:00, 175.01it/s]
+Warmup:  99%|█████████▉| 198/200 [00:01&lt;00:00, 175.10it/s]
+Warmup: 100%|██████████| 200/200 [00:01&lt;00:00, 174.89it/s]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   2%|▏         | 18/1000 [00:00&lt;00:05, 175.44it/s]
+Sample:   4%|▎         | 36/1000 [00:00&lt;00:05, 175.19it/s]
+Sample:   5%|▌         | 54/1000 [00:00&lt;00:05, 175.23it/s]
+Sample:   7%|▋         | 72/1000 [00:00&lt;00:05, 175.28it/s]
+Sample:   9%|▉         | 90/1000 [00:00&lt;00:05, 175.54it/s]
+Sample:  11%|█         | 108/1000 [00:00&lt;00:05, 175.55it/s]
+Sample:  13%|█▎        | 126/1000 [00:00&lt;00:04, 175.50it/s]
+Sample:  14%|█▍        | 144/1000 [00:00&lt;00:04, 175.53it/s]
+Sample:  16%|█▌        | 162/1000 [00:00&lt;00:04, 175.60it/s]
+Sample:  18%|█▊        | 180/1000 [00:01&lt;00:04, 175.75it/s]
+Sample:  20%|█▉        | 198/1000 [00:01&lt;00:04, 175.65it/s]
+Sample:  22%|██▏       | 216/1000 [00:01&lt;00:04, 175.63it/s]
+Sample:  23%|██▎       | 234/1000 [00:01&lt;00:04, 175.43it/s]
+Sample:  25%|██▌       | 252/1000 [00:01&lt;00:04, 175.30it/s]
+Sample:  27%|██▋       | 270/1000 [00:01&lt;00:04, 175.39it/s]
+Sample:  29%|██▉       | 288/1000 [00:01&lt;00:04, 175.39it/s]
+Sample:  31%|███       | 306/1000 [00:01&lt;00:03, 175.51it/s]
+Sample:  32%|███▏      | 324/1000 [00:01&lt;00:03, 175.30it/s]
+Sample:  34%|███▍      | 342/1000 [00:01&lt;00:03, 175.34it/s]
+Sample:  36%|███▌      | 360/1000 [00:02&lt;00:03, 175.50it/s]
+Sample:  38%|███▊      | 378/1000 [00:02&lt;00:03, 175.52it/s]
+Sample:  40%|███▉      | 396/1000 [00:02&lt;00:03, 175.52it/s]
+Sample:  41%|████▏     | 414/1000 [00:02&lt;00:03, 175.48it/s]
+Sample:  43%|████▎     | 432/1000 [00:02&lt;00:03, 175.50it/s]
+Sample:  45%|████▌     | 450/1000 [00:02&lt;00:03, 175.76it/s]
+Sample:  47%|████▋     | 468/1000 [00:02&lt;00:03, 175.60it/s]
+Sample:  49%|████▊     | 486/1000 [00:02&lt;00:02, 175.65it/s]
+Sample:  50%|█████     | 504/1000 [00:02&lt;00:02, 175.65it/s]
+Sample:  52%|█████▏    | 522/1000 [00:02&lt;00:02, 175.82it/s]
+Sample:  54%|█████▍    | 540/1000 [00:03&lt;00:02, 175.72it/s]
+Sample:  56%|█████▌    | 558/1000 [00:03&lt;00:02, 175.34it/s]
+Sample:  58%|█████▊    | 576/1000 [00:03&lt;00:02, 175.10it/s]
+Sample:  59%|█████▉    | 594/1000 [00:03&lt;00:02, 174.83it/s]
+Sample:  61%|██████    | 612/1000 [00:03&lt;00:02, 175.10it/s]
+Sample:  63%|██████▎   | 630/1000 [00:03&lt;00:02, 175.33it/s]
+Sample:  65%|██████▍   | 648/1000 [00:03&lt;00:02, 175.40it/s]
+Sample:  67%|██████▋   | 666/1000 [00:03&lt;00:01, 175.54it/s]
+Sample:  68%|██████▊   | 684/1000 [00:03&lt;00:01, 175.50it/s]
+Sample:  70%|███████   | 702/1000 [00:04&lt;00:01, 175.71it/s]
+Sample:  72%|███████▏  | 720/1000 [00:04&lt;00:01, 175.80it/s]
+Sample:  74%|███████▍  | 738/1000 [00:04&lt;00:01, 175.37it/s]
+Sample:  76%|███████▌  | 756/1000 [00:04&lt;00:01, 175.43it/s]
+Sample:  77%|███████▋  | 774/1000 [00:04&lt;00:01, 175.55it/s]
+Sample:  79%|███████▉  | 792/1000 [00:04&lt;00:01, 175.72it/s]
+Sample:  81%|████████  | 810/1000 [00:04&lt;00:01, 175.89it/s]
+Sample:  83%|████████▎ | 828/1000 [00:04&lt;00:00, 175.94it/s]
+Sample:  85%|████████▍ | 846/1000 [00:04&lt;00:00, 175.94it/s]
+Sample:  86%|████████▋ | 864/1000 [00:04&lt;00:00, 176.03it/s]
+Sample:  88%|████████▊ | 882/1000 [00:05&lt;00:00, 176.13it/s]
+Sample:  90%|█████████ | 900/1000 [00:05&lt;00:00, 176.06it/s]
+Sample:  92%|█████████▏| 918/1000 [00:05&lt;00:00, 176.11it/s]
+Sample:  94%|█████████▎| 936/1000 [00:05&lt;00:00, 175.92it/s]
+Sample:  95%|█████████▌| 954/1000 [00:05&lt;00:00, 175.96it/s]
+Sample:  97%|█████████▋| 972/1000 [00:05&lt;00:00, 176.20it/s]
+Sample:  99%|█████████▉| 990/1000 [00:05&lt;00:00, 176.17it/s]
+Sample: 100%|██████████| 1000/1000 [00:05&lt;00:00, 175.62it/s]
+Elapsed time: 6.844149112701416
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>Plotting the results<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>Let is first look at the estimated noise level
+and compare it with the true noise level</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">0.01</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_uq_in_deconvolution_1d_003.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_003.png" alt="s, s" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: title={&#39;center&#39;: &#39;s&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;s&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<p>We see that the estimated noise level is close to the true noise level. Let’s
+now look at the estimated solution</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_uq_in_deconvolution_1d_004.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_004.png" alt="uq in deconvolution 1d" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D object at 0x7fa8aff07d10&gt;, &lt;matplotlib.lines.Line2D object at 0x7fa8afe8be60&gt;, &lt;matplotlib.collections.FillBetweenPolyCollection object at 0x7fa8ae38ba40&gt;]
+</pre></div>
+</div>
+<p>We can even plot traces of “x” for a few cases and compare</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_uq_in_deconvolution_1d_005.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_005.png" alt="x54, x54, x58, x58, x91, x91, x111, x111, x117, x117" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Selecting 5 randomly chosen variables
+
+array([[&lt;Axes: title={&#39;center&#39;: &#39;x54&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x54&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x58&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x58&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x91&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x91&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x111&#39;}&gt;,
+        &lt;Axes: title={&#39;center&#39;: &#39;x111&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x117&#39;}&gt;,
+        &lt;Axes: title={&#39;center&#39;: &#39;x117&#39;}&gt;]], dtype=object)
+</pre></div>
+</div>
+<p>And finally we note that the UQ method does this analysis automatically and shows a selected number of plots</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span><span class="o">.</span><span class="n">UQ</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mf">0.01</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_uq_in_deconvolution_1d_006.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_006.png" alt="uq in deconvolution 1d" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_uq_in_deconvolution_1d_007.png" srcset="../../_images/sphx_glr_uq_in_deconvolution_1d_007.png" alt="s, s" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Computing 1000 samples
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using cuqi.sampler HybridGibbs sampler
+burn-in: 20%
+
+Automatically determined sampling strategy:
+        x: LinearRTO (mcmc.sampler)
+        s: Conjugate (mcmc.sampler)
+
+
+Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   9%|▉         | 18/200 [00:00&lt;00:01, 173.65it/s]
+Warmup:  18%|█▊        | 36/200 [00:00&lt;00:00, 174.63it/s]
+Warmup:  27%|██▋       | 54/200 [00:00&lt;00:00, 175.13it/s]
+Warmup:  36%|███▌      | 72/200 [00:00&lt;00:00, 175.38it/s]
+Warmup:  45%|████▌     | 90/200 [00:00&lt;00:00, 175.39it/s]
+Warmup:  54%|█████▍    | 108/200 [00:00&lt;00:00, 175.62it/s]
+Warmup:  63%|██████▎   | 126/200 [00:00&lt;00:00, 175.64it/s]
+Warmup:  72%|███████▏  | 144/200 [00:00&lt;00:00, 175.74it/s]
+Warmup:  81%|████████  | 162/200 [00:00&lt;00:00, 175.70it/s]
+Warmup:  90%|█████████ | 180/200 [00:01&lt;00:00, 175.65it/s]
+Warmup:  99%|█████████▉| 198/200 [00:01&lt;00:00, 175.58it/s]
+Warmup: 100%|██████████| 200/200 [00:01&lt;00:00, 175.43it/s]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   2%|▏         | 18/1000 [00:00&lt;00:05, 176.10it/s]
+Sample:   4%|▎         | 36/1000 [00:00&lt;00:05, 176.25it/s]
+Sample:   5%|▌         | 54/1000 [00:00&lt;00:05, 175.94it/s]
+Sample:   7%|▋         | 72/1000 [00:00&lt;00:05, 175.97it/s]
+Sample:   9%|▉         | 90/1000 [00:00&lt;00:05, 175.85it/s]
+Sample:  11%|█         | 108/1000 [00:00&lt;00:05, 175.89it/s]
+Sample:  13%|█▎        | 126/1000 [00:00&lt;00:04, 175.85it/s]
+Sample:  14%|█▍        | 144/1000 [00:00&lt;00:04, 175.94it/s]
+Sample:  16%|█▌        | 162/1000 [00:00&lt;00:04, 176.01it/s]
+Sample:  18%|█▊        | 180/1000 [00:01&lt;00:04, 176.02it/s]
+Sample:  20%|█▉        | 198/1000 [00:01&lt;00:04, 174.72it/s]
+Sample:  22%|██▏       | 216/1000 [00:01&lt;00:04, 175.62it/s]
+Sample:  23%|██▎       | 234/1000 [00:01&lt;00:04, 176.16it/s]
+Sample:  25%|██▌       | 252/1000 [00:01&lt;00:04, 176.59it/s]
+Sample:  27%|██▋       | 270/1000 [00:01&lt;00:04, 176.84it/s]
+Sample:  29%|██▉       | 288/1000 [00:01&lt;00:04, 177.09it/s]
+Sample:  31%|███       | 306/1000 [00:01&lt;00:03, 177.28it/s]
+Sample:  32%|███▏      | 324/1000 [00:01&lt;00:03, 176.96it/s]
+Sample:  34%|███▍      | 342/1000 [00:01&lt;00:03, 177.03it/s]
+Sample:  36%|███▌      | 360/1000 [00:02&lt;00:03, 177.12it/s]
+Sample:  38%|███▊      | 378/1000 [00:02&lt;00:03, 177.31it/s]
+Sample:  40%|███▉      | 396/1000 [00:02&lt;00:03, 177.49it/s]
+Sample:  41%|████▏     | 414/1000 [00:02&lt;00:03, 177.64it/s]
+Sample:  43%|████▎     | 432/1000 [00:02&lt;00:03, 177.55it/s]
+Sample:  45%|████▌     | 450/1000 [00:02&lt;00:03, 177.56it/s]
+Sample:  47%|████▋     | 468/1000 [00:02&lt;00:02, 177.66it/s]
+Sample:  49%|████▊     | 486/1000 [00:02&lt;00:02, 177.71it/s]
+Sample:  50%|█████     | 504/1000 [00:02&lt;00:02, 177.82it/s]
+Sample:  52%|█████▏    | 522/1000 [00:02&lt;00:02, 177.71it/s]
+Sample:  54%|█████▍    | 540/1000 [00:03&lt;00:02, 177.84it/s]
+Sample:  56%|█████▌    | 558/1000 [00:03&lt;00:02, 177.91it/s]
+Sample:  58%|█████▊    | 576/1000 [00:03&lt;00:02, 177.92it/s]
+Sample:  59%|█████▉    | 594/1000 [00:03&lt;00:02, 177.89it/s]
+Sample:  61%|██████    | 612/1000 [00:03&lt;00:02, 177.76it/s]
+Sample:  63%|██████▎   | 630/1000 [00:03&lt;00:02, 177.83it/s]
+Sample:  65%|██████▍   | 648/1000 [00:03&lt;00:01, 177.95it/s]
+Sample:  67%|██████▋   | 666/1000 [00:03&lt;00:01, 177.85it/s]
+Sample:  68%|██████▊   | 684/1000 [00:03&lt;00:01, 177.80it/s]
+Sample:  70%|███████   | 702/1000 [00:03&lt;00:01, 177.68it/s]
+Sample:  72%|███████▏  | 720/1000 [00:04&lt;00:01, 177.73it/s]
+Sample:  74%|███████▍  | 738/1000 [00:04&lt;00:01, 177.65it/s]
+Sample:  76%|███████▌  | 756/1000 [00:04&lt;00:01, 177.55it/s]
+Sample:  77%|███████▋  | 774/1000 [00:04&lt;00:01, 177.66it/s]
+Sample:  79%|███████▉  | 792/1000 [00:04&lt;00:01, 177.77it/s]
+Sample:  81%|████████  | 810/1000 [00:04&lt;00:01, 177.68it/s]
+Sample:  83%|████████▎ | 828/1000 [00:04&lt;00:00, 177.86it/s]
+Sample:  85%|████████▍ | 846/1000 [00:04&lt;00:00, 177.76it/s]
+Sample:  86%|████████▋ | 864/1000 [00:04&lt;00:00, 177.69it/s]
+Sample:  88%|████████▊ | 882/1000 [00:04&lt;00:00, 177.84it/s]
+Sample:  90%|█████████ | 900/1000 [00:05&lt;00:00, 177.79it/s]
+Sample:  92%|█████████▏| 918/1000 [00:05&lt;00:00, 177.80it/s]
+Sample:  94%|█████████▎| 936/1000 [00:05&lt;00:00, 177.46it/s]
+Sample:  95%|█████████▌| 954/1000 [00:05&lt;00:00, 177.46it/s]
+Sample:  97%|█████████▋| 972/1000 [00:05&lt;00:00, 177.18it/s]
+Sample:  99%|█████████▉| 990/1000 [00:05&lt;00:00, 177.41it/s]
+Sample: 100%|██████████| 1000/1000 [00:05&lt;00:00, 177.23it/s]
+Elapsed time: 6.789044618606567
+Plotting results
+
+CUQIpy JointSamples Dict:
+-------------------------
+
+Keys:
+ [&#39;x&#39;, &#39;s&#39;]
+
+Ns (number of samples):
+ {&#39;x&#39;: 1000, &#39;s&#39;: 1000}
+
+Geometry:
+ {&#39;x&#39;: _DefaultGeometry1D[128], &#39;s&#39;: _DefaultGeometry1D[1]}
+
+Shape:
+ {&#39;x&#39;: (128, 1000), &#39;s&#39;: (1, 1000)}
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 17.302 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-uq-in-deconvolution-1d-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/430898a2263ea5db64b2ca4ef725d5d1/uq_in_deconvolution_1d.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">uq_in_deconvolution_1d.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/149a129601985ed72472aa9ce5390149/uq_in_deconvolution_1d.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">uq_in_deconvolution_1d.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/4fbac93f64bda207bca5ff270fa23d30/uq_in_deconvolution_1d.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">uq_in_deconvolution_1d.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-forward-model">Setting up the forward model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-prior">Setting up the prior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-likelihood">Setting up the likelihood</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-problem-joint-distribution">Bayesian problem (Joint distribution)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-the-data-posterior">Setting the data (posterior)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-from-the-posterior">Sampling from the posterior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-the-results">Plotting the results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unknown-noise-level">Unknown noise level</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#update-likelihood-with-unknown-noise-level">Update likelihood with unknown noise level</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Bayesian problem (Joint distribution)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Setting the data (posterior)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Sampling from the posterior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Plotting the results</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/uq_in_deconvolution_1d.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.dim
+======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MYULA.dim

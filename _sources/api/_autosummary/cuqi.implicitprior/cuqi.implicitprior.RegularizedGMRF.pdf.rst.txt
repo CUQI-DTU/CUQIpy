@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.pdf
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.pdf

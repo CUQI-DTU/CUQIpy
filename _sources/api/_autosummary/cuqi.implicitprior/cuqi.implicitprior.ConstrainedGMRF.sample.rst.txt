@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.sample
+=========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.sample

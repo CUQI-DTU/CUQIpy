@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.save\_checkpoint
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.save_checkpoint

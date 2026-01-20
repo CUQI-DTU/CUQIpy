@@ -1,0 +1,47 @@
+Continuous2D
+============
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: Continuous2D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Continuous2D.__init__
+      ~Continuous2D.fun2par
+      ~Continuous2D.fun2vec
+      ~Continuous2D.par2fun
+      ~Continuous2D.plot
+      ~Continuous2D.plot_contour
+      ~Continuous2D.plot_contourf
+      ~Continuous2D.plot_envelope
+      ~Continuous2D.plot_pcolor
+      ~Continuous2D.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Continuous2D.fun_dim
+      ~Continuous2D.fun_is_array
+      ~Continuous2D.fun_shape
+      ~Continuous2D.funvec_dim
+      ~Continuous2D.funvec_shape
+      ~Continuous2D.grid
+      ~Continuous2D.par_dim
+      ~Continuous2D.par_shape
+      ~Continuous2D.variables
+   
+   

@@ -1,0 +1,6 @@
+cuqi.experimental.SamplerRecommender.valid\_HybridGibbs\_sampling\_strategy
+===========================================================================
+
+.. currentmodule:: cuqi.experimental
+
+.. automethod:: SamplerRecommender.valid_HybridGibbs_sampling_strategy

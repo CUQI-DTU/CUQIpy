@@ -1,0 +1,6 @@
+cuqi.sampler.MH.tune
+====================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.tune

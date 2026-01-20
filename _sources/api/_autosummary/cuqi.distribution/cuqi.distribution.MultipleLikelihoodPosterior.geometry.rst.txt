@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.geometry
+======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: MultipleLikelihoodPosterior.geometry

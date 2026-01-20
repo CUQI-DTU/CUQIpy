@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.current\_point
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MYULA.current_point

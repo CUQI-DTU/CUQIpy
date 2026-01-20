@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.\_\_init\_\_
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.__init__

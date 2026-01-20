@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.FD\_enabled
+=========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: MultipleLikelihoodPosterior.FD_enabled

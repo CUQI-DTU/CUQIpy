@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.model
+=============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Abel1D.model

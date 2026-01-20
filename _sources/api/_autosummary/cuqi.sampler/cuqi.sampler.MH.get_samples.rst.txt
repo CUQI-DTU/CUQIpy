@@ -1,0 +1,6 @@
+cuqi.sampler.MH.get\_samples
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.get_samples

@@ -1,0 +1,6 @@
+cuqi.utilities.ProblemInfo.getSetAttributes
+===========================================
+
+.. currentmodule:: cuqi.utilities
+
+.. automethod:: ProblemInfo.getSetAttributes

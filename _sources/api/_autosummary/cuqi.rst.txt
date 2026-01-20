@@ -1,0 +1,55 @@
+﻿cuqi
+====
+
+Module path: cuqi
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   algebra
+   array
+   config
+   data
+   density
+   diagnostics
+   distribution
+   experimental
+   geometry
+   implicitprior
+   legacy
+   likelihood
+   model
+   operator
+   pde
+   problem
+   sampler
+   samples
+   solver
+   testproblem
+   utilities
+

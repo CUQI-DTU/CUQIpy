@@ -1,0 +1,6 @@
+cuqi.samples.Samples.plot\_std
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.plot_std

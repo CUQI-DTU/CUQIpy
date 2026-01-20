@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.sample
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Lognormal.sample

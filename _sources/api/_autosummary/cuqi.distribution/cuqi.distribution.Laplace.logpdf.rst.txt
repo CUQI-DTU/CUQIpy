@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.logpdf
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace.logpdf

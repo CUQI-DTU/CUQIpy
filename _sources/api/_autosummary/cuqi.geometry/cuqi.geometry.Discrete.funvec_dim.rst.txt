@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.funvec\_dim
+==================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Discrete.funvec_dim

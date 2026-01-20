@@ -1,0 +1,998 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Support vector representation of function values in CUQIpy geometries and samples &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/fun_vec_representation';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Gibbs sampling" href="gibbs.html" />
+    <link rel="prev" title="How to define a Posterior distribution" href="defining_posterior.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="deconvolution_2d.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defining_posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_2d.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joint_distribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_input.html">Multiple input model: bathtub demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_variables_and_algebra.html">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_dependent_linear_pde.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uq_in_deconvolution_1d.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Support vector representation of function values in CUQIpy geometries and samples</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-fun-vec-representation-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="support-vector-representation-of-function-values-in-cuqipy-geometries-and-samples">
+<span id="sphx-glr-user-auto-howtos-fun-vec-representation-py"></span><h1>Support vector representation of function values in CUQIpy geometries and samples<a class="headerlink" href="#support-vector-representation-of-function-values-in-cuqipy-geometries-and-samples" title="Link to this heading">#</a></h1>
+<p>In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D array). In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples.</p>
+<section id="import-the-necessary-modules">
+<h2>Import the necessary modules<a class="headerlink" href="#import-the-necessary-modules" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>Set the seed for reproducibility</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-1d-and-a-mapped-2d-geometries">
+<h2>Create a 1D and a mapped 2D geometries<a class="headerlink" href="#create-a-1d-and-a-mapped-2d-geometries" title="Link to this heading">#</a></h2>
+<p>Create a 1D KLExpansion geometry with 7 modes (and hence 7 KL expansion
+coefficients) and a 100-point grid defined on the interval [0, 1]</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">geom_1D</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">KLExpansion</span><span class="p">(</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="n">num_modes</span><span class="o">=</span><span class="mi">7</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a mapped 2D Image geometry. We first define a threshold map that gives
+1 if x is greater than or equal to 1. Otherwise, it gives zero. Then we create
+the geometry</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_map</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">geom_2D</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">MappedGeometry</span><span class="p">(</span>
+    <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Image2D</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">)),</span>
+    <span class="nb">map</span><span class="o">=</span><span class="n">my_map</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Query the geometries <cite>fun_is_array</cite> property</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">geom_1D</span><span class="o">.</span><span class="n">fun_is_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">geom_2D</span><span class="o">.</span><span class="n">fun_is_array</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
+True
+</pre></div>
+</div>
+<p>This property indicates whether the function value representation is an
+array (not necessarily a 1D array) or not.</p>
+<p>Query the number of parameters for both geometries</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">geom_1D</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">geom_2D</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>7
+49
+</pre></div>
+</div>
+<p>Query the <cite>shape</cite> of the function value representation for both geometries</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">geom_1D</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">geom_2D</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(100,)
+(7, 7)
+</pre></div>
+</div>
+<p>Query the <cite>shape</cite> of the vector representation of the function values for both
+geometries</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">geom_1D</span><span class="o">.</span><span class="n">funvec_shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">geom_2D</span><span class="o">.</span><span class="n">funvec_shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(100,)
+(49,)
+</pre></div>
+</div>
+</section>
+<section id="create-random-samples-corresponding-to-each-geometry">
+<h2>Create random samples corresponding to each geometry<a class="headerlink" href="#create-random-samples-corresponding-to-each-geometry" title="Link to this heading">#</a></h2>
+<p>Create samples of random parameter values that correspond to each geometry.
+For the 1D geometry, we create 5 random samples from a Gaussian distribution
+with a zero mean and a variance of 1. These samples are samples of the KL
+coefficients equipped with the KL geometry object.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">x_kl</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">geom_1D</span><span class="o">.</span><span class="n">par_dim</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom_1D</span><span class="p">)</span>
+<span class="n">samples_1D</span> <span class="o">=</span> <span class="n">x_kl</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For the 2D geometry, we create 5 random samples from a Gaussian distribution
+with a “smile” image mean and a 0.01 variance. The smile image given by the
+7 by 7 array below</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">smile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">smile</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom_2D</span><span class="p">)</span>
+<span class="n">samples_2D</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We plot the smile for illustration</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">smile</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys_r&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_fun_vec_representation_001.png" srcset="../../_images/sphx_glr_fun_vec_representation_001.png" alt="fun vec representation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage object at 0x7fa8ac1799a0&gt;
+</pre></div>
+</div>
+<p>We plot a 2D sample (the sample with index 4 in this case)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples_2D</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_fun_vec_representation_002.png" srcset="../../_images/sphx_glr_fun_vec_representation_002.png" alt="fun vec representation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.image.AxesImage object at 0x7fa8b141b440&gt;]
+</pre></div>
+</div>
+</section>
+<section id="obtain-the-corresponding-samples-of-function-values-funvals">
+<h2>Obtain the corresponding samples of function values (<cite>funvals</cite>)<a class="headerlink" href="#obtain-the-corresponding-samples-of-function-values-funvals" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>CUQIpy Samples:
+---------------
+
+Ns (number of samples):
+ 5
+
+Geometry:
+ MappedGeometry(Image2D[49: (7, 7)])
+
+Shape:
+ (7, 7, 5)
+
+Samples:
+ [[[0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]]
+
+ [[0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 1.]
+  [0. 1. 1. 0. 1.]
+  [0. 0. 0. 0. 0.]
+  [0. 1. 1. 1. 1.]
+  [1. 1. 1. 1. 1.]
+  [0. 0. 0. 0. 0.]]
+
+ [[0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]]
+
+ [[0. 1. 1. 1. 1.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [1. 1. 1. 0. 0.]]
+
+ [[1. 0. 0. 0. 1.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 1. 0.]]
+
+ [[0. 0. 0. 0. 0.]
+  [0. 0. 1. 1. 0.]
+  [0. 0. 0. 1. 0.]
+  [1. 1. 1. 0. 0.]
+  [0. 0. 0. 1. 0.]
+  [1. 1. 0. 1. 1.]
+  [0. 0. 0. 0. 0.]]
+
+ [[0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]
+  [0. 0. 0. 0. 0.]]]
+</pre></div>
+</div>
+<p>Note that the <cite>funvals</cite> property of the <cite>Samples</cite> class returns a <cite>Samples</cite>
+object</p>
+<p>query the <cite>shape</cite> of the <cite>.funvals</cite> property for both samples objects</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.shape&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.shape&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_1D.funvals.shape
+(100, 5)
+samples_2D.funvals.shape
+(7, 7, 5)
+</pre></div>
+</div>
+<p>Note that for the 2D geometry, the <cite>shape</cite> of the <cite>funvals</cite> is (7, 7, 5). This
+is because the function value representation is a 2D array.</p>
+<p>query the <cite>shape</cite> of the <cite>.funvals.vector</cite> property for both samples objects</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.vector.shape&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.vector.shape&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_1D.funvals.vector.shape
+(100, 5)
+samples_2D.funvals.vector.shape
+(49, 5)
+</pre></div>
+</div>
+<p>Now for both geometries, the samples in the converted Samples object is a two
+dimensional arrays. In this case, executing the <cite>funvals</cite> property leads to
+calling the <cite>par2fun</cite> method of the geometry to convert the parameter values
+to function values. Then executing the <cite>vector</cite> property leads to calling the
+<cite>fun2vec</cite> method of the geometry (if implemented) to convert the function
+values to a vector representation of these values.</p>
+<p>query the <cite>shape</cite> of the <cite>.vector</cite> property for both geometries</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.vector.shape&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.vector.shape&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_1D.vector.shape
+(7, 5)
+samples_2D.vector.shape
+(49, 5)
+</pre></div>
+</div>
+<p>For samples_1D, we query the <cite>is_par</cite> and <cite>is_vec</cite> properties for all
+representations of the samples</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.vector.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.vector.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.vector.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.vector.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_1D.is_par
+True
+samples_1D.is_vec
+True
+samples_1D.vector.is_par
+True
+samples_1D.vector.is_vec
+True
+samples_1D.funvals.is_par
+False
+samples_1D.funvals.is_vec
+True
+samples_1D.funvals.vector.is_par
+False
+samples_1D.funvals.vector.is_vec
+True
+</pre></div>
+</div>
+<p>Note that for this 1D geometry, the <cite>is_vec</cite> property is always <cite>True</cite>. This
+is because the function value representation is a 1D array.</p>
+<p>We do the same for samples_2D</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.vector.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.vector.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.vector.is_par&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_par</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.vector.is_vec&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">is_vec</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.is_par
+True
+samples_2D.is_vec
+True
+samples_2D.vector.is_par
+True
+samples_2D.vector.is_vec
+True
+samples_2D.funvals.is_par
+False
+samples_2D.funvals.is_vec
+False
+samples_2D.funvals.vector.is_par
+False
+samples_2D.funvals.vector.is_vec
+True
+</pre></div>
+</div>
+<p>Note that the property <cite>samples_2D.funvals.is_vec</cite> is false, but after
+converting the function values to a vector representation using the <cite>vector</cite>
+property, the property <cite>samples_2D.vector.funvals.vector.is_vec</cite> is true.</p>
+</section>
+<section id="computing-statistics-on-parameter-and-on-function-values-for-samples-the-1d-geometry-case">
+<h2>Computing statistics on parameter and on function values for samples (the 1D geometry case)<a class="headerlink" href="#computing-statistics-on-parameter-and-on-function-values-for-samples-the-1d-geometry-case" title="Link to this heading">#</a></h2>
+<p>Compute and plot mean on parameter values and on function values. Note
+that the default behavior of the <cite>plot_mean</cite> method is to compute the
+mean on the parameters then apply the <cite>par2fun</cite> map on the mean. Passing
+the argument <cite>plot_par=True</cite> results in plotting the mean of the original
+parameter values (the KL expansion coefficients).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.plot_mean with plot_par=True&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_1D</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="n">plot_par</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.plot_mean&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_1D</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.plot_mean&quot;</span><span class="p">)</span>
+<span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_fun_vec_representation_003.png" srcset="../../_images/sphx_glr_fun_vec_representation_003.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_fun_vec_representation_004.png" srcset="../../_images/sphx_glr_fun_vec_representation_004.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_1D.plot_mean with plot_par=True
+samples_1D.plot_mean
+samples_1D.funvals.plot_mean
+
+[&lt;matplotlib.lines.Line2D object at 0x7fa8b13d5400&gt;]
+</pre></div>
+</div>
+<p>Note that in the second figure, the mean in both cases is the same, i. e.,
+applying the KL map
+(the linear combination of the of the KL expansion basis vectors weighted by
+the given KL coefficients) on the average KL coefficients is the same as
+applying the KL map on each sample then computing the mean of the result.</p>
+<p>Compute variance on parameter values and on function values</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.plot_variance with plot_par=True&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_1D</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">(</span><span class="n">plot_par</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.plot_variance&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_1D</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_1D.funvals.plot_variance&quot;</span><span class="p">)</span>
+<span class="n">samples_1D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_fun_vec_representation_005.png" srcset="../../_images/sphx_glr_fun_vec_representation_005.png" alt="Sample variance" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_fun_vec_representation_006.png" srcset="../../_images/sphx_glr_fun_vec_representation_006.png" alt="Sample variance" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_1D.plot_variance with plot_par=True
+samples_1D.plot_variance
+samples_1D.funvals.plot_variance
+
+[&lt;matplotlib.lines.Line2D object at 0x7fa8ae305850&gt;]
+</pre></div>
+</div>
+<p>Here in the second figure, the results of
+computing the variance differ in both cases. Additionally, computing the
+variance of the parameters then applying the KL map can result in negative
+values.</p>
+</section>
+<section id="computing-statistics-on-parameter-and-on-function-values-for-samples-the-2d-geometry-case">
+<h2>Computing statistics on parameter and on function values for samples (the 2D geometry case)<a class="headerlink" href="#computing-statistics-on-parameter-and-on-function-values-for-samples-the-2d-geometry-case" title="Link to this heading">#</a></h2>
+<p>Compute mean on parameter values, function values, and vector representation
+of function values</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.plot_mean&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.plot_mean&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.vector.plot_mean&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_fun_vec_representation_007.png" srcset="../../_images/sphx_glr_fun_vec_representation_007.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_fun_vec_representation_008.png" srcset="../../_images/sphx_glr_fun_vec_representation_008.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_fun_vec_representation_009.png" srcset="../../_images/sphx_glr_fun_vec_representation_009.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.plot_mean
+samples_2D.funvals.plot_mean
+samples_2D.funvals.vector.plot_mean
+
+&lt;matplotlib.colorbar.Colorbar object at 0x7fa8b01fb9e0&gt;
+</pre></div>
+</div>
+<p>Compute variance on parameter values, function values, and vector representation
+of function values</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.plot_variance&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.plot_variance&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.vector.plot_variance&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_fun_vec_representation_010.png" srcset="../../_images/sphx_glr_fun_vec_representation_010.png" alt="Sample variance" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_fun_vec_representation_011.png" srcset="../../_images/sphx_glr_fun_vec_representation_011.png" alt="Sample variance" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_fun_vec_representation_012.png" srcset="../../_images/sphx_glr_fun_vec_representation_012.png" alt="Sample variance" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.plot_variance
+samples_2D.funvals.plot_variance
+samples_2D.funvals.vector.plot_variance
+
+&lt;matplotlib.colorbar.Colorbar object at 0x7fa8afffbe90&gt;
+</pre></div>
+</div>
+<p>Note that computing the samples mean then applying the thresholding, the first
+case, is not equivalent to applying the thresholding on the samples then
+computing their mean (the latter two cases).
+Similar observation can be made about computing the variance. In fact, the
+variance in the first case is just zero because the parameter sample variance
+(before thresholding) is smaller than 1, the thresholding, then, forces all
+the values to zero.
+Also note that, in this case, we are able to compute the statistics directly
+on the function values, but for some geometries, this may not be possible and
+we may need to use the vector representation of the function values to compute
+the statistics.</p>
+</section>
+<section id="plotting-samples">
+<h2>Plotting samples<a class="headerlink" href="#plotting-samples" title="Link to this heading">#</a></h2>
+<p>Plot samples from <cite>samples_2D</cite>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.plot&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_fun_vec_representation_013.png" srcset="../../_images/sphx_glr_fun_vec_representation_013.png" alt="fun vec representation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.plot
+
+[&lt;matplotlib.image.AxesImage object at 0x7fa8afee7aa0&gt;, &lt;matplotlib.image.AxesImage object at 0x7fa8afd5b9e0&gt;]
+</pre></div>
+</div>
+<p>Plot samples from <cite>samples_2D.funvals</cite>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.plot&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_fun_vec_representation_014.png" srcset="../../_images/sphx_glr_fun_vec_representation_014.png" alt="fun vec representation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.funvals.plot
+
+[&lt;matplotlib.image.AxesImage object at 0x7fa8afdba810&gt;, &lt;matplotlib.image.AxesImage object at 0x7fa8b00e6f00&gt;]
+</pre></div>
+</div>
+<p>Plot samples from <cite>samples_2D.funvals.vector</cite>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.funvals.vector.plot&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_fun_vec_representation_015.png" srcset="../../_images/sphx_glr_fun_vec_representation_015.png" alt="fun vec representation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.funvals.vector.plot
+
+[&lt;matplotlib.image.AxesImage object at 0x7fa8affcca70&gt;, &lt;matplotlib.image.AxesImage object at 0x7fa8afc6bec0&gt;]
+</pre></div>
+</div>
+<p>The results are the same in all the three cases. Note that for the first case,
+the default behavior of the <cite>plot</cite> method is to convert the samples to the
+function values and then plot them. If one is interested in plotting the
+original parameter values, one can pass the argument <cite>plot_par=True</cite> to the
+<cite>plot</cite> method.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;samples_2D.plot([1, 4], plot_par=True)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">samples_2D</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">plot_par</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_fun_vec_representation_016.png" srcset="../../_images/sphx_glr_fun_vec_representation_016.png" alt="fun vec representation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>samples_2D.plot([1, 4], plot_par=True)
+
+[&lt;matplotlib.lines.Line2D object at 0x7fa8afcad730&gt;, &lt;matplotlib.lines.Line2D object at 0x7fa8afccc0e0&gt;]
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.090 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-fun-vec-representation-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/20e1d1600423cae8fe6d9d47f63ee48e/fun_vec_representation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">fun_vec_representation.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/0eda9ed96d805bc24c80acdeb1b1251a/fun_vec_representation.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">fun_vec_representation.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/334323907e5edbc5e0c38f73ca1f7d56/fun_vec_representation.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">fun_vec_representation.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#import-the-necessary-modules">Import the necessary modules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-1d-and-a-mapped-2d-geometries">Create a 1D and a mapped 2D geometries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-random-samples-corresponding-to-each-geometry">Create random samples corresponding to each geometry</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#obtain-the-corresponding-samples-of-function-values-funvals">Obtain the corresponding samples of function values (<cite>funvals</cite>)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#computing-statistics-on-parameter-and-on-function-values-for-samples-the-1d-geometry-case">Computing statistics on parameter and on function values for samples (the 1D geometry case)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#computing-statistics-on-parameter-and-on-function-values-for-samples-the-2d-geometry-case">Computing statistics on parameter and on function values for samples (the 2D geometry case)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-samples">Plotting samples</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/fun_vec_representation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

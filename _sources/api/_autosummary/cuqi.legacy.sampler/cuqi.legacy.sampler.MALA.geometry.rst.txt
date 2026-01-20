@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.MALA.geometry
+=================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: MALA.geometry

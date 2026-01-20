@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.gradient
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.gradient

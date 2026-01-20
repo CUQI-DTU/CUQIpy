@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.gradient
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.gradient

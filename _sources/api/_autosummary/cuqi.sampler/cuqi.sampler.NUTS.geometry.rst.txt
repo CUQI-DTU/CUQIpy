@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.geometry
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: NUTS.geometry

@@ -1,0 +1,806 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.data._data &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/data/_data';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.data._data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.data._data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pkg_resources</span>
+<span class="kn">import</span> <span class="nn">scipy.io</span> <span class="k">as</span> <span class="nn">spio</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span> <span class="k">as</span> <span class="nn">spnd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="satellite">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.satellite.html#cuqi.data.satellite">[docs]</a>
+<span class="k">def</span> <span class="nf">satellite</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Photograph of a satelite.&quot;&quot;&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_stream</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;satellite.mat&#39;</span><span class="p">)</span>
+    <span class="n">img</span><span class="o">=</span> <span class="n">spio</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">stream</span><span class="p">)[</span><span class="s1">&#39;x_true&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">img</span></div>
+
+
+<div class="viewcode-block" id="astronaut">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.astronaut.html#cuqi.data.astronaut">[docs]</a>
+<span class="k">def</span> <span class="nf">astronaut</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grayscale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Color image of the astronaut Eileen Collins.</span>
+
+<span class="sd">    See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.astronaut</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_stream</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;astronaut.npz&#39;</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)[</span><span class="s1">&#39;arr_0&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">grayscale</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">rgb2gray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">img</span></div>
+
+
+<div class="viewcode-block" id="camera">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.camera.html#cuqi.data.camera">[docs]</a>
+<span class="k">def</span> <span class="nf">camera</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Camera man.</span>
+
+<span class="sd">    See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.camera</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_stream</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;camera.npz&#39;</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)[</span><span class="s1">&#39;arr_0&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">img</span></div>
+
+
+<div class="viewcode-block" id="cat">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.cat.html#cuqi.data.cat">[docs]</a>
+<span class="k">def</span> <span class="nf">cat</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grayscale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chelsea the cat.</span>
+
+<span class="sd">    See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_stream</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;cat.npz&#39;</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)[</span><span class="s1">&#39;arr_0&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">grayscale</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">rgb2gray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">img</span></div>
+
+
+<span class="c1"># Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. </span>
+<div class="viewcode-block" id="grains">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.grains.html#cuqi.data.grains">[docs]</a>
+<span class="k">def</span> <span class="nf">grains</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">num_grains</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Generate a random image of grains built from Voronoi cells.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        Size of the image to generate. Image is square with sides of length size.</span>
+
+<span class="sd">    num_grains : int</span>
+<span class="sd">        Number of grains in the image.</span>
+
+<span class="sd">    seed : int</span>
+<span class="sd">        Random seed for grain structure.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    img : ndarray</span>
+<span class="sd">        Image of grains.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Python translation from phantomgallery code in AIRToolsII</span>
+<span class="sd">    https://github.com/jakobsj/AIRToolsII.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Grains image must have more than two grains</span>
+    <span class="k">if</span> <span class="n">num_grains</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_grains must be greater than 2&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set the random seed</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="c1"># Image size is N x N</span>
+    <span class="n">N</span>         <span class="o">=</span> <span class="n">size</span>
+    <span class="n">dN</span>        <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">Nbig</span>      <span class="o">=</span> <span class="n">N</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">dN</span>
+    <span class="n">total_dim</span> <span class="o">=</span> <span class="n">Nbig</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="c1"># random pixels whose coordinates (xG,yG,zG) are the &quot;centre&quot; of the grains</span>
+    <span class="n">xG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">Nbig</span><span class="o">*</span><span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_grains</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">yG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">Nbig</span><span class="o">*</span><span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">num_grains</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># set up voxel coordinates for distance computation</span>
+    <span class="n">xx</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nbig</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+    <span class="n">X</span>    <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+    <span class="n">Y</span>    <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+
+    <span class="c1"># for centre pixel k [xG(k),yG(k),zG(k)] compute the distance to all the </span>
+    <span class="c1"># voxels in the box and store the distances in column k.</span>
+    <span class="n">distArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">total_dim</span><span class="p">,</span> <span class="n">num_grains</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_grains</span><span class="p">):</span>
+        <span class="n">distArray</span><span class="p">[:,</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">xG</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">Y</span><span class="o">-</span><span class="n">yG</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="c1"># determine to which grain each of the voxels belong. This is found as the</span>
+    <span class="c1"># centre with minimal distance to the given voxel</span>
+    <span class="n">minIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distArray</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># reshape to 2D, subtract 1 to have 0 as minimal value, extract the</span>
+    <span class="c1"># middle part of the image, and scale to have 1 as maximum value</span>
+    <span class="n">img</span>   <span class="o">=</span> <span class="n">minIdx</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">Nbig</span><span class="p">,</span> <span class="n">Nbig</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">img</span>   <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">dN</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dN</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="n">img</span>   <span class="o">=</span> <span class="n">img</span><span class="o">/</span><span class="n">img</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">img</span></div>
+
+
+<span class="c1"># Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. </span>
+<div class="viewcode-block" id="shepp_logan">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.shepp_logan.html#cuqi.data.shepp_logan">[docs]</a>
+<span class="k">def</span> <span class="nf">shepp_logan</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">128</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified Shepp-Logan phantom.</span>
+<span class="sd">    </span>
+<span class="sd">    This head phantom is the same as the Shepp-Logan except the intensities</span>
+<span class="sd">    are changed to yield higher contrast in the image.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        Size of the image to generate. Image is square with sides of length size.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    img : ndarray</span>
+<span class="sd">        Image of the phantom.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Python translation from phantomgallery code in AIRToolsII</span>
+<span class="sd">    https://github.com/jakobsj/AIRToolsII.</span>
+
+<span class="sd">    Original paper:</span>
+<span class="sd">    L. A. Shepp and B. F. Logan, “The Fourier reconstruction of a head section,”</span>
+<span class="sd">    in IEEE Transactions on Nuclear Science, vol. 21, no. 3, pp. 21-43, June 1974.</span>
+<span class="sd">    DOI:10.1109/TNS.1974.6499235</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># image is N x N</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">size</span>
+
+    <span class="c1">#                  A      a      b     x0      y0    phi</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="p">[</span>  <span class="mi">1</span><span class="p">,</span>    <span class="mf">.69</span><span class="p">,</span>   <span class="mf">.92</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>       <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span> 
+                    <span class="p">[</span><span class="o">-</span><span class="mf">.8</span><span class="p">,</span>  <span class="mf">.6624</span><span class="p">,</span> <span class="mf">.8740</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>  <span class="o">-</span><span class="mf">.0184</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+                    <span class="p">[</span><span class="o">-</span><span class="mf">.2</span><span class="p">,</span>  <span class="mf">.1100</span><span class="p">,</span> <span class="mf">.3100</span><span class="p">,</span>  <span class="mf">.22</span><span class="p">,</span>       <span class="mi">0</span><span class="p">,</span>  <span class="o">-</span><span class="mi">18</span><span class="p">],</span>
+                    <span class="p">[</span><span class="o">-</span><span class="mf">.2</span><span class="p">,</span>  <span class="mf">.1600</span><span class="p">,</span> <span class="mf">.4100</span><span class="p">,</span> <span class="o">-</span><span class="mf">.22</span><span class="p">,</span>       <span class="mi">0</span><span class="p">,</span>   <span class="mi">18</span><span class="p">],</span>
+                    <span class="p">[</span> <span class="mf">.1</span><span class="p">,</span>  <span class="mf">.2100</span><span class="p">,</span> <span class="mf">.2500</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>     <span class="mf">.35</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="mf">.1</span><span class="p">,</span>  <span class="mf">.0460</span><span class="p">,</span> <span class="mf">.0460</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>      <span class="mf">.1</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="mf">.1</span><span class="p">,</span>  <span class="mf">.0460</span><span class="p">,</span> <span class="mf">.0460</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>     <span class="o">-</span><span class="mf">.1</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="mf">.1</span><span class="p">,</span>  <span class="mf">.0460</span><span class="p">,</span> <span class="mf">.0230</span><span class="p">,</span> <span class="o">-</span><span class="mf">.08</span><span class="p">,</span>   <span class="o">-</span><span class="mf">.605</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="mf">.1</span><span class="p">,</span>  <span class="mf">.0230</span><span class="p">,</span> <span class="mf">.0230</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="o">-</span><span class="mf">.606</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="mf">.1</span><span class="p">,</span>  <span class="mf">.0230</span><span class="p">,</span> <span class="mf">.0460</span><span class="p">,</span>  <span class="mf">.06</span><span class="p">,</span>   <span class="o">-</span><span class="mf">.605</span><span class="p">,</span>   <span class="mi">0</span> <span class="p">]</span> <span class="p">]</span> <span class="p">)</span>
+    
+    <span class="n">xn</span> <span class="o">=</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">((</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">Xn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">xn</span><span class="p">,</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">Yn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">Xn</span><span class="p">)</span>
+    <span class="n">X</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">))</span>
+
+    <span class="c1"># for each ellipse to be added     </span>
+    <span class="n">nn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nn</span><span class="p">):</span>
+        <span class="n">A</span>   <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">a2</span>  <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">b2</span>  <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">x0</span>  <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">y0</span>  <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span>        
+        <span class="c1">#</span>
+        <span class="n">x</span>   <span class="o">=</span> <span class="n">Xn</span><span class="o">-</span><span class="n">x0</span>
+        <span class="n">y</span>   <span class="o">=</span> <span class="n">Yn</span><span class="o">-</span><span class="n">y0</span>
+        <span class="n">idd</span> <span class="o">=</span> <span class="p">((</span><span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">a2</span> <span class="o">+</span> <span class="p">((</span><span class="n">y</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">b2</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">idd</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="p">)</span>
+
+        <span class="c1"># add the amplitude of the ellipse</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">A</span>
+    
+    <span class="n">idx</span>    <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">X</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span>
+    <span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">X</span></div>
+
+
+<span class="c1"># Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. </span>
+<div class="viewcode-block" id="threephases">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.threephases.html#cuqi.data.threephases">[docs]</a>
+<span class="k">def</span> <span class="nf">threephases</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">70</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Three-phase phantom.</span>
+<span class="sd">    </span>
+<span class="sd">    Creates an image with three different phases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        Size of the image to generate. Image is square with sides of length size.</span>
+
+<span class="sd">    p : int</span>
+<span class="sd">        Number of blobs in each phase (blobs can overlap).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    img : ndarray</span>
+<span class="sd">        Image of the phantom.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Python translation from phantomgallery code in AIRToolsII</span>
+<span class="sd">    https://github.com/jakobsj/AIRToolsII.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># image is N x N</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">size</span>
+
+    <span class="c1"># 1st</span>
+    <span class="n">xx</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">I</span><span class="p">,</span> <span class="n">J</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="n">xx</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+    <span class="n">sigma1</span> <span class="o">=</span> <span class="mf">0.025</span><span class="o">*</span><span class="n">N</span>
+    <span class="n">c1</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">N</span>
+    <span class="n">x1</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="n">x1</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">I</span><span class="o">-</span><span class="n">c1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="p">(</span><span class="mf">2.5</span><span class="o">*</span><span class="n">sigma1</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">J</span><span class="o">-</span><span class="n">c1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="n">sigma1</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="mf">0.35</span>
+    <span class="n">x1</span><span class="p">[</span><span class="n">x1</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">x1</span><span class="p">[</span><span class="n">x1</span> <span class="o">&gt;=</span> <span class="n">t1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># 2nd</span>
+    <span class="n">sigma2</span> <span class="o">=</span> <span class="mf">0.03</span><span class="o">*</span><span class="n">N</span>
+    <span class="n">c2</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">N</span>
+    <span class="n">x2</span>     <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="n">x2</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">I</span><span class="o">-</span><span class="n">c2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="p">(</span><span class="n">J</span><span class="o">-</span><span class="n">c2</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">sigma2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="mf">0.55</span>
+    <span class="n">x2</span><span class="p">[</span><span class="n">x2</span> <span class="o">&lt;</span> <span class="n">t2</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">x2</span><span class="p">[</span><span class="n">x2</span> <span class="o">&gt;=</span> <span class="n">t2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># combine the two images</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">x2</span>
+    <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">/</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<span class="c1"># Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. </span>
+<div class="viewcode-block" id="p_power">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.p_power.html#cuqi.data.p_power">[docs]</a>
+<span class="k">def</span> <span class="nf">p_power</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">relnz</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#relnz=0.65, p=2.3</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; p-power class phantom.</span>
+<span class="sd">    </span>
+<span class="sd">    Create an image generated from a random pattern of nonzero pixels</span>
+<span class="sd">    with correlation between pixels controlled by p and sparsity by relnz.</span>
+
+<span class="sd">    Note: image will change when varying size. To avoid this change image</span>
+<span class="sd">    size using :meth:`cuqi.data.imresize` after generating the image.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        Size of the image to generate. Image is square with sides of length size.</span>
+<span class="sd">    </span>
+<span class="sd">    relnz : float</span>
+<span class="sd">        Relative number of nonzero pixels.</span>
+
+<span class="sd">    p : int</span>
+<span class="sd">        Power of the pattern. Structure (correlation) increases with larger p.</span>
+
+<span class="sd">    seed : int</span>
+<span class="sd">        Seed for the random number generator.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Image of the phantom.   </span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Python translation from phantomgallery code in AIRToolsII</span>
+<span class="sd">    https://github.com/jakobsj/AIRToolsII.</span>
+
+<span class="sd">    Original paper:</span>
+<span class="sd">    Jorgensen, Jakob S., et al. &quot;Empirical average-case relation between undersampling</span>
+<span class="sd">    and sparsity in x-ray CT.&quot; Inverse problems and imaging (Springfield, Mo.) 9.2 (2015): 431.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Set random seed</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="c1"># image is N x N</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">size</span>
+
+    <span class="c1"># check if image size is odd</span>
+    <span class="k">if</span> <span class="n">N</span><span class="o">/</span><span class="mi">2</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">Nodd</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span> 
+        <span class="n">Nodd</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">N</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c1"># Random pixels</span>
+    <span class="n">P</span>   <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+
+    <span class="c1"># Create the pattern</span>
+    <span class="n">xx</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">I</span><span class="p">,</span> <span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span><span class="n">xx</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="p">(</span> <span class="p">(</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">p</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">U</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">F</span><span class="p">))</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="o">-</span><span class="n">F</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">))</span>   <span class="c1"># &#39;descend&#39;</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">relnz</span><span class="o">*</span><span class="n">N</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">F</span><span class="p">[</span><span class="n">F</span> <span class="o">&lt;</span> <span class="n">f</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">/</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">Nodd</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="cookie">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.cookie.html#cuqi.data.cookie">[docs]</a>
+<span class="k">def</span> <span class="nf">cookie</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">grayscale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Cartoon-style image of a cookie.</span>
+
+<span class="sd">    The image is generated from the cookie.png color image file in cuqi/data.</span>
+<span class="sd">    The original image is of size 2491 x 2243 pixels. The image is resized</span>
+<span class="sd">    to be square and optionally converted to grayscale.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        Size of the image to generate. Image is square with sides of length size.</span>
+
+<span class="sd">    grayscale : bool</span>
+<span class="sd">        If True, return grayscale image. Otherwise return RGB image.</span>
+<span class="sd">        Small values in the grayscale image are set to zero to make the</span>
+<span class="sd">        background completely black.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Image of the phantom.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Read cookie.png file and convert to rgb</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_stream</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;cookie.png&#39;</span><span class="p">)</span>
+    <span class="n">cookie</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+    <span class="c1"># Convert to rgb</span>
+    <span class="n">cookie</span> <span class="o">=</span> <span class="n">cookie</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="c1"># Convert to grayscale</span>
+    <span class="k">if</span> <span class="n">grayscale</span><span class="p">:</span>
+        <span class="n">cookie</span> <span class="o">=</span> <span class="n">rgb2gray</span><span class="p">(</span><span class="n">cookie</span><span class="p">)</span>
+        
+    <span class="c1"># Resize</span>
+    <span class="n">cookie</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">cookie</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">grayscale</span><span class="p">:</span>
+        <span class="n">cookie</span><span class="p">[</span><span class="n">cookie</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Make background completely black</span>
+
+    <span class="k">return</span> <span class="n">cookie</span></div>
+
+
+<div class="viewcode-block" id="rgb2gray">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.rgb2gray.html#cuqi.data.rgb2gray">[docs]</a>
+<span class="k">def</span> <span class="nf">rgb2gray</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert RGB image to grayscale using the colorimetric (luminosity-preserving) method</span>
+<span class="sd">    </span>
+<span class="sd">    See e.g. discussion in https://poynton.ca/PDFs/ColorFAQ.pdf page 6 on the benefit of this</span>
+<span class="sd">    method compared to the classical [0.299, 0.587, 0.114] weights.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">img</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2125</span><span class="p">,</span> <span class="mf">0.7154</span><span class="p">,</span> <span class="mf">0.0721</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="imresize">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.data/cuqi.data.imresize.html#cuqi.data.imresize">[docs]</a>
+<span class="k">def</span> <span class="nf">imresize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resize an image to a new size.</span>
+<span class="sd">    </span>
+<span class="sd">    kwargs are passed to scipy.ndimage.zoom.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zoom_factor</span> <span class="o">=</span> <span class="n">size</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spnd</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">zoom_factor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

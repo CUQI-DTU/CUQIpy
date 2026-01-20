@@ -1,0 +1,6 @@
+cuqi.operator.SecondOrderFiniteDifference.num\_nodes
+====================================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: SecondOrderFiniteDifference.num_nodes

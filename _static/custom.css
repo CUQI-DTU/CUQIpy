@@ -1,0 +1,25 @@
+.wy-side-nav-search, .wy-nav-top {
+	background: #bfbfbf;
+    }
+
+/* Styles for the light theme */
+html[data-theme="light"] .card.w-100.shadow.intro-card.text-center.docutils {
+    background-color: white;
+    color: black;
+}
+
+html[data-theme="light"] .card.w-100.shadow.intro-card.text-center.docutils .card-header, 
+html[data-theme="light"] .card.w-100.shadow.intro-card.text-center.docutils .card-footer {
+    background-color: #f7f7f7;  /* A light gray */
+}
+
+/* Styles for the dark theme */
+html[data-theme="dark"] .card.w-100.shadow.intro-card.text-center.docutils {
+    background-color: #1d222b;  /* Even darker gray */
+    color: white;
+}
+
+html[data-theme="dark"] .card.w-100.shadow.intro-card.text-center.docutils .card-header, 
+html[data-theme="dark"] .card.w-100.shadow.intro-card.text-center.docutils .card-footer {
+    background-color: #222832;  /* Dark gray */
+}

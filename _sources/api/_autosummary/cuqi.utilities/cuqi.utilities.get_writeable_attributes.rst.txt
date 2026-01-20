@@ -1,0 +1,6 @@
+get\_writeable\_attributes
+==========================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: get_writeable_attributes

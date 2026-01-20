@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.fun\_dim
+===============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.fun_dim

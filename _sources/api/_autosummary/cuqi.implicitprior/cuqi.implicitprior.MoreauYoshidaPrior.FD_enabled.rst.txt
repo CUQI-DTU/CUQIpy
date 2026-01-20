@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.FD\_enabled
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: MoreauYoshidaPrior.FD_enabled

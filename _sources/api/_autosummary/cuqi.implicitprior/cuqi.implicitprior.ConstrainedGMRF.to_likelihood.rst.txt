@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.to\_likelihood
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.to_likelihood

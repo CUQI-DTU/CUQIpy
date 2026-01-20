@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.MALA.\_\_init\_\_
+=====================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: MALA.__init__

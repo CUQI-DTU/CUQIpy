@@ -1,0 +1,6 @@
+shepp\_logan
+============
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: shepp_logan

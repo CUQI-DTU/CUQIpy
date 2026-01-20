@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.model
+================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: WangCubic.model

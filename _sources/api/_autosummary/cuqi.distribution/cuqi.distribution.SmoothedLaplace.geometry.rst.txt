@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.geometry
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: SmoothedLaplace.geometry

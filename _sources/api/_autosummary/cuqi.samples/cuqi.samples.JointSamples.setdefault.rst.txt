@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.setdefault
+====================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.setdefault

@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.validate\_proposal
+====================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ProposalBasedSampler.validate_proposal

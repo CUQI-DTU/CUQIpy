@@ -1,0 +1,6 @@
+cuqi.sampler.HybridGibbs.scan\_order
+====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: HybridGibbs.scan_order

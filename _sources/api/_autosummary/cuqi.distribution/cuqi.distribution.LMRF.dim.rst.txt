@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.dim
+==========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: LMRF.dim

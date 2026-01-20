@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.\_\_init\_\_
+===================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.__init__

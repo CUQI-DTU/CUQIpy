@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.\_\_init\_\_
+==================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.__init__

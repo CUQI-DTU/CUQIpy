@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.logd
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.logd

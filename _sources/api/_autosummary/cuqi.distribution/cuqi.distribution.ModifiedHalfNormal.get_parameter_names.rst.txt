@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.get\_parameter\_names
+==========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.get_parameter_names

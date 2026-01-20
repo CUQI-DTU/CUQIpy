@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.get\_samples
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.get_samples

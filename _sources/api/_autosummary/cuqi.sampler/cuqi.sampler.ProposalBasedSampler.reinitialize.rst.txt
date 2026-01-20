@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.reinitialize
+==============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ProposalBasedSampler.reinitialize

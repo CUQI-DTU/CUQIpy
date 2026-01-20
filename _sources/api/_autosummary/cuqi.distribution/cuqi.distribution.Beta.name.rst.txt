@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.name
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.name

@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.rv
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Distribution.rv

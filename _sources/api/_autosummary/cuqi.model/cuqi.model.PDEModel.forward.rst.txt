@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.forward
+===========================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: PDEModel.forward

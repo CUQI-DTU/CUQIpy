@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.sample
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.sample

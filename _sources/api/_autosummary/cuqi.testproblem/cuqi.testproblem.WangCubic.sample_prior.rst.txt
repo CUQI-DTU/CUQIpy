@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.sample\_prior
+========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: WangCubic.sample_prior

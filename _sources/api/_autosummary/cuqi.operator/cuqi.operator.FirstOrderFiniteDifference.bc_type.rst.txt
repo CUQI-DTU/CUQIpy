@@ -1,0 +1,6 @@
+cuqi.operator.FirstOrderFiniteDifference.bc\_type
+=================================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: FirstOrderFiniteDifference.bc_type

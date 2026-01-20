@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.enable\_FD
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.enable_FD

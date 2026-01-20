@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.disable\_FD
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointDistribution.disable_FD

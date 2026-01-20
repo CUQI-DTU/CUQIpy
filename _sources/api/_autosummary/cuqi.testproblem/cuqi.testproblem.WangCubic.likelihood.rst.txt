@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.likelihood
+=====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: WangCubic.likelihood

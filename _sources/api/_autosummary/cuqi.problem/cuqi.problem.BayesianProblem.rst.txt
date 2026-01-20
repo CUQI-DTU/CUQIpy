@@ -1,0 +1,41 @@
+BayesianProblem
+===============
+
+.. currentmodule:: cuqi.problem
+
+.. autoclass:: BayesianProblem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~BayesianProblem.MAP
+      ~BayesianProblem.ML
+      ~BayesianProblem.UQ
+      ~BayesianProblem.__init__
+      ~BayesianProblem.get_components
+      ~BayesianProblem.sample_posterior
+      ~BayesianProblem.sample_prior
+      ~BayesianProblem.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~BayesianProblem.data
+      ~BayesianProblem.likelihood
+      ~BayesianProblem.model
+      ~BayesianProblem.posterior
+      ~BayesianProblem.prior
+   
+   

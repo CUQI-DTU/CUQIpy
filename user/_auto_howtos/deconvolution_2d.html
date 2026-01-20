@@ -1,0 +1,1121 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2D Deconvolution &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/deconvolution_2d';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to define a Posterior distribution" href="defining_posterior.html" />
+    <link rel="prev" title="How-To Guides" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defining_posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_2d.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joint_distribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_input.html">Multiple input model: bathtub demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_variables_and_algebra.html">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_dependent_linear_pde.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uq_in_deconvolution_1d.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">2D Deconvolution</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-deconvolution-2d-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="d-deconvolution">
+<span id="sphx-glr-user-auto-howtos-deconvolution-2d-py"></span><h1>2D Deconvolution<a class="headerlink" href="#d-deconvolution" title="Link to this heading">#</a></h1>
+<p>In this example we show how to quantify the uncertainty of a solution to a 2D deconvolution problem.</p>
+<p>First we import the modules needed.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution2D</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.problem</span> <span class="kn">import</span> <span class="n">BayesianProblem</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/CUQIpy/CUQIpy/cuqi/data/_data.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools&lt;81.
+  import pkg_resources
+/home/runner/work/CUQIpy/CUQIpy/cuqi/likelihood/__init__.py:1: SyntaxWarning: invalid escape sequence &#39;\p&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/model/_model.py:17: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot;Generic model defined by a forward operator.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/geometry/_geometry.py:769: SyntaxWarning: invalid escape sequence &#39;\s&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/geometry/_geometry.py:938: SyntaxWarning: invalid escape sequence &#39;\s&#39;
+  &#39;&#39;&#39;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/geometry/_product_geometry.py:5: SyntaxWarning: invalid escape sequence &#39;\*&#39;
+  &quot;&quot;&quot; A class for representing a product geometry. A product geometry
+/home/runner/.local/lib/python3.12/site-packages/arviz/__init__.py:39: FutureWarning:
+ArviZ is undergoing a major refactor to improve flexibility and extensibility while maintaining a user-friendly interface.
+Some upcoming changes may be backward incompatible.
+For details and migration guidance, visit: https://python.arviz.org/en/latest/user_guide/migration_guide.html
+  warn(
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_beta.py:9: SyntaxWarning: invalid escape sequence &#39;\G&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_cmrf.py:10: SyntaxWarning: invalid escape sequence &#39;\s&#39;
+  &quot;&quot;&quot;Cauchy distribution on the difference between neighboring nodes.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_gamma.py:7: SyntaxWarning: invalid escape sequence &#39;\G&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_modified_half_normal.py:8: SyntaxWarning: invalid escape sequence &#39;\p&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_gmrf.py:13: SyntaxWarning: invalid escape sequence &#39;\s&#39;
+  &quot;&quot;&quot; Gaussian Markov random field (GMRF).
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_inverse_gamma.py:8: SyntaxWarning: invalid escape sequence &#39;\e&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_lmrf.py:8: SyntaxWarning: invalid escape sequence &#39;\s&#39;
+  &quot;&quot;&quot;Laplace distribution on the difference between neighboring nodes.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_laplace.py:5: SyntaxWarning: invalid escape sequence &#39;\e&#39;
+  &quot;&quot;&quot; Laplace distribution.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_smoothed_laplace.py:6: SyntaxWarning: invalid escape sequence &#39;\e&#39;
+  &quot;&quot;&quot; Smoothed Laplace distribution.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/distribution/_joint_distribution.py:12: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/solver/_solver.py:168: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot;Wrapper for :meth:`scipy.optimize.least_squares`.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/solver/_solver.py:235: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot;Wrapper for :meth:`scipy.optimize.lsq_linear`.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/solver/_solver.py:799: SyntaxWarning: invalid escape sequence &#39;\|&#39;
+  &quot;&quot;&quot; Preprocessing
+/home/runner/work/CUQIpy/CUQIpy/cuqi/solver/_solver.py:883: SyntaxWarning: invalid escape sequence &#39;\|&#39;
+  &quot;&quot;&quot;(Euclidean) proximal operator of the \|x\|_1 norm.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/implicitprior/_restorator.py:101: SyntaxWarning: invalid escape sequence &#39;\l&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/problem/_problem.py:22: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot; Representation of a Bayesian inverse problem defined by any number of densities (distributions and likelihoods), e.g.
+/home/runner/work/CUQIpy/CUQIpy/cuqi/testproblem/_testproblem.py:145: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot;
+/home/runner/work/CUQIpy/CUQIpy/cuqi/testproblem/_testproblem.py:1112: SyntaxWarning: invalid escape sequence &#39;\m&#39;
+  &quot;&quot;&quot;
+</pre></div>
+</div>
+<section id="step-1-deterministic-model">
+<h2>Step 1: Deterministic model<a class="headerlink" href="#step-1-deterministic-model" title="Link to this heading">#</a></h2>
+<p>Consider the deterministic inverse problem</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y} = \mathbf{A} \mathbf{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is a matrix representing a 2D convolution operation and
+<span class="math notranslate nohighlight">\(\mathbf{y}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> are the data and unknown (solution to the inverse problem) respectively.</p>
+<p>A linear forward model like <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is represented by a <a class="reference internal" href="../../api/_autosummary/cuqi.model/cuqi.model.LinearModel.html#cuqi.model.LinearModel" title="cuqi.model.LinearModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearModel</span></code></a>
+and any data (like some observed data <span class="math notranslate nohighlight">\(\mathbf{y}^\mathrm{obs}\)</span>) as a <a class="reference internal" href="../../api/_autosummary/cuqi.array/cuqi.array.CUQIarray.html#cuqi.array.CUQIarray" title="cuqi.array.CUQIarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUQIarray</span></code></a>.</p>
+<p>The easiest way to get these two components is to use the built-in testproblems.
+Let us extract the model and data for a 2D deconvolution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">Deconvolution2D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-prior-model">
+<h2>Step 2: Prior model<a class="headerlink" href="#step-2-prior-model" title="Link to this heading">#</a></h2>
+<p>Now we aim to represent our prior knowledge of the unknown image. In this case, let us assume
+that the unknown is piecewise constant. This can be modelled by assuming a Laplace difference
+prior. The Laplace difference prior can be defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}_{i,j}-\mathbf{x}_{i',j} \sim \mathrm{Laplace}(0, \delta),\\
+\mathbf{x}_{i,j}-\mathbf{x}_{i,j'} \sim \mathrm{Laplace}(0, \delta),\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is the scale parameter defining how likely jumps from one pixel value
+to another are in the horizontal and vertical directions.</p>
+<p>This distribution comes pre-defined in CUQIpy as the <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.LMRF.html#cuqi.distribution.LMRF" title="cuqi.distribution.LMRF"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.distribution.LMRF</span></code></a>.
+Notice we have to specify the geometry of the unknown.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">LMRF</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">domain_geometry</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-likelihood-model">
+<h2>Step 3: Likelihood model<a class="headerlink" href="#step-3-likelihood-model" title="Link to this heading">#</a></h2>
+<p>Suppose our data is corrupted by a Gaussian noise so our observational model is</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y}\mid \mathbf{x} \sim \mathcal{N}(\mathbf{A} \mathbf{x}, \sigma^2),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma^2\)</span> is a noise variance that we know.</p>
+<p>We can represent <span class="math notranslate nohighlight">\(\mathbf{y}\mid \mathbf{x}\)</span> as a <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.html#cuqi.distribution.Distribution" title="cuqi.distribution.Distribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.distribution.Distribution</span></code></a> object.
+We often call the distribution of <span class="math notranslate nohighlight">\(\mathbf{y}\mid \mathbf{x}\)</span> the data distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">A</span><span class="nd">@x</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-posterior-sampling">
+<h2>Step 4: Posterior sampling<a class="headerlink" href="#step-4-posterior-sampling" title="Link to this heading">#</a></h2>
+<p>In actuality we are interested in conditioning on the observed data <span class="math notranslate nohighlight">\(\mathbf{y}^\mathrm{obs}\)</span>,
+to obtain the posterior distribution</p>
+<div class="math notranslate nohighlight">
+\[p(\mathbf{x}|\mathbf{y}^\mathrm{obs}) \propto p(\mathbf{y}^\mathrm{obs}|\mathbf{x})p(\mathbf{x}),\]</div>
+<p>and then sampling from this posterior distribution.</p>
+<p>In CUQIpy, we the easiest way to do this is to use the <a class="reference internal" href="../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.html#cuqi.problem.BayesianProblem" title="cuqi.problem.BayesianProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.problem.BayesianProblem</span></code></a> class.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create Bayesian problem and set observed data (conditioning)</span>
+<span class="n">BP</span> <span class="o">=</span> <span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After setting the data, we can sample from the posterior using the <a class="reference internal" href="../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.sample_posterior.html#cuqi.problem.BayesianProblem.sample_posterior" title="cuqi.problem.BayesianProblem.sample_posterior"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuqi.problem.BayesianProblem.sample_posterior()</span></code></a>
+method. Notice that a well-suited sampler is automatically chosen based on the model, likelihood and prior chosen.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sample posterior</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">BP</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using cuqi.sampler Unadjusted Gaussian Laplace Approximation (UGLA) sampler.
+burn-in: 20%
+
+Warmup:   0%|          | 0/40 [00:00&lt;?, ?it/s]
+Warmup:   0%|          | 0/40 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Warmup:   2%|▎         | 1/40 [00:00&lt;00:06,  6.44it/s, acc rate: 100.00%]
+Warmup:   2%|▎         | 1/40 [00:00&lt;00:06,  6.44it/s, acc rate: 100.00%]
+Warmup:   5%|▌         | 2/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:   5%|▌         | 2/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:   8%|▊         | 3/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:   8%|▊         | 3/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:  10%|█         | 4/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:  10%|█         | 4/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:  12%|█▎        | 5/40 [00:00&lt;00:05,  6.43it/s, acc rate: 100.00%]
+Warmup:  12%|█▎        | 5/40 [00:00&lt;00:05,  6.43it/s, acc rate: 100.00%]
+Warmup:  15%|█▌        | 6/40 [00:00&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:  15%|█▌        | 6/40 [00:01&lt;00:05,  6.44it/s, acc rate: 100.00%]
+Warmup:  18%|█▊        | 7/40 [00:01&lt;00:05,  6.42it/s, acc rate: 100.00%]
+Warmup:  18%|█▊        | 7/40 [00:01&lt;00:05,  6.42it/s, acc rate: 100.00%]
+Warmup:  20%|██        | 8/40 [00:01&lt;00:04,  6.43it/s, acc rate: 100.00%]
+Warmup:  20%|██        | 8/40 [00:01&lt;00:04,  6.43it/s, acc rate: 100.00%]
+Warmup:  22%|██▎       | 9/40 [00:01&lt;00:04,  6.42it/s, acc rate: 100.00%]
+Warmup:  22%|██▎       | 9/40 [00:01&lt;00:04,  6.42it/s, acc rate: 100.00%]
+Warmup:  25%|██▌       | 10/40 [00:01&lt;00:04,  6.43it/s, acc rate: 100.00%]
+Warmup:  25%|██▌       | 10/40 [00:01&lt;00:04,  6.43it/s, acc rate: 100.00%]
+Warmup:  28%|██▊       | 11/40 [00:01&lt;00:04,  6.44it/s, acc rate: 100.00%]
+Warmup:  28%|██▊       | 11/40 [00:01&lt;00:04,  6.44it/s, acc rate: 100.00%]
+Warmup:  30%|███       | 12/40 [00:01&lt;00:04,  6.39it/s, acc rate: 100.00%]
+Warmup:  30%|███       | 12/40 [00:02&lt;00:04,  6.39it/s, acc rate: 100.00%]
+Warmup:  32%|███▎      | 13/40 [00:02&lt;00:04,  6.40it/s, acc rate: 100.00%]
+Warmup:  32%|███▎      | 13/40 [00:02&lt;00:04,  6.40it/s, acc rate: 100.00%]
+Warmup:  35%|███▌      | 14/40 [00:02&lt;00:04,  6.41it/s, acc rate: 100.00%]
+Warmup:  35%|███▌      | 14/40 [00:02&lt;00:04,  6.41it/s, acc rate: 100.00%]
+Warmup:  38%|███▊      | 15/40 [00:02&lt;00:03,  6.42it/s, acc rate: 100.00%]
+Warmup:  38%|███▊      | 15/40 [00:02&lt;00:03,  6.42it/s, acc rate: 100.00%]
+Warmup:  40%|████      | 16/40 [00:02&lt;00:03,  6.43it/s, acc rate: 100.00%]
+Warmup:  40%|████      | 16/40 [00:02&lt;00:03,  6.43it/s, acc rate: 100.00%]
+Warmup:  42%|████▎     | 17/40 [00:02&lt;00:03,  6.44it/s, acc rate: 100.00%]
+Warmup:  42%|████▎     | 17/40 [00:02&lt;00:03,  6.44it/s, acc rate: 100.00%]
+Warmup:  45%|████▌     | 18/40 [00:02&lt;00:03,  6.43it/s, acc rate: 100.00%]
+Warmup:  45%|████▌     | 18/40 [00:02&lt;00:03,  6.43it/s, acc rate: 100.00%]
+Warmup:  48%|████▊     | 19/40 [00:02&lt;00:03,  6.43it/s, acc rate: 100.00%]
+Warmup:  48%|████▊     | 19/40 [00:03&lt;00:03,  6.43it/s, acc rate: 100.00%]
+Warmup:  50%|█████     | 20/40 [00:03&lt;00:03,  6.44it/s, acc rate: 100.00%]
+Warmup:  50%|█████     | 20/40 [00:03&lt;00:03,  6.44it/s, acc rate: 100.00%]
+Warmup:  52%|█████▎    | 21/40 [00:03&lt;00:02,  6.43it/s, acc rate: 100.00%]
+Warmup:  52%|█████▎    | 21/40 [00:03&lt;00:02,  6.43it/s, acc rate: 100.00%]
+Warmup:  55%|█████▌    | 22/40 [00:03&lt;00:02,  6.43it/s, acc rate: 100.00%]
+Warmup:  55%|█████▌    | 22/40 [00:03&lt;00:02,  6.43it/s, acc rate: 100.00%]
+Warmup:  57%|█████▊    | 23/40 [00:03&lt;00:02,  6.44it/s, acc rate: 100.00%]
+Warmup:  57%|█████▊    | 23/40 [00:03&lt;00:02,  6.44it/s, acc rate: 100.00%]
+Warmup:  60%|██████    | 24/40 [00:03&lt;00:02,  6.42it/s, acc rate: 100.00%]
+Warmup:  60%|██████    | 24/40 [00:03&lt;00:02,  6.42it/s, acc rate: 100.00%]
+Warmup:  62%|██████▎   | 25/40 [00:03&lt;00:02,  6.42it/s, acc rate: 100.00%]
+Warmup:  62%|██████▎   | 25/40 [00:04&lt;00:02,  6.42it/s, acc rate: 100.00%]
+Warmup:  65%|██████▌   | 26/40 [00:04&lt;00:02,  6.43it/s, acc rate: 100.00%]
+Warmup:  65%|██████▌   | 26/40 [00:04&lt;00:02,  6.43it/s, acc rate: 100.00%]
+Warmup:  68%|██████▊   | 27/40 [00:04&lt;00:02,  6.42it/s, acc rate: 100.00%]
+Warmup:  68%|██████▊   | 27/40 [00:04&lt;00:02,  6.42it/s, acc rate: 100.00%]
+Warmup:  70%|███████   | 28/40 [00:04&lt;00:01,  6.43it/s, acc rate: 100.00%]
+Warmup:  70%|███████   | 28/40 [00:04&lt;00:01,  6.43it/s, acc rate: 100.00%]
+Warmup:  72%|███████▎  | 29/40 [00:04&lt;00:01,  6.43it/s, acc rate: 100.00%]
+Warmup:  72%|███████▎  | 29/40 [00:04&lt;00:01,  6.43it/s, acc rate: 100.00%]
+Warmup:  75%|███████▌  | 30/40 [00:04&lt;00:01,  6.44it/s, acc rate: 100.00%]
+Warmup:  75%|███████▌  | 30/40 [00:04&lt;00:01,  6.44it/s, acc rate: 100.00%]
+Warmup:  78%|███████▊  | 31/40 [00:04&lt;00:01,  6.44it/s, acc rate: 100.00%]
+Warmup:  78%|███████▊  | 31/40 [00:04&lt;00:01,  6.44it/s, acc rate: 100.00%]
+Warmup:  80%|████████  | 32/40 [00:04&lt;00:01,  6.44it/s, acc rate: 100.00%]
+Warmup:  80%|████████  | 32/40 [00:05&lt;00:01,  6.44it/s, acc rate: 100.00%]
+Warmup:  82%|████████▎ | 33/40 [00:05&lt;00:01,  6.43it/s, acc rate: 100.00%]
+Warmup:  82%|████████▎ | 33/40 [00:05&lt;00:01,  6.43it/s, acc rate: 100.00%]
+Warmup:  85%|████████▌ | 34/40 [00:05&lt;00:00,  6.44it/s, acc rate: 100.00%]
+Warmup:  85%|████████▌ | 34/40 [00:05&lt;00:00,  6.44it/s, acc rate: 100.00%]
+Warmup:  88%|████████▊ | 35/40 [00:05&lt;00:00,  6.45it/s, acc rate: 100.00%]
+Warmup:  88%|████████▊ | 35/40 [00:05&lt;00:00,  6.45it/s, acc rate: 100.00%]
+Warmup:  90%|█████████ | 36/40 [00:05&lt;00:00,  6.45it/s, acc rate: 100.00%]
+Warmup:  90%|█████████ | 36/40 [00:05&lt;00:00,  6.45it/s, acc rate: 100.00%]
+Warmup:  92%|█████████▎| 37/40 [00:05&lt;00:00,  6.43it/s, acc rate: 100.00%]
+Warmup:  92%|█████████▎| 37/40 [00:05&lt;00:00,  6.43it/s, acc rate: 100.00%]
+Warmup:  95%|█████████▌| 38/40 [00:05&lt;00:00,  6.43it/s, acc rate: 100.00%]
+Warmup:  95%|█████████▌| 38/40 [00:06&lt;00:00,  6.43it/s, acc rate: 100.00%]
+Warmup:  98%|█████████▊| 39/40 [00:06&lt;00:00,  6.43it/s, acc rate: 100.00%]
+Warmup:  98%|█████████▊| 39/40 [00:06&lt;00:00,  6.43it/s, acc rate: 100.00%]
+Warmup: 100%|██████████| 40/40 [00:06&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Warmup: 100%|██████████| 40/40 [00:06&lt;00:00,  6.43it/s, acc rate: 100.00%]
+
+Sample:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Sample:   0%|          | 0/200 [00:00&lt;?, ?it/s, acc rate: 100.00%]
+Sample:   0%|          | 1/200 [00:00&lt;00:30,  6.42it/s, acc rate: 100.00%]
+Sample:   0%|          | 1/200 [00:00&lt;00:30,  6.42it/s, acc rate: 100.00%]
+Sample:   1%|          | 2/200 [00:00&lt;00:30,  6.44it/s, acc rate: 100.00%]
+Sample:   1%|          | 2/200 [00:00&lt;00:30,  6.44it/s, acc rate: 100.00%]
+Sample:   2%|▏         | 3/200 [00:00&lt;00:30,  6.45it/s, acc rate: 100.00%]
+Sample:   2%|▏         | 3/200 [00:00&lt;00:30,  6.45it/s, acc rate: 100.00%]
+Sample:   2%|▏         | 4/200 [00:00&lt;00:30,  6.43it/s, acc rate: 100.00%]
+Sample:   2%|▏         | 4/200 [00:00&lt;00:30,  6.43it/s, acc rate: 100.00%]
+Sample:   2%|▎         | 5/200 [00:00&lt;00:30,  6.44it/s, acc rate: 100.00%]
+Sample:   2%|▎         | 5/200 [00:00&lt;00:30,  6.44it/s, acc rate: 100.00%]
+Sample:   3%|▎         | 6/200 [00:00&lt;00:30,  6.45it/s, acc rate: 100.00%]
+Sample:   3%|▎         | 6/200 [00:01&lt;00:30,  6.45it/s, acc rate: 100.00%]
+Sample:   4%|▎         | 7/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   4%|▎         | 7/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 8/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 8/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 9/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   4%|▍         | 9/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   5%|▌         | 10/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   5%|▌         | 10/200 [00:01&lt;00:29,  6.44it/s, acc rate: 100.00%]
+Sample:   6%|▌         | 11/200 [00:01&lt;00:29,  6.43it/s, acc rate: 100.00%]
+Sample:   6%|▌         | 11/200 [00:01&lt;00:29,  6.43it/s, acc rate: 100.00%]
+Sample:   6%|▌         | 12/200 [00:01&lt;00:29,  6.40it/s, acc rate: 100.00%]
+Sample:   6%|▌         | 12/200 [00:02&lt;00:29,  6.40it/s, acc rate: 100.00%]
+Sample:   6%|▋         | 13/200 [00:02&lt;00:29,  6.42it/s, acc rate: 100.00%]
+Sample:   6%|▋         | 13/200 [00:02&lt;00:29,  6.42it/s, acc rate: 100.00%]
+Sample:   7%|▋         | 14/200 [00:02&lt;00:28,  6.42it/s, acc rate: 100.00%]
+Sample:   7%|▋         | 14/200 [00:02&lt;00:28,  6.42it/s, acc rate: 100.00%]
+Sample:   8%|▊         | 15/200 [00:02&lt;00:28,  6.42it/s, acc rate: 100.00%]
+Sample:   8%|▊         | 15/200 [00:02&lt;00:28,  6.42it/s, acc rate: 100.00%]
+Sample:   8%|▊         | 16/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:   8%|▊         | 16/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:   8%|▊         | 17/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:   8%|▊         | 17/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:   9%|▉         | 18/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:   9%|▉         | 18/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:  10%|▉         | 19/200 [00:02&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:  10%|▉         | 19/200 [00:03&lt;00:28,  6.44it/s, acc rate: 100.00%]
+Sample:  10%|█         | 20/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  10%|█         | 20/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  10%|█         | 21/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  10%|█         | 21/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  11%|█         | 22/200 [00:03&lt;00:27,  6.43it/s, acc rate: 100.00%]
+Sample:  11%|█         | 22/200 [00:03&lt;00:27,  6.43it/s, acc rate: 100.00%]
+Sample:  12%|█▏        | 23/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  12%|█▏        | 23/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  12%|█▏        | 24/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  12%|█▏        | 24/200 [00:03&lt;00:27,  6.44it/s, acc rate: 100.00%]
+Sample:  12%|█▎        | 25/200 [00:03&lt;00:27,  6.43it/s, acc rate: 100.00%]
+Sample:  12%|█▎        | 25/200 [00:04&lt;00:27,  6.43it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 26/200 [00:04&lt;00:27,  6.42it/s, acc rate: 100.00%]
+Sample:  13%|█▎        | 26/200 [00:04&lt;00:27,  6.42it/s, acc rate: 100.00%]
+Sample:  14%|█▎        | 27/200 [00:04&lt;00:26,  6.42it/s, acc rate: 100.00%]
+Sample:  14%|█▎        | 27/200 [00:04&lt;00:26,  6.42it/s, acc rate: 100.00%]
+Sample:  14%|█▍        | 28/200 [00:04&lt;00:26,  6.43it/s, acc rate: 100.00%]
+Sample:  14%|█▍        | 28/200 [00:04&lt;00:26,  6.43it/s, acc rate: 100.00%]
+Sample:  14%|█▍        | 29/200 [00:04&lt;00:26,  6.43it/s, acc rate: 100.00%]
+Sample:  14%|█▍        | 29/200 [00:04&lt;00:26,  6.43it/s, acc rate: 100.00%]
+Sample:  15%|█▌        | 30/200 [00:04&lt;00:26,  6.45it/s, acc rate: 100.00%]
+Sample:  15%|█▌        | 30/200 [00:04&lt;00:26,  6.45it/s, acc rate: 100.00%]
+Sample:  16%|█▌        | 31/200 [00:04&lt;00:26,  6.43it/s, acc rate: 100.00%]
+Sample:  16%|█▌        | 31/200 [00:04&lt;00:26,  6.43it/s, acc rate: 100.00%]
+Sample:  16%|█▌        | 32/200 [00:04&lt;00:26,  6.44it/s, acc rate: 100.00%]
+Sample:  16%|█▌        | 32/200 [00:05&lt;00:26,  6.44it/s, acc rate: 100.00%]
+Sample:  16%|█▋        | 33/200 [00:05&lt;00:25,  6.44it/s, acc rate: 100.00%]
+Sample:  16%|█▋        | 33/200 [00:05&lt;00:25,  6.44it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 34/200 [00:05&lt;00:25,  6.44it/s, acc rate: 100.00%]
+Sample:  17%|█▋        | 34/200 [00:05&lt;00:25,  6.44it/s, acc rate: 100.00%]
+Sample:  18%|█▊        | 35/200 [00:05&lt;00:25,  6.41it/s, acc rate: 100.00%]
+Sample:  18%|█▊        | 35/200 [00:05&lt;00:25,  6.41it/s, acc rate: 100.00%]
+Sample:  18%|█▊        | 36/200 [00:05&lt;00:25,  6.42it/s, acc rate: 100.00%]
+Sample:  18%|█▊        | 36/200 [00:05&lt;00:25,  6.42it/s, acc rate: 100.00%]
+Sample:  18%|█▊        | 37/200 [00:05&lt;00:25,  6.41it/s, acc rate: 100.00%]
+Sample:  18%|█▊        | 37/200 [00:05&lt;00:25,  6.41it/s, acc rate: 100.00%]
+Sample:  19%|█▉        | 38/200 [00:05&lt;00:25,  6.40it/s, acc rate: 100.00%]
+Sample:  19%|█▉        | 38/200 [00:06&lt;00:25,  6.40it/s, acc rate: 100.00%]
+Sample:  20%|█▉        | 39/200 [00:06&lt;00:25,  6.42it/s, acc rate: 100.00%]
+Sample:  20%|█▉        | 39/200 [00:06&lt;00:25,  6.42it/s, acc rate: 100.00%]
+Sample:  20%|██        | 40/200 [00:06&lt;00:24,  6.43it/s, acc rate: 100.00%]
+Sample:  20%|██        | 40/200 [00:06&lt;00:24,  6.43it/s, acc rate: 100.00%]
+Sample:  20%|██        | 41/200 [00:06&lt;00:24,  6.43it/s, acc rate: 100.00%]
+Sample:  20%|██        | 41/200 [00:06&lt;00:24,  6.43it/s, acc rate: 100.00%]
+Sample:  21%|██        | 42/200 [00:06&lt;00:24,  6.42it/s, acc rate: 100.00%]
+Sample:  21%|██        | 42/200 [00:06&lt;00:24,  6.42it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 43/200 [00:06&lt;00:24,  6.43it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 43/200 [00:06&lt;00:24,  6.43it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 44/200 [00:06&lt;00:24,  6.34it/s, acc rate: 100.00%]
+Sample:  22%|██▏       | 44/200 [00:07&lt;00:24,  6.34it/s, acc rate: 100.00%]
+Sample:  22%|██▎       | 45/200 [00:07&lt;00:24,  6.35it/s, acc rate: 100.00%]
+Sample:  22%|██▎       | 45/200 [00:07&lt;00:24,  6.35it/s, acc rate: 100.00%]
+Sample:  23%|██▎       | 46/200 [00:07&lt;00:24,  6.38it/s, acc rate: 100.00%]
+Sample:  23%|██▎       | 46/200 [00:07&lt;00:24,  6.38it/s, acc rate: 100.00%]
+Sample:  24%|██▎       | 47/200 [00:07&lt;00:23,  6.40it/s, acc rate: 100.00%]
+Sample:  24%|██▎       | 47/200 [00:07&lt;00:23,  6.40it/s, acc rate: 100.00%]
+Sample:  24%|██▍       | 48/200 [00:07&lt;00:23,  6.37it/s, acc rate: 100.00%]
+Sample:  24%|██▍       | 48/200 [00:07&lt;00:23,  6.37it/s, acc rate: 100.00%]
+Sample:  24%|██▍       | 49/200 [00:07&lt;00:23,  6.41it/s, acc rate: 100.00%]
+Sample:  24%|██▍       | 49/200 [00:07&lt;00:23,  6.41it/s, acc rate: 100.00%]
+Sample:  25%|██▌       | 50/200 [00:07&lt;00:23,  6.42it/s, acc rate: 100.00%]
+Sample:  25%|██▌       | 50/200 [00:07&lt;00:23,  6.42it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 51/200 [00:07&lt;00:23,  6.42it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 51/200 [00:08&lt;00:23,  6.42it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 52/200 [00:08&lt;00:23,  6.43it/s, acc rate: 100.00%]
+Sample:  26%|██▌       | 52/200 [00:08&lt;00:23,  6.43it/s, acc rate: 100.00%]
+Sample:  26%|██▋       | 53/200 [00:08&lt;00:22,  6.43it/s, acc rate: 100.00%]
+Sample:  26%|██▋       | 53/200 [00:08&lt;00:22,  6.43it/s, acc rate: 100.00%]
+Sample:  27%|██▋       | 54/200 [00:08&lt;00:22,  6.43it/s, acc rate: 100.00%]
+Sample:  27%|██▋       | 54/200 [00:08&lt;00:22,  6.43it/s, acc rate: 100.00%]
+Sample:  28%|██▊       | 55/200 [00:08&lt;00:22,  6.42it/s, acc rate: 100.00%]
+Sample:  28%|██▊       | 55/200 [00:08&lt;00:22,  6.42it/s, acc rate: 100.00%]
+Sample:  28%|██▊       | 56/200 [00:08&lt;00:22,  6.41it/s, acc rate: 100.00%]
+Sample:  28%|██▊       | 56/200 [00:08&lt;00:22,  6.41it/s, acc rate: 100.00%]
+Sample:  28%|██▊       | 57/200 [00:08&lt;00:22,  6.22it/s, acc rate: 100.00%]
+Sample:  28%|██▊       | 57/200 [00:09&lt;00:22,  6.22it/s, acc rate: 100.00%]
+Sample:  29%|██▉       | 58/200 [00:09&lt;00:22,  6.27it/s, acc rate: 100.00%]
+Sample:  29%|██▉       | 58/200 [00:09&lt;00:22,  6.27it/s, acc rate: 100.00%]
+Sample:  30%|██▉       | 59/200 [00:09&lt;00:22,  6.31it/s, acc rate: 100.00%]
+Sample:  30%|██▉       | 59/200 [00:09&lt;00:22,  6.31it/s, acc rate: 100.00%]
+Sample:  30%|███       | 60/200 [00:09&lt;00:22,  6.33it/s, acc rate: 100.00%]
+Sample:  30%|███       | 60/200 [00:09&lt;00:22,  6.33it/s, acc rate: 100.00%]
+Sample:  30%|███       | 61/200 [00:09&lt;00:21,  6.34it/s, acc rate: 100.00%]
+Sample:  30%|███       | 61/200 [00:09&lt;00:21,  6.34it/s, acc rate: 100.00%]
+Sample:  31%|███       | 62/200 [00:09&lt;00:21,  6.35it/s, acc rate: 100.00%]
+Sample:  31%|███       | 62/200 [00:09&lt;00:21,  6.35it/s, acc rate: 100.00%]
+Sample:  32%|███▏      | 63/200 [00:09&lt;00:21,  6.31it/s, acc rate: 100.00%]
+Sample:  32%|███▏      | 63/200 [00:10&lt;00:21,  6.31it/s, acc rate: 100.00%]
+Sample:  32%|███▏      | 64/200 [00:10&lt;00:22,  5.95it/s, acc rate: 100.00%]
+Sample:  32%|███▏      | 64/200 [00:10&lt;00:22,  5.95it/s, acc rate: 100.00%]
+Sample:  32%|███▎      | 65/200 [00:10&lt;00:22,  6.00it/s, acc rate: 100.00%]
+Sample:  32%|███▎      | 65/200 [00:10&lt;00:22,  6.00it/s, acc rate: 100.00%]
+Sample:  33%|███▎      | 66/200 [00:10&lt;00:22,  6.01it/s, acc rate: 100.00%]
+Sample:  33%|███▎      | 66/200 [00:10&lt;00:22,  6.01it/s, acc rate: 100.00%]
+Sample:  34%|███▎      | 67/200 [00:10&lt;00:22,  6.00it/s, acc rate: 100.00%]
+Sample:  34%|███▎      | 67/200 [00:10&lt;00:22,  6.00it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 68/200 [00:10&lt;00:21,  6.00it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 68/200 [00:10&lt;00:21,  6.00it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 69/200 [00:10&lt;00:21,  6.01it/s, acc rate: 100.00%]
+Sample:  34%|███▍      | 69/200 [00:11&lt;00:21,  6.01it/s, acc rate: 100.00%]
+Sample:  35%|███▌      | 70/200 [00:11&lt;00:21,  6.02it/s, acc rate: 100.00%]
+Sample:  35%|███▌      | 70/200 [00:11&lt;00:21,  6.02it/s, acc rate: 100.00%]
+Sample:  36%|███▌      | 71/200 [00:11&lt;00:21,  6.07it/s, acc rate: 100.00%]
+Sample:  36%|███▌      | 71/200 [00:11&lt;00:21,  6.07it/s, acc rate: 100.00%]
+Sample:  36%|███▌      | 72/200 [00:11&lt;00:20,  6.10it/s, acc rate: 100.00%]
+Sample:  36%|███▌      | 72/200 [00:11&lt;00:20,  6.10it/s, acc rate: 100.00%]
+Sample:  36%|███▋      | 73/200 [00:11&lt;00:20,  6.13it/s, acc rate: 100.00%]
+Sample:  36%|███▋      | 73/200 [00:11&lt;00:20,  6.13it/s, acc rate: 100.00%]
+Sample:  37%|███▋      | 74/200 [00:11&lt;00:20,  6.19it/s, acc rate: 100.00%]
+Sample:  37%|███▋      | 74/200 [00:11&lt;00:20,  6.19it/s, acc rate: 100.00%]
+Sample:  38%|███▊      | 75/200 [00:11&lt;00:20,  6.18it/s, acc rate: 100.00%]
+Sample:  38%|███▊      | 75/200 [00:11&lt;00:20,  6.18it/s, acc rate: 100.00%]
+Sample:  38%|███▊      | 76/200 [00:11&lt;00:19,  6.23it/s, acc rate: 100.00%]
+Sample:  38%|███▊      | 76/200 [00:12&lt;00:19,  6.23it/s, acc rate: 100.00%]
+Sample:  38%|███▊      | 77/200 [00:12&lt;00:19,  6.25it/s, acc rate: 100.00%]
+Sample:  38%|███▊      | 77/200 [00:12&lt;00:19,  6.25it/s, acc rate: 100.00%]
+Sample:  39%|███▉      | 78/200 [00:12&lt;00:19,  6.27it/s, acc rate: 100.00%]
+Sample:  39%|███▉      | 78/200 [00:12&lt;00:19,  6.27it/s, acc rate: 100.00%]
+Sample:  40%|███▉      | 79/200 [00:12&lt;00:19,  6.29it/s, acc rate: 100.00%]
+Sample:  40%|███▉      | 79/200 [00:12&lt;00:19,  6.29it/s, acc rate: 100.00%]
+Sample:  40%|████      | 80/200 [00:12&lt;00:19,  6.29it/s, acc rate: 100.00%]
+Sample:  40%|████      | 80/200 [00:12&lt;00:19,  6.29it/s, acc rate: 100.00%]
+Sample:  40%|████      | 81/200 [00:12&lt;00:18,  6.31it/s, acc rate: 100.00%]
+Sample:  40%|████      | 81/200 [00:12&lt;00:18,  6.31it/s, acc rate: 100.00%]
+Sample:  41%|████      | 82/200 [00:12&lt;00:18,  6.33it/s, acc rate: 100.00%]
+Sample:  41%|████      | 82/200 [00:13&lt;00:18,  6.33it/s, acc rate: 100.00%]
+Sample:  42%|████▏     | 83/200 [00:13&lt;00:18,  6.34it/s, acc rate: 100.00%]
+Sample:  42%|████▏     | 83/200 [00:13&lt;00:18,  6.34it/s, acc rate: 100.00%]
+Sample:  42%|████▏     | 84/200 [00:13&lt;00:18,  6.35it/s, acc rate: 100.00%]
+Sample:  42%|████▏     | 84/200 [00:13&lt;00:18,  6.35it/s, acc rate: 100.00%]
+Sample:  42%|████▎     | 85/200 [00:13&lt;00:18,  6.34it/s, acc rate: 100.00%]
+Sample:  42%|████▎     | 85/200 [00:13&lt;00:18,  6.34it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 86/200 [00:13&lt;00:18,  6.31it/s, acc rate: 100.00%]
+Sample:  43%|████▎     | 86/200 [00:13&lt;00:18,  6.31it/s, acc rate: 100.00%]
+Sample:  44%|████▎     | 87/200 [00:13&lt;00:17,  6.31it/s, acc rate: 100.00%]
+Sample:  44%|████▎     | 87/200 [00:13&lt;00:17,  6.31it/s, acc rate: 100.00%]
+Sample:  44%|████▍     | 88/200 [00:13&lt;00:17,  6.33it/s, acc rate: 100.00%]
+Sample:  44%|████▍     | 88/200 [00:14&lt;00:17,  6.33it/s, acc rate: 100.00%]
+Sample:  44%|████▍     | 89/200 [00:14&lt;00:18,  6.06it/s, acc rate: 100.00%]
+Sample:  44%|████▍     | 89/200 [00:14&lt;00:18,  6.06it/s, acc rate: 100.00%]
+Sample:  45%|████▌     | 90/200 [00:14&lt;00:17,  6.16it/s, acc rate: 100.00%]
+Sample:  45%|████▌     | 90/200 [00:14&lt;00:17,  6.16it/s, acc rate: 100.00%]
+Sample:  46%|████▌     | 91/200 [00:14&lt;00:17,  6.23it/s, acc rate: 100.00%]
+Sample:  46%|████▌     | 91/200 [00:14&lt;00:17,  6.23it/s, acc rate: 100.00%]
+Sample:  46%|████▌     | 92/200 [00:14&lt;00:17,  6.18it/s, acc rate: 100.00%]
+Sample:  46%|████▌     | 92/200 [00:14&lt;00:17,  6.18it/s, acc rate: 100.00%]
+Sample:  46%|████▋     | 93/200 [00:14&lt;00:17,  6.24it/s, acc rate: 100.00%]
+Sample:  46%|████▋     | 93/200 [00:14&lt;00:17,  6.24it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 94/200 [00:14&lt;00:16,  6.28it/s, acc rate: 100.00%]
+Sample:  47%|████▋     | 94/200 [00:15&lt;00:16,  6.28it/s, acc rate: 100.00%]
+Sample:  48%|████▊     | 95/200 [00:15&lt;00:16,  6.32it/s, acc rate: 100.00%]
+Sample:  48%|████▊     | 95/200 [00:15&lt;00:16,  6.32it/s, acc rate: 100.00%]
+Sample:  48%|████▊     | 96/200 [00:15&lt;00:16,  6.35it/s, acc rate: 100.00%]
+Sample:  48%|████▊     | 96/200 [00:15&lt;00:16,  6.35it/s, acc rate: 100.00%]
+Sample:  48%|████▊     | 97/200 [00:15&lt;00:16,  6.36it/s, acc rate: 100.00%]
+Sample:  48%|████▊     | 97/200 [00:15&lt;00:16,  6.36it/s, acc rate: 100.00%]
+Sample:  49%|████▉     | 98/200 [00:15&lt;00:16,  6.36it/s, acc rate: 100.00%]
+Sample:  49%|████▉     | 98/200 [00:15&lt;00:16,  6.36it/s, acc rate: 100.00%]
+Sample:  50%|████▉     | 99/200 [00:15&lt;00:15,  6.37it/s, acc rate: 100.00%]
+Sample:  50%|████▉     | 99/200 [00:15&lt;00:15,  6.37it/s, acc rate: 100.00%]
+Sample:  50%|█████     | 100/200 [00:15&lt;00:15,  6.38it/s, acc rate: 100.00%]
+Sample:  50%|█████     | 100/200 [00:15&lt;00:15,  6.38it/s, acc rate: 100.00%]
+Sample:  50%|█████     | 101/200 [00:15&lt;00:15,  6.39it/s, acc rate: 100.00%]
+Sample:  50%|█████     | 101/200 [00:16&lt;00:15,  6.39it/s, acc rate: 100.00%]
+Sample:  51%|█████     | 102/200 [00:16&lt;00:15,  6.31it/s, acc rate: 100.00%]
+Sample:  51%|█████     | 102/200 [00:16&lt;00:15,  6.31it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 103/200 [00:16&lt;00:15,  6.34it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 103/200 [00:16&lt;00:15,  6.34it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 104/200 [00:16&lt;00:15,  6.35it/s, acc rate: 100.00%]
+Sample:  52%|█████▏    | 104/200 [00:16&lt;00:15,  6.35it/s, acc rate: 100.00%]
+Sample:  52%|█████▎    | 105/200 [00:16&lt;00:14,  6.37it/s, acc rate: 100.00%]
+Sample:  52%|█████▎    | 105/200 [00:16&lt;00:14,  6.37it/s, acc rate: 100.00%]
+Sample:  53%|█████▎    | 106/200 [00:16&lt;00:14,  6.38it/s, acc rate: 100.00%]
+Sample:  53%|█████▎    | 106/200 [00:16&lt;00:14,  6.38it/s, acc rate: 100.00%]
+Sample:  54%|█████▎    | 107/200 [00:16&lt;00:14,  6.38it/s, acc rate: 100.00%]
+Sample:  54%|█████▎    | 107/200 [00:17&lt;00:14,  6.38it/s, acc rate: 100.00%]
+Sample:  54%|█████▍    | 108/200 [00:17&lt;00:14,  6.39it/s, acc rate: 100.00%]
+Sample:  54%|█████▍    | 108/200 [00:17&lt;00:14,  6.39it/s, acc rate: 100.00%]
+Sample:  55%|█████▍    | 109/200 [00:17&lt;00:14,  6.39it/s, acc rate: 100.00%]
+Sample:  55%|█████▍    | 109/200 [00:17&lt;00:14,  6.39it/s, acc rate: 100.00%]
+Sample:  55%|█████▌    | 110/200 [00:17&lt;00:14,  6.39it/s, acc rate: 100.00%]
+Sample:  55%|█████▌    | 110/200 [00:17&lt;00:14,  6.39it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 111/200 [00:17&lt;00:14,  6.27it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 111/200 [00:17&lt;00:14,  6.27it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 112/200 [00:17&lt;00:13,  6.32it/s, acc rate: 100.00%]
+Sample:  56%|█████▌    | 112/200 [00:17&lt;00:13,  6.32it/s, acc rate: 100.00%]
+Sample:  56%|█████▋    | 113/200 [00:17&lt;00:13,  6.29it/s, acc rate: 100.00%]
+Sample:  56%|█████▋    | 113/200 [00:17&lt;00:13,  6.29it/s, acc rate: 100.00%]
+Sample:  57%|█████▋    | 114/200 [00:17&lt;00:13,  6.31it/s, acc rate: 100.00%]
+Sample:  57%|█████▋    | 114/200 [00:18&lt;00:13,  6.31it/s, acc rate: 100.00%]
+Sample:  57%|█████▊    | 115/200 [00:18&lt;00:13,  6.35it/s, acc rate: 100.00%]
+Sample:  57%|█████▊    | 115/200 [00:18&lt;00:13,  6.35it/s, acc rate: 100.00%]
+Sample:  58%|█████▊    | 116/200 [00:18&lt;00:13,  6.35it/s, acc rate: 100.00%]
+Sample:  58%|█████▊    | 116/200 [00:18&lt;00:13,  6.35it/s, acc rate: 100.00%]
+Sample:  58%|█████▊    | 117/200 [00:18&lt;00:13,  6.35it/s, acc rate: 100.00%]
+Sample:  58%|█████▊    | 117/200 [00:18&lt;00:13,  6.35it/s, acc rate: 100.00%]
+Sample:  59%|█████▉    | 118/200 [00:18&lt;00:12,  6.36it/s, acc rate: 100.00%]
+Sample:  59%|█████▉    | 118/200 [00:18&lt;00:12,  6.36it/s, acc rate: 100.00%]
+Sample:  60%|█████▉    | 119/200 [00:18&lt;00:12,  6.37it/s, acc rate: 100.00%]
+Sample:  60%|█████▉    | 119/200 [00:18&lt;00:12,  6.37it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 120/200 [00:18&lt;00:12,  6.39it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 120/200 [00:19&lt;00:12,  6.39it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 121/200 [00:19&lt;00:13,  6.07it/s, acc rate: 100.00%]
+Sample:  60%|██████    | 121/200 [00:19&lt;00:13,  6.07it/s, acc rate: 100.00%]
+Sample:  61%|██████    | 122/200 [00:19&lt;00:12,  6.16it/s, acc rate: 100.00%]
+Sample:  61%|██████    | 122/200 [00:19&lt;00:12,  6.16it/s, acc rate: 100.00%]
+Sample:  62%|██████▏   | 123/200 [00:19&lt;00:12,  6.24it/s, acc rate: 100.00%]
+Sample:  62%|██████▏   | 123/200 [00:19&lt;00:12,  6.24it/s, acc rate: 100.00%]
+Sample:  62%|██████▏   | 124/200 [00:19&lt;00:12,  6.29it/s, acc rate: 100.00%]
+Sample:  62%|██████▏   | 124/200 [00:19&lt;00:12,  6.29it/s, acc rate: 100.00%]
+Sample:  62%|██████▎   | 125/200 [00:19&lt;00:11,  6.25it/s, acc rate: 100.00%]
+Sample:  62%|██████▎   | 125/200 [00:19&lt;00:11,  6.25it/s, acc rate: 100.00%]
+Sample:  63%|██████▎   | 126/200 [00:19&lt;00:11,  6.28it/s, acc rate: 100.00%]
+Sample:  63%|██████▎   | 126/200 [00:20&lt;00:11,  6.28it/s, acc rate: 100.00%]
+Sample:  64%|██████▎   | 127/200 [00:20&lt;00:11,  6.29it/s, acc rate: 100.00%]
+Sample:  64%|██████▎   | 127/200 [00:20&lt;00:11,  6.29it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 128/200 [00:20&lt;00:12,  5.99it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 128/200 [00:20&lt;00:12,  5.99it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 129/200 [00:20&lt;00:11,  6.04it/s, acc rate: 100.00%]
+Sample:  64%|██████▍   | 129/200 [00:20&lt;00:11,  6.04it/s, acc rate: 100.00%]
+Sample:  65%|██████▌   | 130/200 [00:20&lt;00:11,  6.13it/s, acc rate: 100.00%]
+Sample:  65%|██████▌   | 130/200 [00:20&lt;00:11,  6.13it/s, acc rate: 100.00%]
+Sample:  66%|██████▌   | 131/200 [00:20&lt;00:11,  6.21it/s, acc rate: 100.00%]
+Sample:  66%|██████▌   | 131/200 [00:20&lt;00:11,  6.21it/s, acc rate: 100.00%]
+Sample:  66%|██████▌   | 132/200 [00:20&lt;00:10,  6.27it/s, acc rate: 100.00%]
+Sample:  66%|██████▌   | 132/200 [00:21&lt;00:10,  6.27it/s, acc rate: 100.00%]
+Sample:  66%|██████▋   | 133/200 [00:21&lt;00:10,  6.30it/s, acc rate: 100.00%]
+Sample:  66%|██████▋   | 133/200 [00:21&lt;00:10,  6.30it/s, acc rate: 100.00%]
+Sample:  67%|██████▋   | 134/200 [00:21&lt;00:10,  6.34it/s, acc rate: 100.00%]
+Sample:  67%|██████▋   | 134/200 [00:21&lt;00:10,  6.34it/s, acc rate: 100.00%]
+Sample:  68%|██████▊   | 135/200 [00:21&lt;00:10,  6.34it/s, acc rate: 100.00%]
+Sample:  68%|██████▊   | 135/200 [00:21&lt;00:10,  6.34it/s, acc rate: 100.00%]
+Sample:  68%|██████▊   | 136/200 [00:21&lt;00:10,  6.36it/s, acc rate: 100.00%]
+Sample:  68%|██████▊   | 136/200 [00:21&lt;00:10,  6.36it/s, acc rate: 100.00%]
+Sample:  68%|██████▊   | 137/200 [00:21&lt;00:09,  6.33it/s, acc rate: 100.00%]
+Sample:  68%|██████▊   | 137/200 [00:21&lt;00:09,  6.33it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 138/200 [00:21&lt;00:09,  6.35it/s, acc rate: 100.00%]
+Sample:  69%|██████▉   | 138/200 [00:21&lt;00:09,  6.35it/s, acc rate: 100.00%]
+Sample:  70%|██████▉   | 139/200 [00:21&lt;00:09,  6.37it/s, acc rate: 100.00%]
+Sample:  70%|██████▉   | 139/200 [00:22&lt;00:09,  6.37it/s, acc rate: 100.00%]
+Sample:  70%|███████   | 140/200 [00:22&lt;00:09,  6.38it/s, acc rate: 100.00%]
+Sample:  70%|███████   | 140/200 [00:22&lt;00:09,  6.38it/s, acc rate: 100.00%]
+Sample:  70%|███████   | 141/200 [00:22&lt;00:09,  6.38it/s, acc rate: 100.00%]
+Sample:  70%|███████   | 141/200 [00:22&lt;00:09,  6.38it/s, acc rate: 100.00%]
+Sample:  71%|███████   | 142/200 [00:22&lt;00:09,  6.40it/s, acc rate: 100.00%]
+Sample:  71%|███████   | 142/200 [00:22&lt;00:09,  6.40it/s, acc rate: 100.00%]
+Sample:  72%|███████▏  | 143/200 [00:22&lt;00:08,  6.40it/s, acc rate: 100.00%]
+Sample:  72%|███████▏  | 143/200 [00:22&lt;00:08,  6.40it/s, acc rate: 100.00%]
+Sample:  72%|███████▏  | 144/200 [00:22&lt;00:08,  6.41it/s, acc rate: 100.00%]
+Sample:  72%|███████▏  | 144/200 [00:22&lt;00:08,  6.41it/s, acc rate: 100.00%]
+Sample:  72%|███████▎  | 145/200 [00:22&lt;00:08,  6.42it/s, acc rate: 100.00%]
+Sample:  72%|███████▎  | 145/200 [00:23&lt;00:08,  6.42it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 146/200 [00:23&lt;00:08,  6.42it/s, acc rate: 100.00%]
+Sample:  73%|███████▎  | 146/200 [00:23&lt;00:08,  6.42it/s, acc rate: 100.00%]
+Sample:  74%|███████▎  | 147/200 [00:23&lt;00:08,  6.41it/s, acc rate: 100.00%]
+Sample:  74%|███████▎  | 147/200 [00:23&lt;00:08,  6.41it/s, acc rate: 100.00%]
+Sample:  74%|███████▍  | 148/200 [00:23&lt;00:08,  6.40it/s, acc rate: 100.00%]
+Sample:  74%|███████▍  | 148/200 [00:23&lt;00:08,  6.40it/s, acc rate: 100.00%]
+Sample:  74%|███████▍  | 149/200 [00:23&lt;00:08,  6.36it/s, acc rate: 100.00%]
+Sample:  74%|███████▍  | 149/200 [00:23&lt;00:08,  6.36it/s, acc rate: 100.00%]
+Sample:  75%|███████▌  | 150/200 [00:23&lt;00:07,  6.37it/s, acc rate: 100.00%]
+Sample:  75%|███████▌  | 150/200 [00:23&lt;00:07,  6.37it/s, acc rate: 100.00%]
+Sample:  76%|███████▌  | 151/200 [00:23&lt;00:07,  6.37it/s, acc rate: 100.00%]
+Sample:  76%|███████▌  | 151/200 [00:24&lt;00:07,  6.37it/s, acc rate: 100.00%]
+Sample:  76%|███████▌  | 152/200 [00:24&lt;00:07,  6.39it/s, acc rate: 100.00%]
+Sample:  76%|███████▌  | 152/200 [00:24&lt;00:07,  6.39it/s, acc rate: 100.00%]
+Sample:  76%|███████▋  | 153/200 [00:24&lt;00:07,  6.37it/s, acc rate: 100.00%]
+Sample:  76%|███████▋  | 153/200 [00:24&lt;00:07,  6.37it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 154/200 [00:24&lt;00:07,  5.99it/s, acc rate: 100.00%]
+Sample:  77%|███████▋  | 154/200 [00:24&lt;00:07,  5.99it/s, acc rate: 100.00%]
+Sample:  78%|███████▊  | 155/200 [00:24&lt;00:07,  6.10it/s, acc rate: 100.00%]
+Sample:  78%|███████▊  | 155/200 [00:24&lt;00:07,  6.10it/s, acc rate: 100.00%]
+Sample:  78%|███████▊  | 156/200 [00:24&lt;00:07,  6.18it/s, acc rate: 100.00%]
+Sample:  78%|███████▊  | 156/200 [00:24&lt;00:07,  6.18it/s, acc rate: 100.00%]
+Sample:  78%|███████▊  | 157/200 [00:24&lt;00:06,  6.24it/s, acc rate: 100.00%]
+Sample:  78%|███████▊  | 157/200 [00:24&lt;00:06,  6.24it/s, acc rate: 100.00%]
+Sample:  79%|███████▉  | 158/200 [00:24&lt;00:06,  6.27it/s, acc rate: 100.00%]
+Sample:  79%|███████▉  | 158/200 [00:25&lt;00:06,  6.27it/s, acc rate: 100.00%]
+Sample:  80%|███████▉  | 159/200 [00:25&lt;00:06,  6.32it/s, acc rate: 100.00%]
+Sample:  80%|███████▉  | 159/200 [00:25&lt;00:06,  6.32it/s, acc rate: 100.00%]
+Sample:  80%|████████  | 160/200 [00:25&lt;00:06,  6.35it/s, acc rate: 100.00%]
+Sample:  80%|████████  | 160/200 [00:25&lt;00:06,  6.35it/s, acc rate: 100.00%]
+Sample:  80%|████████  | 161/200 [00:25&lt;00:06,  6.37it/s, acc rate: 100.00%]
+Sample:  80%|████████  | 161/200 [00:25&lt;00:06,  6.37it/s, acc rate: 100.00%]
+Sample:  81%|████████  | 162/200 [00:25&lt;00:05,  6.38it/s, acc rate: 100.00%]
+Sample:  81%|████████  | 162/200 [00:25&lt;00:05,  6.38it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 163/200 [00:25&lt;00:05,  6.39it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 163/200 [00:25&lt;00:05,  6.39it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 164/200 [00:25&lt;00:05,  6.40it/s, acc rate: 100.00%]
+Sample:  82%|████████▏ | 164/200 [00:26&lt;00:05,  6.40it/s, acc rate: 100.00%]
+Sample:  82%|████████▎ | 165/200 [00:26&lt;00:05,  6.40it/s, acc rate: 100.00%]
+Sample:  82%|████████▎ | 165/200 [00:26&lt;00:05,  6.40it/s, acc rate: 100.00%]
+Sample:  83%|████████▎ | 166/200 [00:26&lt;00:05,  6.37it/s, acc rate: 100.00%]
+Sample:  83%|████████▎ | 166/200 [00:26&lt;00:05,  6.37it/s, acc rate: 100.00%]
+Sample:  84%|████████▎ | 167/200 [00:26&lt;00:05,  6.35it/s, acc rate: 100.00%]
+Sample:  84%|████████▎ | 167/200 [00:26&lt;00:05,  6.35it/s, acc rate: 100.00%]
+Sample:  84%|████████▍ | 168/200 [00:26&lt;00:05,  6.35it/s, acc rate: 100.00%]
+Sample:  84%|████████▍ | 168/200 [00:26&lt;00:05,  6.35it/s, acc rate: 100.00%]
+Sample:  84%|████████▍ | 169/200 [00:26&lt;00:04,  6.37it/s, acc rate: 100.00%]
+Sample:  84%|████████▍ | 169/200 [00:26&lt;00:04,  6.37it/s, acc rate: 100.00%]
+Sample:  85%|████████▌ | 170/200 [00:26&lt;00:04,  6.37it/s, acc rate: 100.00%]
+Sample:  85%|████████▌ | 170/200 [00:27&lt;00:04,  6.37it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 171/200 [00:27&lt;00:04,  6.38it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 171/200 [00:27&lt;00:04,  6.38it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 172/200 [00:27&lt;00:04,  6.36it/s, acc rate: 100.00%]
+Sample:  86%|████████▌ | 172/200 [00:27&lt;00:04,  6.36it/s, acc rate: 100.00%]
+Sample:  86%|████████▋ | 173/200 [00:27&lt;00:04,  6.36it/s, acc rate: 100.00%]
+Sample:  86%|████████▋ | 173/200 [00:27&lt;00:04,  6.36it/s, acc rate: 100.00%]
+Sample:  87%|████████▋ | 174/200 [00:27&lt;00:04,  6.36it/s, acc rate: 100.00%]
+Sample:  87%|████████▋ | 174/200 [00:27&lt;00:04,  6.36it/s, acc rate: 100.00%]
+Sample:  88%|████████▊ | 175/200 [00:27&lt;00:03,  6.35it/s, acc rate: 100.00%]
+Sample:  88%|████████▊ | 175/200 [00:27&lt;00:03,  6.35it/s, acc rate: 100.00%]
+Sample:  88%|████████▊ | 176/200 [00:27&lt;00:03,  6.36it/s, acc rate: 100.00%]
+Sample:  88%|████████▊ | 176/200 [00:27&lt;00:03,  6.36it/s, acc rate: 100.00%]
+Sample:  88%|████████▊ | 177/200 [00:27&lt;00:03,  6.37it/s, acc rate: 100.00%]
+Sample:  88%|████████▊ | 177/200 [00:28&lt;00:03,  6.37it/s, acc rate: 100.00%]
+Sample:  89%|████████▉ | 178/200 [00:28&lt;00:03,  6.39it/s, acc rate: 100.00%]
+Sample:  89%|████████▉ | 178/200 [00:28&lt;00:03,  6.39it/s, acc rate: 100.00%]
+Sample:  90%|████████▉ | 179/200 [00:28&lt;00:03,  6.39it/s, acc rate: 100.00%]
+Sample:  90%|████████▉ | 179/200 [00:28&lt;00:03,  6.39it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 180/200 [00:28&lt;00:03,  6.40it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 180/200 [00:28&lt;00:03,  6.40it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 181/200 [00:28&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  90%|█████████ | 181/200 [00:28&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  91%|█████████ | 182/200 [00:28&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  91%|█████████ | 182/200 [00:28&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  92%|█████████▏| 183/200 [00:28&lt;00:02,  6.40it/s, acc rate: 100.00%]
+Sample:  92%|█████████▏| 183/200 [00:29&lt;00:02,  6.40it/s, acc rate: 100.00%]
+Sample:  92%|█████████▏| 184/200 [00:29&lt;00:02,  6.40it/s, acc rate: 100.00%]
+Sample:  92%|█████████▏| 184/200 [00:29&lt;00:02,  6.40it/s, acc rate: 100.00%]
+Sample:  92%|█████████▎| 185/200 [00:29&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  92%|█████████▎| 185/200 [00:29&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  93%|█████████▎| 186/200 [00:29&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  93%|█████████▎| 186/200 [00:29&lt;00:02,  6.41it/s, acc rate: 100.00%]
+Sample:  94%|█████████▎| 187/200 [00:29&lt;00:02,  6.40it/s, acc rate: 100.00%]
+Sample:  94%|█████████▎| 187/200 [00:29&lt;00:02,  6.40it/s, acc rate: 100.00%]
+Sample:  94%|█████████▍| 188/200 [00:29&lt;00:01,  6.41it/s, acc rate: 100.00%]
+Sample:  94%|█████████▍| 188/200 [00:29&lt;00:01,  6.41it/s, acc rate: 100.00%]
+Sample:  94%|█████████▍| 189/200 [00:29&lt;00:01,  6.41it/s, acc rate: 100.00%]
+Sample:  94%|█████████▍| 189/200 [00:29&lt;00:01,  6.41it/s, acc rate: 100.00%]
+Sample:  95%|█████████▌| 190/200 [00:29&lt;00:01,  6.40it/s, acc rate: 100.00%]
+Sample:  95%|█████████▌| 190/200 [00:30&lt;00:01,  6.40it/s, acc rate: 100.00%]
+Sample:  96%|█████████▌| 191/200 [00:30&lt;00:01,  6.42it/s, acc rate: 100.00%]
+Sample:  96%|█████████▌| 191/200 [00:30&lt;00:01,  6.42it/s, acc rate: 100.00%]
+Sample:  96%|█████████▌| 192/200 [00:30&lt;00:01,  6.42it/s, acc rate: 100.00%]
+Sample:  96%|█████████▌| 192/200 [00:30&lt;00:01,  6.42it/s, acc rate: 100.00%]
+Sample:  96%|█████████▋| 193/200 [00:30&lt;00:01,  6.42it/s, acc rate: 100.00%]
+Sample:  96%|█████████▋| 193/200 [00:30&lt;00:01,  6.42it/s, acc rate: 100.00%]
+Sample:  97%|█████████▋| 194/200 [00:30&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  97%|█████████▋| 194/200 [00:30&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  98%|█████████▊| 195/200 [00:30&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  98%|█████████▊| 195/200 [00:30&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  98%|█████████▊| 196/200 [00:30&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  98%|█████████▊| 196/200 [00:31&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  98%|█████████▊| 197/200 [00:31&lt;00:00,  6.41it/s, acc rate: 100.00%]
+Sample:  98%|█████████▊| 197/200 [00:31&lt;00:00,  6.41it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 198/200 [00:31&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample:  99%|█████████▉| 198/200 [00:31&lt;00:00,  6.42it/s, acc rate: 100.00%]
+Sample: 100%|█████████▉| 199/200 [00:31&lt;00:00,  6.41it/s, acc rate: 100.00%]
+Sample: 100%|█████████▉| 199/200 [00:31&lt;00:00,  6.41it/s, acc rate: 100.00%]
+Sample: 100%|██████████| 200/200 [00:31&lt;00:00,  6.41it/s, acc rate: 100.00%]
+Sample: 100%|██████████| 200/200 [00:31&lt;00:00,  6.34it/s, acc rate: 100.00%]
+Elapsed time: 37.80747747421265
+</pre></div>
+</div>
+</section>
+<section id="step-5-posterior-analysis">
+<h2>Step 5: Posterior analysis<a class="headerlink" href="#step-5-posterior-analysis" title="Link to this heading">#</a></h2>
+<p>Finally, after sampling we can analyze the posterior. There are many options here. For example,
+we can plot the credible intervals for the unknown image and compare it to the true image.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_deconvolution_2d_001.png" srcset="../../_images/sphx_glr_deconvolution_2d_001.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_deconvolution_2d_002.png" srcset="../../_images/sphx_glr_deconvolution_2d_002.png" alt="Exact" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_deconvolution_2d_003.png" srcset="../../_images/sphx_glr_deconvolution_2d_003.png" alt="Width of credibility interval" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_deconvolution_2d_004.png" srcset="../../_images/sphx_glr_deconvolution_2d_004.png" alt="Upper credibility interval limit" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_deconvolution_2d_005.png" srcset="../../_images/sphx_glr_deconvolution_2d_005.png" alt="Lower credibility interval limit" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 39.377 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-deconvolution-2d-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/547559058cc293403be396f85deacb19/deconvolution_2d.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">deconvolution_2d.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ac08f3134345bf77d839ed9e313f5129/deconvolution_2d.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">deconvolution_2d.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/21c19b7716719c492b067e5facb7aef7/deconvolution_2d.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">deconvolution_2d.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-deterministic-model">Step 1: Deterministic model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-prior-model">Step 2: Prior model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-likelihood-model">Step 3: Likelihood model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-posterior-sampling">Step 4: Posterior sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-posterior-analysis">Step 5: Posterior analysis</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/deconvolution_2d.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

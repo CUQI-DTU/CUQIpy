@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.prior
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: MultipleLikelihoodPosterior.prior

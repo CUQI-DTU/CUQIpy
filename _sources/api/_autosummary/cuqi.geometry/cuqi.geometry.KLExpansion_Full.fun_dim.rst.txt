@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion\_Full.fun\_dim
+========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion_Full.fun_dim

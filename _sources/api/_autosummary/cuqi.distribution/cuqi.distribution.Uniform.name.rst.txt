@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.name
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Uniform.name

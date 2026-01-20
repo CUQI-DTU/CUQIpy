@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.is\_cond
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGMRF.is_cond

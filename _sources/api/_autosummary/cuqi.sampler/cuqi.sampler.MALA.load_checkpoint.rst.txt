@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.load\_checkpoint
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.load_checkpoint

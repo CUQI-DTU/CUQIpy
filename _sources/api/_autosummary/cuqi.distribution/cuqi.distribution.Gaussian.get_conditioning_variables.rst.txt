@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.get\_conditioning\_variables
+=======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.get_conditioning_variables

@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.cov
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.cov

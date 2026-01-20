@@ -1,0 +1,6 @@
+cuqi.sampler.Sampler.dim
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Sampler.dim

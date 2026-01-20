@@ -1,0 +1,55 @@
+RegularizedLinearRTO
+====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: RegularizedLinearRTO
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedLinearRTO.__init__
+      ~RegularizedLinearRTO.get_history
+      ~RegularizedLinearRTO.get_samples
+      ~RegularizedLinearRTO.get_state
+      ~RegularizedLinearRTO.initialize
+      ~RegularizedLinearRTO.load_checkpoint
+      ~RegularizedLinearRTO.reinitialize
+      ~RegularizedLinearRTO.sample
+      ~RegularizedLinearRTO.save_checkpoint
+      ~RegularizedLinearRTO.set_history
+      ~RegularizedLinearRTO.set_state
+      ~RegularizedLinearRTO.step
+      ~RegularizedLinearRTO.tune
+      ~RegularizedLinearRTO.validate_target
+      ~RegularizedLinearRTO.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedLinearRTO.current_point
+      ~RegularizedLinearRTO.dim
+      ~RegularizedLinearRTO.geometry
+      ~RegularizedLinearRTO.inner_initial_point
+      ~RegularizedLinearRTO.likelihood
+      ~RegularizedLinearRTO.likelihoods
+      ~RegularizedLinearRTO.model
+      ~RegularizedLinearRTO.models
+      ~RegularizedLinearRTO.prior
+      ~RegularizedLinearRTO.proximal
+      ~RegularizedLinearRTO.solver
+      ~RegularizedLinearRTO.target
+   
+   

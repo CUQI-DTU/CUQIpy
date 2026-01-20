@@ -1,0 +1,38 @@
+JointDistribution
+=================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: JointDistribution
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~JointDistribution.__init__
+      ~JointDistribution.disable_FD
+      ~JointDistribution.enable_FD
+      ~JointDistribution.get_density
+      ~JointDistribution.get_parameter_names
+      ~JointDistribution.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~JointDistribution.FD_enabled
+      ~JointDistribution.FD_epsilon
+      ~JointDistribution.dim
+      ~JointDistribution.geometry
+   
+   

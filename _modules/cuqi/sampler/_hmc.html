@@ -1,0 +1,876 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.sampler._hmc &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/sampler/_hmc';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.sampler._hmc</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.sampler._hmc</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cuqi.sampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+<span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+
+<div class="viewcode-block" id="NUTS">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.html#cuqi.sampler.NUTS">[docs]</a>
+<span class="k">class</span> <span class="nc">NUTS</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;No-U-Turn Sampler (Hoffman and Gelman, 2014).</span>
+
+<span class="sd">    Samples a distribution given its logpdf and gradient using a Hamiltonian</span>
+<span class="sd">    Monte Carlo (HMC) algorithm with automatic parameter tuning.</span>
+
+<span class="sd">    For more details see: See Hoffman, M. D., &amp; Gelman, A. (2014). The no-U-turn</span>
+<span class="sd">    sampler: Adaptively setting path lengths in Hamiltonian Monte Carlo. Journal</span>
+<span class="sd">    of Machine Learning Research, 15, 1593-1623.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target : `cuqi.distribution.Distribution`</span>
+<span class="sd">        The target distribution to sample. Must have logpdf and gradient method.</span>
+<span class="sd">        Custom logpdfs and gradients are supported by using a</span>
+<span class="sd">        :class:`cuqi.distribution.UserDefinedDistribution`.</span>
+<span class="sd">    </span>
+<span class="sd">    initial_point : ndarray</span>
+<span class="sd">        Initial parameters. *Optional*. If not provided, the initial point is </span>
+<span class="sd">        an array of ones.</span>
+
+<span class="sd">    max_depth : int</span>
+<span class="sd">        Maximum depth of the tree &gt;=0 and the default is 15.</span>
+
+<span class="sd">    step_size : None or float</span>
+<span class="sd">        If step_size is provided (as positive float), it will be used as initial</span>
+<span class="sd">        step size. If None, the step size will be estimated by the sampler.</span>
+
+<span class="sd">    opt_acc_rate : float</span>
+<span class="sd">        The optimal acceptance rate to reach if using adaptive step size.</span>
+<span class="sd">        Suggested values are 0.6 (default) or 0.8 (as in stan). In principle,</span>
+<span class="sd">        opt_acc_rate should be in (0, 1), however, choosing a value that is very</span>
+<span class="sd">        close to 1 or 0 might lead to poor performance of the sampler.</span>
+
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Import cuqi</span>
+<span class="sd">        import cuqi</span>
+
+<span class="sd">        # Define a target distribution</span>
+<span class="sd">        tp = cuqi.testproblem.WangCubic()</span>
+<span class="sd">        target = tp.posterior</span>
+
+<span class="sd">        # Set up sampler</span>
+<span class="sd">        sampler = cuqi.sampler.NUTS(target)</span>
+
+<span class="sd">        # Sample</span>
+<span class="sd">        sampler.warmup(5000)</span>
+<span class="sd">        sampler.sample(10000)</span>
+
+<span class="sd">        # Get samples</span>
+<span class="sd">        samples = sampler.get_samples()</span>
+
+<span class="sd">        # Plot samples</span>
+<span class="sd">        samples.plot_pair()</span>
+
+<span class="sd">    After running the NUTS sampler, run diagnostics can be accessed via the </span>
+<span class="sd">    following attributes:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Number of tree nodes created each NUTS iteration</span>
+<span class="sd">        sampler.num_tree_node_list</span>
+
+<span class="sd">        # Step size used in each NUTS iteration</span>
+<span class="sd">        sampler.epsilon_list</span>
+
+<span class="sd">        # Suggested step size during adaptation (the value of this step size is</span>
+<span class="sd">        # only used after adaptation).</span>
+<span class="sd">        sampler.epsilon_bar_list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_STATE_KEYS</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="s1">&#39;_epsilon&#39;</span><span class="p">,</span> <span class="s1">&#39;_epsilon_bar&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;_H_bar&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;current_target_logd&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;current_target_grad&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;max_depth&#39;</span><span class="p">})</span>
+
+    <span class="n">_HISTORY_KEYS</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">_HISTORY_KEYS</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="s1">&#39;num_tree_node_list&#39;</span><span class="p">,</span>
+                                                    <span class="s1">&#39;epsilon_list&#39;</span><span class="p">,</span>
+                                                    <span class="s1">&#39;epsilon_bar_list&#39;</span><span class="p">})</span>
+
+<div class="viewcode-block" id="NUTS.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.__init__.html#cuqi.sampler.NUTS.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">step_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">opt_acc_rate</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">initial_point</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Assign parameters as attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_acc_rate</span> <span class="o">=</span> <span class="n">opt_acc_rate</span></div>
+
+
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_alpha_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="c1"># Current alpha ratio will be set to some</span>
+                                           <span class="c1"># value (other than np.nan) before </span>
+                                           <span class="c1"># being used</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nuts_target</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+        <span class="c1"># Parameters dual averaging</span>
+        <span class="c1"># Initialize epsilon and epsilon_bar</span>
+        <span class="c1"># epsilon is the step size used in the current iteration</span>
+        <span class="c1"># after warm up and one sampling step, epsilon is updated</span>
+        <span class="c1"># to epsilon_bar for the remaining sampling steps.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FindGoodEpsilon</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> <span class="o">=</span> <span class="s2">&quot;unset&quot;</span>
+
+        <span class="c1"># Parameter mu, does not change during the run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_H_bar</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># NUTS run diagnostics</span>
+        <span class="c1"># number of tree nodes created each NUTS iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_tree_node</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Create lists to store NUTS run diagnostics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_run_diagnostic_attributes</span><span class="p">()</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="c1">#============================== Properties ===============================</span>
+    <span class="c1">#=========================================================================</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_depth</span>
+
+    <span class="nd">@max_depth</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mi">15</span> <span class="c1"># default value</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;max_depth must be an integer.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;max_depth must be &gt;= 0.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_depth</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">step_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span>
+    
+    <span class="nd">@step_size</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">step_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span> <span class="c1"># NUTS will adapt the step size</span>
+
+        <span class="c1"># step_size must be a positive float, raise error otherwise</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>\
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span>\
+            <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;step_size must be a positive float or None.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_step_size</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">opt_acc_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opt_acc_rate</span>
+    
+    <span class="nd">@opt_acc_rate</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">opt_acc_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;opt_acc_rate must be a float in (0, 1).&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opt_acc_rate</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="c1">#================== Implement methods required by Sampler =============</span>
+    <span class="c1">#=========================================================================</span>
+<div class="viewcode-block" id="NUTS.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.validate_target.html#cuqi.sampler.NUTS.validate_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check if the target has logd and gradient methods</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">current_target_logd</span><span class="p">,</span> <span class="n">current_target_grad</span> <span class="o">=</span>\
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nuts_target</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Target must have logd and gradient methods.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NUTS.reinitialize">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.reinitialize.html#cuqi.sampler.NUTS.reinitialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">reinitialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Call the parent reset method</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reinitialize</span><span class="p">()</span>
+        <span class="c1"># Reset NUTS run diagnostic attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_run_diagnostic_attributes</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="NUTS.step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.step.html#cuqi.sampler.NUTS.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> <span class="o">==</span> <span class="s2">&quot;unset&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span>
+
+        <span class="c1"># Convert current_point, logd, and grad to numpy arrays</span>
+        <span class="c1"># if they are CUQIarray objects</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> 
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="c1"># reset number of tree nodes for each iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_tree_node</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># copy current point, logd, and grad in local variables</span>
+        <span class="n">point_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="c1"># initial position (parameters)</span>
+        <span class="n">logd_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span>
+        <span class="n">grad_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="c1"># initial gradient</span>
+        
+        <span class="c1"># compute r_k and Hamiltonian</span>
+        <span class="n">r_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;sample&#39;</span><span class="p">)</span> <span class="c1"># resample momentum vector</span>
+        <span class="n">Ham</span> <span class="o">=</span> <span class="n">logd_k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="n">r_k</span><span class="p">,</span> <span class="s1">&#39;eval&#39;</span><span class="p">)</span> <span class="c1"># Hamiltonian</span>
+
+        <span class="c1"># slice variable</span>
+        <span class="n">log_u</span> <span class="o">=</span> <span class="n">Ham</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># initialization</span>
+        <span class="n">j</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="n">point_minus</span><span class="p">,</span> <span class="n">point_plus</span> <span class="o">=</span> <span class="n">point_k</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">point_k</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">grad_minus</span><span class="p">,</span> <span class="n">grad_plus</span> <span class="o">=</span> <span class="n">grad_k</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">grad_k</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">r_minus</span><span class="p">,</span> <span class="n">r_plus</span> <span class="o">=</span> <span class="n">r_k</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">r_k</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># run NUTS</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">):</span>
+            <span class="c1"># sample a direction</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># build tree: doubling procedure</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">point_minus</span><span class="p">,</span> <span class="n">r_minus</span><span class="p">,</span> <span class="n">grad_minus</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> \
+                    <span class="n">point_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span><span class="p">,</span>\
+                        <span class="n">n_prime</span><span class="p">,</span> <span class="n">s_prime</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">n_alpha</span> <span class="o">=</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_BuildTree</span><span class="p">(</span><span class="n">point_minus</span><span class="p">,</span> <span class="n">r_minus</span><span class="p">,</span> <span class="n">grad_minus</span><span class="p">,</span>
+                                            <span class="n">Ham</span><span class="p">,</span> <span class="n">log_u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">point_plus</span><span class="p">,</span> <span class="n">r_plus</span><span class="p">,</span> <span class="n">grad_plus</span><span class="p">,</span> \
+                    <span class="n">point_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span><span class="p">,</span>\
+                        <span class="n">n_prime</span><span class="p">,</span> <span class="n">s_prime</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">n_alpha</span> <span class="o">=</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_BuildTree</span><span class="p">(</span><span class="n">point_plus</span><span class="p">,</span> <span class="n">r_plus</span><span class="p">,</span> <span class="n">grad_plus</span><span class="p">,</span>
+                                            <span class="n">Ham</span><span class="p">,</span> <span class="n">log_u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">)</span>
+
+            <span class="c1"># Metropolis step</span>
+            <span class="n">alpha2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">n_prime</span><span class="o">/</span><span class="n">n</span><span class="p">))</span> <span class="c1">#min(0, np.log(n_p) - np.log(n))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">s_prime</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">alpha2</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">logd_prime</span><span class="p">))</span> <span class="ow">and</span> \
+                <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">logd_prime</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="n">point_prime</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="c1"># copy if array, else assign if scalar</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">logd_prime</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logd_prime</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">logd_prime</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="n">grad_prime</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+            <span class="c1"># update number of particles, tree level, and stopping criterion</span>
+            <span class="n">n</span> <span class="o">+=</span> <span class="n">n_prime</span>
+            <span class="n">dpoints</span> <span class="o">=</span> <span class="n">point_plus</span> <span class="o">-</span> <span class="n">point_minus</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">s_prime</span> <span class="o">*</span>\
+                <span class="nb">int</span><span class="p">((</span><span class="n">dpoints</span> <span class="o">@</span> <span class="n">r_minus</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="nb">int</span><span class="p">((</span><span class="n">dpoints</span> <span class="o">@</span> <span class="n">r_plus</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_alpha_ratio</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">/</span><span class="n">n_alpha</span>
+
+        <span class="c1"># update run diagnostic attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_run_diagnostic_attributes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_tree_node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> 
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;NaN potential func&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">acc</span></div>
+
+
+<div class="viewcode-block" id="NUTS.tune">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.NUTS.tune.html#cuqi.sampler.NUTS.tune">[docs]</a>
+    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_len</span><span class="p">,</span> <span class="n">update_count</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; adapt epsilon during burn-in using dual averaging&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> <span class="o">==</span> <span class="s2">&quot;unset&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">k</span> <span class="o">=</span> <span class="n">update_count</span><span class="o">+</span><span class="mi">1</span>
+
+        <span class="c1"># Fixed parameters that do not change during the run</span>
+        <span class="n">gamma</span><span class="p">,</span> <span class="n">t_0</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.75</span> <span class="c1"># kappa in (0.5, 1]</span>
+
+        <span class="n">eta1</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="n">t_0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_H_bar</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">eta1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_H_bar</span> <span class="o">+</span>\
+            <span class="n">eta1</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_acc_rate</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_alpha_ratio</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mu</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">gamma</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_H_bar</span><span class="p">)</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="n">k</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="n">kappa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span> <span class="o">=</span>\
+            <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eta</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon</span><span class="p">)</span> <span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">eta</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_epsilon_bar</span><span class="p">))</span></div>
+
+
+    <span class="c1">#=========================================================================</span>
+    <span class="k">def</span> <span class="nf">_nuts_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="c1"># returns logposterior tuple evaluation-gradient</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="c1"># auxiliary standard Gaussian PDF: kinetic energy function</span>
+    <span class="c1"># d_log_2pi = d*np.log(2*np.pi)</span>
+    <span class="k">def</span> <span class="nf">_Kfun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;eval&#39;</span><span class="p">:</span> <span class="c1"># evaluate</span>
+            <span class="k">return</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">r</span><span class="p">)</span> <span class="c1">#+ d_log_2pi </span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;sample&#39;</span><span class="p">:</span> <span class="c1"># sample</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="k">def</span> <span class="nf">_FindGoodEpsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">point_k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nuts_target</span><span class="p">(</span>
+            <span class="n">point_k</span><span class="p">)</span>
+        <span class="n">logd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;sample&#39;</span><span class="p">)</span>    <span class="c1"># resample a momentum</span>
+        <span class="n">Ham</span> <span class="o">=</span> <span class="n">logd</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s1">&#39;eval&#39;</span><span class="p">)</span>     <span class="c1"># initial Hamiltonian</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">r_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Leapfrog</span><span class="p">(</span>
+            <span class="n">point_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+
+        <span class="c1"># trick to make sure the step is not huge, leading to infinite values of</span>
+        <span class="c1"># the likelihood</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">logd_prime</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">grad_prime</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">k</span> <span class="o">*=</span> <span class="mf">0.5</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">r_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Leapfrog</span><span class="p">(</span>
+                <span class="n">point_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">k</span><span class="o">*</span><span class="n">epsilon</span>
+
+        <span class="c1"># doubles/halves the value of epsilon until the accprob of the Langevin</span>
+        <span class="c1"># proposal crosses 0.5</span>
+        <span class="n">Ham_prime</span> <span class="o">=</span> <span class="n">logd_prime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="n">r_prime</span><span class="p">,</span> <span class="s1">&#39;eval&#39;</span><span class="p">)</span>
+        <span class="n">log_ratio</span> <span class="o">=</span> <span class="n">Ham_prime</span> <span class="o">-</span> <span class="n">Ham</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">log_ratio</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">log_ratio</span> <span class="o">&gt;</span> <span class="o">-</span><span class="n">a</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)):</span>
+            <span class="n">epsilon</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">a</span><span class="p">)</span><span class="o">*</span><span class="n">epsilon</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">r_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Leapfrog</span><span class="p">(</span>
+                <span class="n">point_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+            <span class="n">Ham_prime</span> <span class="o">=</span> <span class="n">logd_prime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="n">r_prime</span><span class="p">,</span> <span class="s1">&#39;eval&#39;</span><span class="p">)</span>
+            <span class="n">log_ratio</span> <span class="o">=</span> <span class="n">Ham_prime</span> <span class="o">-</span> <span class="n">Ham</span>
+        <span class="k">return</span> <span class="n">epsilon</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="k">def</span> <span class="nf">_Leapfrog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_old</span><span class="p">,</span> <span class="n">r_old</span><span class="p">,</span> <span class="n">grad_old</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">):</span>
+        <span class="c1"># symplectic integrator: trajectories preserve phase space volumen</span>
+        <span class="n">r_new</span> <span class="o">=</span> <span class="n">r_old</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">epsilon</span><span class="o">*</span><span class="n">grad_old</span>     <span class="c1"># half-step</span>
+        <span class="n">point_new</span> <span class="o">=</span> <span class="n">point_old</span> <span class="o">+</span> <span class="n">epsilon</span><span class="o">*</span><span class="n">r_new</span>     <span class="c1"># full-step</span>
+        <span class="n">logd_new</span><span class="p">,</span> <span class="n">grad_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nuts_target</span><span class="p">(</span><span class="n">point_new</span><span class="p">)</span>     <span class="c1"># new gradient</span>
+        <span class="n">r_new</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">epsilon</span><span class="o">*</span><span class="n">grad_new</span>     <span class="c1"># half-step</span>
+        <span class="k">return</span> <span class="n">point_new</span><span class="p">,</span> <span class="n">r_new</span><span class="p">,</span> <span class="n">logd_new</span><span class="p">,</span> <span class="n">grad_new</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="k">def</span> <span class="nf">_BuildTree</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">point_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">Ham</span><span class="p">,</span> <span class="n">log_u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">Delta_max</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="c1"># Increment the number of tree nodes counter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_tree_node</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>     <span class="c1"># base case</span>
+            <span class="c1"># single leapfrog step in the direction v</span>
+            <span class="n">point_prime</span><span class="p">,</span> <span class="n">r_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Leapfrog</span><span class="p">(</span>
+                <span class="n">point_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">v</span><span class="o">*</span><span class="n">epsilon</span><span class="p">)</span>
+            <span class="n">Ham_prime</span> <span class="o">=</span> <span class="n">logd_prime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Kfun</span><span class="p">(</span><span class="n">r_prime</span><span class="p">,</span> <span class="s1">&#39;eval&#39;</span><span class="p">)</span> <span class="c1"># Hamiltonian</span>
+                                                                 <span class="c1"># eval</span>
+            <span class="n">n_prime</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">log_u</span> <span class="o">&lt;=</span> <span class="n">Ham_prime</span><span class="p">)</span>     <span class="c1"># if particle is in the slice</span>
+            <span class="n">s_prime</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">log_u</span> <span class="o">&lt;</span> <span class="n">Delta_max</span> <span class="o">+</span> <span class="n">Ham_prime</span><span class="p">)</span>     <span class="c1"># check U-turn</span>
+            <span class="c1">#</span>
+            <span class="n">diff_Ham</span> <span class="o">=</span> <span class="n">Ham_prime</span> <span class="o">-</span> <span class="n">Ham</span>
+
+            <span class="c1"># Compute the acceptance probability</span>
+            <span class="c1"># alpha_prime = min(1, np.exp(diff_Ham))</span>
+            <span class="c1"># written in a stable way to avoid overflow when computing</span>
+            <span class="c1"># exp(diff_Ham) for large values of diff_Ham</span>
+            <span class="n">alpha_prime</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">diff_Ham</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">diff_Ham</span><span class="p">)</span>
+            <span class="n">n_alpha_prime</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c1">#</span>
+            <span class="n">point_minus</span><span class="p">,</span> <span class="n">point_plus</span> <span class="o">=</span> <span class="n">point_prime</span><span class="p">,</span> <span class="n">point_prime</span>
+            <span class="n">r_minus</span><span class="p">,</span> <span class="n">r_plus</span> <span class="o">=</span> <span class="n">r_prime</span><span class="p">,</span> <span class="n">r_prime</span>
+            <span class="n">grad_minus</span><span class="p">,</span> <span class="n">grad_plus</span> <span class="o">=</span> <span class="n">grad_prime</span><span class="p">,</span> <span class="n">grad_prime</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="c1"># recursion: build the left/right subtrees</span>
+            <span class="n">point_minus</span><span class="p">,</span> <span class="n">r_minus</span><span class="p">,</span> <span class="n">grad_minus</span><span class="p">,</span> <span class="n">point_plus</span><span class="p">,</span> <span class="n">r_plus</span><span class="p">,</span> <span class="n">grad_plus</span><span class="p">,</span> \
+                <span class="n">point_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span><span class="p">,</span>\
+                    <span class="n">n_prime</span><span class="p">,</span> <span class="n">s_prime</span><span class="p">,</span> <span class="n">alpha_prime</span><span class="p">,</span> <span class="n">n_alpha_prime</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_BuildTree</span><span class="p">(</span><span class="n">point_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span>
+                                        <span class="n">Ham</span><span class="p">,</span> <span class="n">log_u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">s_prime</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1"># do only if the stopping criteria does not </span>
+                               <span class="c1"># verify at the first subtree</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">point_minus</span><span class="p">,</span> <span class="n">r_minus</span><span class="p">,</span> <span class="n">grad_minus</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> \
+                        <span class="n">point_2prime</span><span class="p">,</span> <span class="n">logd_2prime</span><span class="p">,</span> <span class="n">grad_2prime</span><span class="p">,</span>\
+                            <span class="n">n_2prime</span><span class="p">,</span> <span class="n">s_2prime</span><span class="p">,</span> <span class="n">alpha_2prime</span><span class="p">,</span> <span class="n">n_alpha_2prime</span> <span class="o">=</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_BuildTree</span><span class="p">(</span><span class="n">point_minus</span><span class="p">,</span> <span class="n">r_minus</span><span class="p">,</span> <span class="n">grad_minus</span><span class="p">,</span>
+                                                <span class="n">Ham</span><span class="p">,</span> <span class="n">log_u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">point_plus</span><span class="p">,</span> <span class="n">r_plus</span><span class="p">,</span> <span class="n">grad_plus</span><span class="p">,</span> \
+                        <span class="n">point_2prime</span><span class="p">,</span> <span class="n">logd_2prime</span><span class="p">,</span> <span class="n">grad_2prime</span><span class="p">,</span>\
+                            <span class="n">n_2prime</span><span class="p">,</span> <span class="n">s_2prime</span><span class="p">,</span> <span class="n">alpha_2prime</span><span class="p">,</span> <span class="n">n_alpha_2prime</span> <span class="o">=</span> \
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_BuildTree</span><span class="p">(</span><span class="n">point_plus</span><span class="p">,</span> <span class="n">r_plus</span><span class="p">,</span> <span class="n">grad_plus</span><span class="p">,</span>
+                                                <span class="n">Ham</span><span class="p">,</span> <span class="n">log_u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+
+                <span class="c1"># Metropolis step</span>
+                <span class="n">alpha2</span> <span class="o">=</span> <span class="n">n_2prime</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">n_prime</span> <span class="o">+</span> <span class="n">n_2prime</span><span class="p">))</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">alpha2</span><span class="p">):</span>
+                    <span class="n">point_prime</span> <span class="o">=</span> <span class="n">point_2prime</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="c1"># copy if array, else assign if scalar</span>
+                    <span class="n">logd_prime</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">logd_2prime</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logd_2prime</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">logd_2prime</span>
+                    <span class="p">)</span>
+                    <span class="n">grad_prime</span> <span class="o">=</span> <span class="n">grad_2prime</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                <span class="c1"># update number of particles and stopping criterion</span>
+                <span class="n">alpha_prime</span> <span class="o">+=</span> <span class="n">alpha_2prime</span>
+                <span class="n">n_alpha_prime</span> <span class="o">+=</span> <span class="n">n_alpha_2prime</span>
+                <span class="n">dpoints</span> <span class="o">=</span> <span class="n">point_plus</span> <span class="o">-</span> <span class="n">point_minus</span>
+                <span class="n">s_prime</span> <span class="o">=</span> <span class="n">s_2prime</span> <span class="o">*</span>\
+                    <span class="nb">int</span><span class="p">((</span><span class="n">dpoints</span><span class="nd">@r_minus</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="nb">int</span><span class="p">((</span><span class="n">dpoints</span><span class="nd">@r_plus</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">n_prime</span> <span class="o">+=</span> <span class="n">n_2prime</span>
+
+        <span class="k">return</span> <span class="n">point_minus</span><span class="p">,</span> <span class="n">r_minus</span><span class="p">,</span> <span class="n">grad_minus</span><span class="p">,</span> <span class="n">point_plus</span><span class="p">,</span> <span class="n">r_plus</span><span class="p">,</span> <span class="n">grad_plus</span><span class="p">,</span>\
+            <span class="n">point_prime</span><span class="p">,</span> <span class="n">logd_prime</span><span class="p">,</span> <span class="n">grad_prime</span><span class="p">,</span>\
+                <span class="n">n_prime</span><span class="p">,</span> <span class="n">s_prime</span><span class="p">,</span> <span class="n">alpha_prime</span><span class="p">,</span> <span class="n">n_alpha_prime</span>
+
+    <span class="c1">#=========================================================================</span>
+    <span class="c1">#======================== Diagnostic methods =============================</span>
+    <span class="c1">#=========================================================================</span>
+
+    <span class="k">def</span> <span class="nf">_create_run_diagnostic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A method to create attributes to store NUTS run diagnostic.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_run_diagnostic_attributes</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_reset_run_diagnostic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A method to reset attributes to store NUTS run diagnostic.&quot;&quot;&quot;</span>
+        <span class="c1"># List to store number of tree nodes created each NUTS iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_tree_node_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># List of step size used in each NUTS iteration </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># List of burn-in step size suggestion during adaptation </span>
+        <span class="c1"># only used when adaptation is done</span>
+        <span class="c1"># remains fixed after adaptation (after burn-in)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_bar_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_update_run_diagnostic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_tree</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">eps_bar</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A method to update attributes to store NUTS run diagnostic.&quot;&quot;&quot;</span>
+        <span class="c1"># Store the number of tree nodes created in iteration k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_tree_node_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_tree</span><span class="p">)</span>
+        <span class="c1"># Store the step size used in iteration k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+        <span class="c1"># Store the step size suggestion during adaptation in iteration k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_bar_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eps_bar</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

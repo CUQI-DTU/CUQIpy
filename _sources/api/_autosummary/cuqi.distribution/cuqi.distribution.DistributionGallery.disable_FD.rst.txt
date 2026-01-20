@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.disable\_FD
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.disable_FD

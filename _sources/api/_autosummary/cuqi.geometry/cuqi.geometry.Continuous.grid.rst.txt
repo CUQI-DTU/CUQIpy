@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous.grid
+=============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Continuous.grid

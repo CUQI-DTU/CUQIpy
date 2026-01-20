@@ -1,0 +1,1404 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.problem._problem &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/problem/_problem';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.problem._problem</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.problem._problem</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">from</span> <span class="nn">cuqi</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Distribution</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">InverseGamma</span><span class="p">,</span> <span class="n">LMRF</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">,</span> <span class="n">Lognormal</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">Beta</span><span class="p">,</span> <span class="n">JointDistribution</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">ModifiedHalfNormal</span><span class="p">,</span> <span class="n">CMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.implicitprior</span> <span class="kn">import</span> <span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.density</span> <span class="kn">import</span> <span class="n">Density</span>
+<span class="kn">from</span> <span class="nn">cuqi.model</span> <span class="kn">import</span> <span class="n">LinearModel</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">cuqi.likelihood</span> <span class="kn">import</span> <span class="n">Likelihood</span>
+<span class="kn">from</span> <span class="nn">cuqi.geometry</span> <span class="kn">import</span> <span class="n">_DefaultGeometry</span>
+<span class="kn">from</span> <span class="nn">cuqi.utilities</span> <span class="kn">import</span> <span class="n">ProblemInfo</span>
+<span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+
+<div class="viewcode-block" id="BayesianProblem">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.html#cuqi.problem.BayesianProblem">[docs]</a>
+<span class="k">class</span> <span class="nc">BayesianProblem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Representation of a Bayesian inverse problem defined by any number of densities (distributions and likelihoods), e.g.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\begin{align*}</span>
+<span class="sd">        \mathrm{density}_1 &amp;\sim \pi_1 \\newline</span>
+<span class="sd">        \mathrm{density}_2 &amp;\sim \pi_2 \\newline</span>
+<span class="sd">                           &amp;\\vdots</span>
+<span class="sd">        \end{align*}</span>
+
+<span class="sd">    The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the Bayesian problem.</span>
+
+<span class="sd">    This class uses :class:`~cuqi.distribution.JointDistribution` to model the Bayesian problem,</span>
+<span class="sd">    and to condition on observed data. We term the resulting distribution the *target distribution*.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    \*densities: Density</span>
+<span class="sd">        The densities that represent the Bayesian Problem.</span>
+<span class="sd">        Each density is passed as comma-separated arguments.</span>
+<span class="sd">        Can be Distribution, Likelihood etc.</span>
+
+<span class="sd">    \**data: ndarray, Optional</span>
+<span class="sd">        Any potential observed data. The data should be passed</span>
+<span class="sd">        as keyword arguments, where the keyword is the name of the</span>
+<span class="sd">        density that the data is associated with.</span>
+<span class="sd">        Data can alternatively be set using the :meth:`set_data` method,</span>
+<span class="sd">        after the problem has been initialized.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    **Basic syntax**</span>
+
+<span class="sd">    Given distributions for ``x``, ``y`` and ``z``, we can define a Bayesian problem</span>
+<span class="sd">    and set the observed data ``y=y_data`` as follows:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        BP = BayesianProblem(x, y, z).set_data(y=y_data)</span>
+
+<span class="sd">    **Complete example**</span>
+
+<span class="sd">    Consider a Bayesian inverse problem with a Gaussian prior and a Gaussian likelihood.</span>
+<span class="sd">    Assume that the forward model is a linear model with a known matrix</span>
+<span class="sd">    :math:`\mathbf{A}: \mathbf{x} \mapsto \mathbf{y}` and  that we have observed data</span>
+<span class="sd">    :math:`\mathbf{y}=\mathbf{y}^\mathrm{obs}`. The Bayesian model can be summarized as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\begin{align*}</span>
+<span class="sd">        \mathbf{x} &amp;\sim \mathcal{N}(\mathbf{0}, 0.1^2 \mathbf{I}) \\newline</span>
+<span class="sd">        \mathbf{y} &amp;\sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2 \mathbf{I}).</span>
+<span class="sd">        \end{align*}</span>
+<span class="sd">    </span>
+<span class="sd">    Using the :class:`BayesianProblem` class, we can define the problem, set the data and</span>
+<span class="sd">    compute samples from the posterior distribution associated with the problem as well as</span>
+<span class="sd">    estimates such as the Maximum Likelihood (ML) and Maximum A Posteriori (MAP).</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        In this case, we use a forward model from the :mod:`~cuqi.testproblem` module, but any</span>
+<span class="sd">        custom forward model can added via the :mod:`~cuqi.model` module.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Import modules</span>
+<span class="sd">        import cuqi</span>
+<span class="sd">        import numpy as np</span>
+<span class="sd">        import matplotlib.pyplot as plt</span>
+
+<span class="sd">        # Deterministic forward model and data (1D convolution)</span>
+<span class="sd">        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()</span>
+
+<span class="sd">        # Bayesian model</span>
+<span class="sd">        x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)</span>
+<span class="sd">        y = cuqi.distribution.Gaussian(A@x, 0.05)</span>
+
+<span class="sd">        # Define Bayesian problem and set data</span>
+<span class="sd">        BP = cuqi.problem.BayesianProblem(y, x).set_data(y=y_data)</span>
+
+<span class="sd">        # Compute MAP estimate</span>
+<span class="sd">        x_MAP = BP.MAP()</span>
+
+<span class="sd">        # Compute samples from posterior</span>
+<span class="sd">        x_samples = BP.sample_posterior(1000)</span>
+
+<span class="sd">        # Plot results</span>
+<span class="sd">        x_samples.plot_ci(exact=probInfo.exactSolution)</span>
+<span class="sd">        plt.show()</span>
+<span class="sd">        </span>
+<span class="sd">        # Plot difference between MAP and sample mean</span>
+<span class="sd">        (x_MAP - x_samples.mean()).plot()</span>
+<span class="sd">        plt.title(&quot;MAP estimate - sample mean&quot;)</span>
+<span class="sd">        plt.show()</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    In the simplest form the Bayesian problem represents a posterior distribution defined by two densities, i.e.,</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \pi_\mathrm{posterior}(\\boldsymbol{\\theta} \mid \mathbf{y}) \propto \pi_1(\mathbf{y} \mid \\boldsymbol{\\theta}) \pi_2(\\boldsymbol{\\theta}),</span>
+
+<span class="sd">    where :math:`\pi_1(\mathbf{y} \mid \\boldsymbol{\\theta})` is a :class:`~cuqi.likelihood.Likelihood` function and :math:`\pi_2(\\boldsymbol{\\theta})` is a :class:`~cuqi.distribution.Distribution`.</span>
+<span class="sd">    In this two-density case, the joint distribution reduces to a :class:`~cuqi.distribution.Posterior` distribution.</span>
+
+<span class="sd">    Most functionality is currently only implemented for this simple case.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BayesianProblem.get_components">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.get_components.html#cuqi.problem.BayesianProblem.get_components">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Model</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">,</span> <span class="n">ProblemInfo</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">problem_info</span> <span class="o">=</span> <span class="n">ProblemInfo</span><span class="p">()</span> <span class="c1">#Instead of a dict, we use our ProblemInfo dataclass.</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">problem_info</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">problem_info</span><span class="p">,</span><span class="n">key</span><span class="p">,</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">problem_info</span></div>
+
+
+<div class="viewcode-block" id="BayesianProblem.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.__init__.html#cuqi.problem.BayesianProblem.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">densities</span><span class="p">:</span> <span class="n">Density</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">JointDistribution</span><span class="p">(</span><span class="o">*</span><span class="n">densities</span><span class="p">)(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BayesianProblem.set_data">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.set_data.html#cuqi.problem.BayesianProblem.set_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BayesianProblem</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the data of the problem. This conditions the underlying joint distribution on the data. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">JointDistribution</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to set data for this problem. Maybe data is already set?&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the observed data from likelihood&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Likelihood</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The likelihood function.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to extract likelihood from this problem. Current target is: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">likelihood</span>
+
+    <span class="nd">@likelihood</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to set likelihood for this problem. Current target is: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prior</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Distribution</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The prior distribution&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to extract prior from this problem. Current target is: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">prior</span>
+
+    <span class="nd">@prior</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">prior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prior</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to set prior for this problem. Current target is: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the cuqi model from likelihood.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">model</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Posterior</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create posterior distribution from likelihood and prior.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to extract posterior for this problem. Current target is: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+
+<div class="viewcode-block" id="BayesianProblem.ML">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.ML.html#cuqi.problem.BayesianProblem.ML">[docs]</a>
+    <span class="k">def</span> <span class="nf">ML</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CUQIarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute the Maximum Likelihood (ML) estimate of the posterior.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        disp : bool</span>
+<span class="sd">            display info messages? (True or False).</span>
+
+<span class="sd">        x0 : CUQIarray or ndarray</span>
+<span class="sd">            User-specified initial guess for the solver. Defaults to a ones vector.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CUQIarray</span>
+<span class="sd">            ML estimate of the posterior. Solver info is stored in the returned CUQIarray `info` attribute.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">disp</span><span class="p">:</span>
+            <span class="c1"># Print warning to user about the automatic solver selection</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!! Automatic solver selection is a work-in-progress !!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!      Always validate the computed results.       !!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">x_ML</span><span class="p">,</span> <span class="n">solver_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_max_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="n">disp</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">)</span>
+
+        <span class="c1"># Wrap the result in a CUQIarray and add solver info</span>
+        <span class="n">x_ML</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">CUQIarray</span><span class="p">(</span><span class="n">x_ML</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">x_ML</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">solver_info</span>
+
+        <span class="k">return</span> <span class="n">x_ML</span></div>
+
+
+
+<div class="viewcode-block" id="BayesianProblem.MAP">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.MAP.html#cuqi.problem.BayesianProblem.MAP">[docs]</a>
+    <span class="k">def</span> <span class="nf">MAP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CUQIarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute the Maximum A Posteriori (MAP) estimate of the posterior.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        disp : bool</span>
+<span class="sd">            display info messages? (True or False).</span>
+
+<span class="sd">        x0 : CUQIarray or ndarray</span>
+<span class="sd">            User-specified initial guess for the solver. Defaults to a ones vector.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CUQIarray</span>
+<span class="sd">            MAP estimate of the posterior. Solver info is stored in the returned CUQIarray `info` attribute.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">disp</span><span class="p">:</span>
+            <span class="c1"># Print warning to user about the automatic solver selection</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!! Automatic solver selection is a work-in-progress !!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!      Always validate the computed results.       !!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LinearModel</span><span class="p">,</span> <span class="n">max_dim</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim&lt;=</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">b</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">A</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">()</span>
+            <span class="n">Ce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cov</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">mean</span>
+            <span class="n">Cx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">cov</span>
+
+            <span class="c1"># If Ce and Cx are scalar, make them into matrices</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">Ce</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">Ce</span> <span class="o">=</span> <span class="n">Ce</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">range_dim</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">Cx</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">Cx</span> <span class="o">=</span> <span class="n">Cx</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">)</span>
+
+            <span class="c1">#Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)</span>
+            <span class="n">rhs</span> <span class="o">=</span> <span class="n">b</span><span class="o">-</span><span class="n">A</span><span class="nd">@x0</span>
+            <span class="n">sysm</span> <span class="o">=</span> <span class="n">A</span><span class="nd">@Cx@A</span><span class="o">.</span><span class="n">T</span><span class="o">+</span><span class="n">Ce</span>
+            <span class="n">x_MAP</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">Cx</span><span class="o">@</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="nd">@np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sysm</span><span class="p">,</span><span class="n">rhs</span><span class="p">))</span>
+            <span class="n">solver_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;direct&quot;</span><span class="p">}</span>
+
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># If no specific implementation exists, use numerical optimization.</span>
+            <span class="n">x_MAP</span><span class="p">,</span> <span class="n">solver_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_max_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="n">disp</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">)</span>
+
+        <span class="c1"># Wrap the result in a CUQIarray and add solver info</span>
+        <span class="n">x_MAP</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">CUQIarray</span><span class="p">(</span><span class="n">x_MAP</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">x_MAP</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">solver_info</span>
+        <span class="k">return</span> <span class="n">x_MAP</span></div>
+
+
+<div class="viewcode-block" id="BayesianProblem.sample_posterior">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.sample_posterior.html#cuqi.problem.BayesianProblem.sample_posterior">[docs]</a>
+    <span class="k">def</span> <span class="nf">sample_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">Samples</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample the posterior. Sampler choice and tuning is handled automatically.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Ns : int</span>
+<span class="sd">            Number of samples to draw.</span>
+
+<span class="sd">        Nb : int or None, *Optional*</span>
+<span class="sd">            Number of burn-in samples. If not provided, 20% of the samples will be used </span>
+<span class="sd">            for burn-in.</span>
+
+<span class="sd">        callback : callable, *Optional*</span>
+<span class="sd">            If set this function will be called after every sample.</span>
+<span class="sd">            If the parameter `legacy` is set to False, which is the default, the callback </span>
+<span class="sd">            function should take three arguments: the sampler object, the index of the </span>
+<span class="sd">            current sampling step, the total number of requested samples. The last two </span>
+<span class="sd">            arguments are integers. An example of the callback function signature in the </span>
+<span class="sd">            case is: `callback(sampler, sample_index, num_of_samples)`.</span>
+<span class="sd">            If the parameter `legacy` is set to True, the signature of the callback </span>
+<span class="sd">            function is `callback(sample, sample_index)`, where `sample` is the current </span>
+<span class="sd">            sample and `sample_index` is the index of the sample.</span>
+<span class="sd">            An example is shown in demos/demo31_callback.py.</span>
+
+<span class="sd">        legacy : bool, *Optional*</span>
+<span class="sd">            Default is False. If set to True, the sampler selection will use the samplers from the legacy sampler module, :mod:`cuqi.legacy.sampler` module.</span>
+<span class="sd">           </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        samples : cuqi.samples.Samples</span>
+<span class="sd">            Samples from the posterior.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Print warning to user about the automatic sampler selection</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!! Automatic sampler selection is a work-in-progress. !!!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!       Always validate the computed results.        !!!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">legacy</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!! Using legacy samplers from cuqi.legacy.sampler !!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set up burn-in if not provided</span>
+        <span class="k">if</span> <span class="n">Nb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">Nb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.2</span><span class="o">*</span><span class="n">Ns</span><span class="p">)</span>
+
+        <span class="c1"># If target is a joint distribution, try Gibbs sampling</span>
+        <span class="c1"># This is still very experimental!</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">JointDistribution</span><span class="p">):</span>       
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampleGibbs</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+
+        <span class="c1"># For Gaussian small-scale we can use direct sampling</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LinearModel</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampleMapCholesky</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+        <span class="c1"># For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span><span class="s2">&quot;sqrtprecTimesMean&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span><span class="s2">&quot;sqrtprec&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span><span class="n">LinearModel</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampleLinearRTO</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+
+        <span class="c1"># For LMRF we use our awesome unadjusted Laplace approximation!</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">LMRF</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampleUGLA</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+
+        <span class="c1"># If we have gradients, use NUTS!</span>
+        <span class="c1"># TODO: Fix cases where we have gradients but NUTS fails (see checks)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">must_have_gradient</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">(</span><span class="n">Beta</span><span class="p">,</span> <span class="n">InverseGamma</span><span class="p">,</span> <span class="n">Lognormal</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampleNUTS</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+
+        <span class="c1"># For Gaussians with non-linear model we use pCN</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">(</span><span class="n">Gaussian</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">),</span> <span class="n">Gaussian</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samplepCN</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+        
+        <span class="c1"># For Regularized Gaussians with linear models we use RegularizedLinearRTO</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">(</span><span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span><span class="p">),</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LinearModel</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sampleRegularizedLinearRTO</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Automatic sampler choice is not implemented for model: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="si">}</span><span class="s2">, likelihood: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span><span class="si">}</span><span class="s2"> and prior: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="si">}</span><span class="s2"> and dim </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">. Manual sampler choice can be done via the &#39;sampler&#39; module. Posterior distribution can be extracted via &#39;.posterior&#39; of any testproblem (BayesianProblem).&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BayesianProblem.sample_prior">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.sample_prior.html#cuqi.problem.BayesianProblem.sample_prior">[docs]</a>
+    <span class="k">def</span> <span class="nf">sample_prior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">Samples</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sample the prior distribution. Sampler choice and tuning is handled automatically. &quot;&quot;&quot;</span>
+
+        <span class="c1"># Try sampling prior directly</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># If no direct method exists redefine posterior to one with a constant likelihood and sample from posterior</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using MCMC methods from sampler module to sample prior.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Make sure enough samples are drawn for convergence.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create a copy of self</span>
+        <span class="n">prior_problem</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Set likelihood to constant</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">LinearModel</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">range_geometry</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">domain_geometry</span><span class="p">)</span>
+        <span class="n">likelihood</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_likelihood</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">range_dim</span><span class="p">))</span> <span class="c1"># p(y|x)=constant</span>
+        <span class="n">prior_problem</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span>
+        
+        <span class="c1"># Set up burn-in</span>
+        <span class="n">Nb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.2</span><span class="o">*</span><span class="n">Ns</span><span class="p">)</span>
+
+        <span class="c1"># Now sample prior problem</span>
+        <span class="k">return</span> <span class="n">prior_problem</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BayesianProblem.UQ">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.UQ.html#cuqi.problem.BayesianProblem.UQ">[docs]</a>
+    <span class="k">def</span> <span class="nf">UQ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">Nb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">Samples</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Ns : int, *Optional*</span>
+<span class="sd">            Number of samples to draw. Defaults to 1000.</span>
+
+<span class="sd">        Nb : int, *Optional*</span>
+<span class="sd">            Number of burn-in samples. If not provided, 20% of the samples will be used for burn-in.</span>
+<span class="sd">        </span>
+<span class="sd">        exact : ndarray or dict[str, ndarray], *Optional*</span>
+<span class="sd">            Exact solution to the problem. If provided the summary will include a comparison to the exact solution.</span>
+<span class="sd">            If a dict is provided, the keys should be the names of the variables and the values should be the exact solution for each variable.</span>
+<span class="sd">        </span>
+<span class="sd">        percent : float, *Optional*</span>
+<span class="sd">            The credible interval to plot. Defaults to 95%.</span>
+
+<span class="sd">        legacy : bool, *Optional*</span>
+<span class="sd">            Default is False. If set to True, the sampler selection will use the samplers from the legacy sampler module, :mod:`cuqi.legacy.sampler` module.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        samples : cuqi.samples.Samples</span>
+<span class="sd">            Samples from the posterior. The samples can be used to compute further statistics and plots.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computing </span><span class="si">{</span><span class="n">Ns</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="n">legacy</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Plotting results&quot;</span><span class="p">)</span>
+        <span class="c1"># Gibbs case</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">exact</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_UQ_for_variable</span><span class="p">(</span>
+                        <span class="n">value</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_plot_UQ_for_variable</span><span class="p">(</span>
+                        <span class="n">value</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Single parameter case</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_UQ_for_variable</span><span class="p">(</span>
+                <span class="n">samples</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_plot_UQ_for_variable</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">Samples</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Do a fitting UQ plot for a single variable given by samples. &quot;&quot;&quot;</span>
+        <span class="c1"># Potentially extract exact solution</span>
+        <span class="k">if</span> <span class="n">exact</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;exactSolution&#39;</span><span class="p">):</span>
+            <span class="n">exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exactSolution</span>
+
+        <span class="c1"># Plot traces for single parameters</span>
+        <span class="k">if</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">samples</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># Else plot credible intervals</span>
+            <span class="c1"># If plot_ci throws a NotImplementedError (likely coming from </span>
+            <span class="c1"># _plot_envelope method), we try to plot the CI for the parameters</span>
+            <span class="c1"># instead and plot the mean and the variance using the function</span>
+            <span class="c1"># representation of the samples geometry.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">samples</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">percent</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">NotImplementedError</span> <span class="k">as</span> <span class="n">nie</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Unable to plot CI for samples with the underlying &quot;</span> <span class="o">+</span>
+                    <span class="sa">f</span><span class="s2">&quot;geometry: </span><span class="si">{</span><span class="n">samples</span><span class="o">.</span><span class="n">geometry</span><span class="si">}</span><span class="s2">. Plotting the CI for the &quot;</span> <span class="o">+</span>
+                    <span class="s2">&quot;parameters instead.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_alternative_plot_UQ_for_variable</span><span class="p">(</span>
+                    <span class="n">samples</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_alternative_plot_UQ_for_variable</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">Samples</span><span class="p">,</span> <span class="n">percent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Alternative visualization for UQ analysis used when plot_ci</span>
+<span class="sd">        method fails for the given samples geometry. &quot;&quot;&quot;</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">percent</span><span class="o">=</span><span class="n">percent</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">,</span> <span class="n">plot_par</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Sample parameter mean converted</span><span class="se">\n</span><span class="s2">to function representation&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">plot_mean</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Sample mean of function representation&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
+            <span class="s2">&quot;Sample parameter variance converted</span><span class="se">\n</span><span class="s2">to function representation&quot;</span><span class="p">)</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">samples</span><span class="o">.</span><span class="n">funvals</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">plot_variance</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Sample variance of function representation&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_sampleLinearRTO</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler LinearRTO sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">LinearRTO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.legacy.sampler LinearRTO sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Start timing</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Sample</span>
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">LinearRTO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+
+            <span class="c1"># Print timing</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples</span>
+
+    <span class="k">def</span> <span class="nf">_sampleMapCholesky</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim&lt;=</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No burn-in needed for direct sampling.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Start timing</span>
+        <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">b</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">A</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">()</span>
+        <span class="n">Ce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">cov</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">mean</span>
+        <span class="n">Cx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">cov</span>
+
+        <span class="c1"># If Ce and Cx are scalar, make them into matrices</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">Ce</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">Ce</span> <span class="o">=</span> <span class="n">Ce</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">range_dim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">Cx</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">Cx</span> <span class="o">=</span> <span class="n">Cx</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">)</span>
+
+        <span class="c1"># Preallocate samples</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span> 
+        <span class="n">x_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">Ns</span><span class="p">))</span>
+
+        <span class="n">x_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAP</span><span class="p">(</span><span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1">#Compute MAP estimate</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="o">@</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Ce</span><span class="p">)</span><span class="nd">@A</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Cx</span><span class="p">))</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">):</span>
+            <span class="n">x_s</span><span class="p">[:,</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_map</span><span class="o">.</span><span class="n">parameters</span> <span class="o">+</span> <span class="n">L</span><span class="nd">@np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="c1"># display iterations </span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">%</span> <span class="mf">5e2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span><span class="s1">&#39;Sample&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Callback function</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">callback</span><span class="p">(</span><span class="n">x_s</span><span class="p">[:,</span><span class="n">s</span><span class="p">],</span> <span class="n">s</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span><span class="s1">&#39;Sample&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">Ns</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">Samples</span><span class="p">(</span><span class="n">x_s</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">domain_geometry</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">_sampleCWMH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler Component-wise Metropolis-Hastings (CWMH) sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%, scale: 0.05, x0: 0.5 (vector)&quot;</span><span class="p">)</span>
+
+            <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.05</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">CWMH</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">x_s</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.legacy.sampler Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%, scale: 0.05, x0: 0.5 (vector)&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Dimension</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span>
+            
+            <span class="c1"># Set up target and proposal</span>
+            <span class="k">def</span> <span class="nf">proposal</span><span class="p">(</span><span class="n">x_t</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">x_t</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+
+            <span class="c1"># Set up sampler</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.05</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">MCMC</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">CWMH</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">proposal</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+            
+            <span class="c1"># Run sampler</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">x_s</span> <span class="o">=</span> <span class="n">MCMC</span><span class="o">.</span><span class="n">sample_adapt</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span><span class="n">Nb</span><span class="p">);</span> <span class="c1">#ToDo: Make results class</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">x_s</span>
+
+    <span class="k">def</span> <span class="nf">_samplepCN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler preconditioned Crank-Nicolson (pCN) sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%, scale: 0.02&quot;</span><span class="p">)</span>
+
+            <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.02</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">PCN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">x_s</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.legacy.sampler preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%, scale: 0.02&quot;</span><span class="p">)</span>
+
+            <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.02</span>
+            
+            <span class="n">MCMC</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">pCN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>      
+            
+            <span class="c1">#Run sampler</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">x_s</span> <span class="o">=</span> <span class="n">MCMC</span><span class="o">.</span><span class="n">sample_adapt</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+       
+        <span class="k">return</span> <span class="n">x_s</span>
+
+    <span class="k">def</span> <span class="nf">_sampleNUTS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler No-U-Turn (NUTS) sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">NUTS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">x_s</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.legacy.sampler No-U-Turn (NUTS) sampler&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+            
+            <span class="n">MCMC</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">NUTS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+            
+            <span class="c1"># Run sampler</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">x_s</span> <span class="o">=</span> <span class="n">MCMC</span><span class="o">.</span><span class="n">sample_adapt</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">x_s</span>
+
+    <span class="k">def</span> <span class="nf">_sampleUGLA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler Unadjusted Gaussian Laplace Approximation (UGLA) sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">UGLA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.legacy.sampler UGLA sampler&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Start timing</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Sample</span>
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">UGLA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+
+            <span class="c1"># Print timing</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples</span>
+    
+    <span class="k">def</span> <span class="nf">_sampleRegularizedLinearRTO</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler Regularized LinearRTO sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">RegularizedLinearRTO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">stepsize</span> <span class="o">=</span> <span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="n">abstol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.legacy.sampler Regularized LinearRTO sampler.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Start timing</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Sample</span>
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">RegularizedLinearRTO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">stepsize</span> <span class="o">=</span> <span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="n">abstol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+
+            <span class="c1"># Print timing</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples</span>
+
+    <span class="k">def</span> <span class="nf">_solve_max_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This is a helper function for point estimation of the maximum of a density (e.g. posterior or likelihood) using solver module.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        density : Density (Distribution or Likelihood)</span>
+<span class="sd">            The density or likelihood to compute the maximum point of the negative log.</span>
+
+<span class="sd">        disp : bool</span>
+<span class="sd">            display info messages? (True or False).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Get the function to minimize (negative log-likelihood or negative log-posterior)</span>
+        <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="o">-</span><span class="n">density</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Initial value if not given</span>
+        <span class="k">if</span> <span class="n">x0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">)</span>
+
+        <span class="c1"># Get the gradient (if available)</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="n">density</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">gradfunc</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="o">-</span><span class="n">density</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimizing with exact gradients&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">gradfunc</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimizing with approximate gradients.&quot;</span><span class="p">)</span> 
+
+        <span class="c1"># Compute point estimate</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">CMRF</span><span class="p">,</span> <span class="n">must_have_gradient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="c1"># Use L-BFGS-B for CMRF prior as it has better performance for this multi-modal posterior</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using scipy.optimize.L_BFGS_B on negative log of </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x0: ones vector&quot;</span><span class="p">)</span>
+            <span class="n">solver</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">ScipyLBFGSB</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">gradfunc</span><span class="o">=</span><span class="n">gradfunc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using scipy.optimize.minimize on negative log of </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">disp</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;x0: ones vector&quot;</span><span class="p">)</span>
+            <span class="n">solver</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">ScipyMinimizer</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">gradfunc</span><span class="o">=</span><span class="n">gradfunc</span><span class="p">)</span>
+
+        <span class="n">x_MAP</span><span class="p">,</span> <span class="n">solver_info</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+        <span class="c1"># Add info on solver choice</span>
+        <span class="n">solver_info</span><span class="p">[</span><span class="s2">&quot;solver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;L-BFGS-B&quot;</span>
+
+        <span class="k">return</span> <span class="n">x_MAP</span><span class="p">,</span> <span class="n">solver_info</span>
+
+    <span class="k">def</span> <span class="nf">_check_geometries_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom1</span><span class="p">,</span> <span class="n">geom2</span><span class="p">,</span> <span class="n">fail_msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom1</span><span class="p">,</span><span class="n">_DefaultGeometry</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom2</span><span class="p">,</span><span class="n">_DefaultGeometry</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">geom1</span> <span class="o">==</span> <span class="n">geom2</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">geom1</span><span class="p">,</span><span class="n">geom2</span>
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="k">return</span> <span class="n">geom2</span><span class="p">,</span> <span class="n">geom2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom2</span><span class="p">,</span><span class="n">_DefaultGeometry</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">geom1</span><span class="p">,</span><span class="n">geom1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">geom1</span> <span class="o">==</span> <span class="n">geom2</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">geom1</span><span class="p">,</span><span class="n">geom2</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">fail_msg</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_posterior</span><span class="p">(</span><span class="n">posterior</span><span class="p">,</span> <span class="n">prior_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">likelihood_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">must_have_gradient</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns true if components of the posterior reflects the types (can be tuple of types) given as input.&quot;&quot;&quot;</span>
+        <span class="c1"># Prior check</span>
+        <span class="k">if</span> <span class="n">prior_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">posterior</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">prior_type</span><span class="p">)</span>
+
+        <span class="c1"># Likelihood check</span>
+        <span class="k">if</span> <span class="n">likelihood_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">posterior</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="n">likelihood_type</span><span class="p">)</span>
+
+        <span class="c1"># Model check</span>
+        <span class="k">if</span> <span class="n">model_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">posterior</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">model_type</span><span class="p">)</span>
+
+        <span class="c1">#Dimension check</span>
+        <span class="k">if</span> <span class="n">max_dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">domain_dim</span><span class="o">&lt;=</span><span class="n">max_dim</span> <span class="ow">and</span> <span class="n">posterior</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">range_dim</span><span class="o">&lt;=</span><span class="n">max_dim</span>
+
+        <span class="c1"># Require gradient?</span>
+        <span class="k">if</span> <span class="n">must_have_gradient</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span> 
+                <span class="n">posterior</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">posterior</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+                <span class="n">G</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="n">G</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">G</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">L</span> <span class="ow">and</span> <span class="n">P</span> <span class="ow">and</span> <span class="n">M</span> <span class="ow">and</span> <span class="n">D</span> <span class="ow">and</span> <span class="n">G</span>
+
+    <span class="k">def</span> <span class="nf">_sampleGibbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This is a helper function for sampling from the posterior using Gibbs sampler. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using cuqi.sampler HybridGibbs sampler&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Start timing</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Sampling strategy</span>
+            <span class="n">sampling_strategy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_sampling_strategy</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">HybridGibbs</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">sampling_strategy</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
+            <span class="c1"># Dict with Samples objects for each parameter</span>
+            <span class="c1"># Now apply burnthin to each value in dict</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">samples</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">burnthin</span><span class="p">(</span><span class="n">Nb</span><span class="p">)</span>
+            
+            <span class="c1"># Print timing</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using Gibbs sampler&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;burn-in: </span><span class="si">{</span><span class="n">Nb</span><span class="o">/</span><span class="n">Ns</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Callback not implemented for the legacy Gibbs sampler. It is only implemented for cuqi.sampler Gibbs (cuqi.sampler.HybridGibbs) sampler.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Start timing</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Sampling strategy</span>
+            <span class="n">sampling_strategy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_sampling_strategy</span><span class="p">()</span>
+
+            <span class="n">sampler</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">Gibbs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="p">,</span> <span class="n">sampling_strategy</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+
+            <span class="c1"># Print timing</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Elapsed time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ti</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">samples</span>
+
+
+    <span class="k">def</span> <span class="nf">_determine_sampling_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This is a helper function for determining the sampling strategy for Gibbs sampler.</span>
+<span class="sd">        </span>
+<span class="sd">        It is still very experimental and not very robust.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># We determine sampling strategy by sequentially conditioning each variable on the others.</span>
+        <span class="c1"># We then re-use the _check_posterior method to select the best sampler for each variable.</span>
+        <span class="c1"># In the future we may consider refactoring these methods into one more robust way of</span>
+        <span class="c1"># determining the sampling strategy.</span>
+
+        <span class="c1"># Joint distribution and parameters</span>
+        <span class="n">joint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+        <span class="n">par_names</span> <span class="o">=</span> <span class="n">joint</span><span class="o">.</span><span class="n">get_parameter_names</span><span class="p">()</span>
+
+        <span class="c1"># Go through each parameter and condition on the others, then select the best sampler</span>
+        <span class="n">sampling_strategy</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">par_name</span> <span class="ow">in</span> <span class="n">par_names</span><span class="p">:</span>
+
+            <span class="c1"># Dict of all other parameters to condition on with ones vector as initial value</span>
+            <span class="n">other_params</span> <span class="o">=</span> <span class="p">{</span><span class="n">par_name_</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">joint</span><span class="o">.</span><span class="n">get_density</span><span class="p">(</span><span class="n">par_name_</span><span class="p">)</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">par_name_</span> <span class="ow">in</span> <span class="n">par_names</span> <span class="k">if</span> <span class="n">par_name_</span> <span class="o">!=</span> <span class="n">par_name</span><span class="p">}</span>
+
+            <span class="c1"># Condition on all other parameters to get target conditional distribution</span>
+            <span class="n">cond_target</span> <span class="o">=</span> <span class="n">joint</span><span class="p">(</span><span class="o">**</span><span class="n">other_params</span><span class="p">)</span>
+
+            <span class="c1"># If not Posterior, we cant get sampling strategy (for now)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cond_target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to determine sampling strategy for </span><span class="si">{</span><span class="n">par_name</span><span class="si">}</span><span class="s2"> with target </span><span class="si">{</span><span class="n">cond_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Gamma or ModifiedHalfNormal prior, Gaussian or RegularizedGaussian likelihood -&gt; Conjugate</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="n">cond_target</span><span class="p">,</span> <span class="p">(</span><span class="n">Gamma</span><span class="p">,</span> <span class="n">ModifiedHalfNormal</span><span class="p">),</span> <span class="p">(</span><span class="n">Gaussian</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">,</span> <span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">Conjugate</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">Conjugate</span>
+
+            <span class="c1"># Gamma prior, LMRF likelihood -&gt; ConjugateApprox</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="n">cond_target</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">LMRF</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">ConjugateApprox</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">ConjugateApprox</span>
+
+            <span class="c1"># Gaussian prior, Gaussian likelihood, Linear model -&gt; LinearRTO</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="n">cond_target</span><span class="p">,</span> <span class="p">(</span><span class="n">Gaussian</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">),</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LinearModel</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">LinearRTO</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">LinearRTO</span>
+
+            <span class="c1"># Implicit Regularized Gaussian prior, Gaussian likelihood, linear model -&gt; RegularizedLinearRTO</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="n">cond_target</span><span class="p">,</span> <span class="p">(</span><span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span><span class="p">),</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LinearModel</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">RegularizedLinearRTO</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">RegularizedLinearRTO</span>
+
+            <span class="c1"># LMRF prior, Gaussian likelihood, Linear model -&gt; UGLA</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_posterior</span><span class="p">(</span><span class="n">cond_target</span><span class="p">,</span> <span class="n">LMRF</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LinearModel</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">UGLA</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sampling_strategy</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">legacy</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">UGLA</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to determine sampling strategy for </span><span class="si">{</span><span class="n">par_name</span><span class="si">}</span><span class="s2"> with target </span><span class="si">{</span><span class="n">cond_target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Automatically determined sampling strategy:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">dist_name</span><span class="p">,</span> <span class="n">strategy</span> <span class="ow">in</span> <span class="n">sampling_strategy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">legacy</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">dist_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">strategy</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> (mcmc.sampler)&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">dist_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">strategy</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sampling_strategy</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;BayesianProblem with target: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

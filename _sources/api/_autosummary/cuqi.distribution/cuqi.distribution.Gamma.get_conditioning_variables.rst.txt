@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.get\_conditioning\_variables
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.get_conditioning_variables

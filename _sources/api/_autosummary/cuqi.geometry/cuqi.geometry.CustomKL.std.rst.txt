@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.std
+==========================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.std

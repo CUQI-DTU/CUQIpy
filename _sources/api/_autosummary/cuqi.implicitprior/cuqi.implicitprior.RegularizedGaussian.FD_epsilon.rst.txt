@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.FD\_epsilon
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.FD_epsilon

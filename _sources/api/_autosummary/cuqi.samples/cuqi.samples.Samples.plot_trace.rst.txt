@@ -1,0 +1,6 @@
+cuqi.samples.Samples.plot\_trace
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.plot_trace

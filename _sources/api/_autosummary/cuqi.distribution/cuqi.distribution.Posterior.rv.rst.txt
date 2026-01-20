@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.rv
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Posterior.rv

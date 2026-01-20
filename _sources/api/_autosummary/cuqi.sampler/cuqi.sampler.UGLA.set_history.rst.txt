@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.set\_history
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.set_history

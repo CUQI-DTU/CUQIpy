@@ -1,0 +1,6 @@
+cuqi.samples.Samples.plot\_pair
+===============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.plot_pair

@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.get\_parameter\_names
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.get_parameter_names

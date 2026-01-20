@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.target
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Conjugate.target

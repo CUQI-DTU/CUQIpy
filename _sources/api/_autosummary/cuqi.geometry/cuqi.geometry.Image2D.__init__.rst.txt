@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.\_\_init\_\_
+==================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Image2D.__init__

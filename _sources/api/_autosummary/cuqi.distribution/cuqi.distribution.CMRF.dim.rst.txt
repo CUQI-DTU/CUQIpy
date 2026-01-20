@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.dim
+==========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: CMRF.dim

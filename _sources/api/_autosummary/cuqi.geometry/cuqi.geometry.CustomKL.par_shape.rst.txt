@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.par\_shape
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.par_shape

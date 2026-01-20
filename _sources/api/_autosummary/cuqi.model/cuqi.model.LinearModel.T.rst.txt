@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.T
+========================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: LinearModel.T

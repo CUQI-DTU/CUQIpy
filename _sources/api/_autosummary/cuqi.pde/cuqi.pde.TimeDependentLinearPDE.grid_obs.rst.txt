@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.grid\_obs
+=========================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: TimeDependentLinearPDE.grid_obs

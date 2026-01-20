@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.rv
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.rv

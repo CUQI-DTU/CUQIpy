@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.trunc\_term
+==================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.trunc_term

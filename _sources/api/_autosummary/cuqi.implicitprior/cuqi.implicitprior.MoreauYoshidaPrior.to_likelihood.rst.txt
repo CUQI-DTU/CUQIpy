@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.to\_likelihood
+====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.to_likelihood

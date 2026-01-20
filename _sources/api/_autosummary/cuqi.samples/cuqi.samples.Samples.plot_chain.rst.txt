@@ -1,0 +1,6 @@
+cuqi.samples.Samples.plot\_chain
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.plot_chain

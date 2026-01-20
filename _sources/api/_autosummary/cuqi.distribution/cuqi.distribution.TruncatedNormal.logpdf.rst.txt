@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.logpdf
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.logpdf

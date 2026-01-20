@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.dim
+==========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.dim

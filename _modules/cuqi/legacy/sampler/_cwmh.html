@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.legacy.sampler._cwmh &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/legacy/sampler/_cwmh';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.legacy.sampler._cwmh</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.legacy.sampler._cwmh</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">from</span> <span class="nn">cuqi.legacy.sampler</span> <span class="kn">import</span> <span class="n">ProposalBasedSampler</span>
+
+
+<div class="viewcode-block" id="CWMH">
+<a class="viewcode-back" href="../../../../api/_autosummary/cuqi.legacy.sampler/cuqi.legacy.sampler.CWMH.html#cuqi.legacy.sampler.CWMH">[docs]</a>
+<span class="k">class</span> <span class="nc">CWMH</span><span class="p">(</span><span class="n">ProposalBasedSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Component-wise Metropolis Hastings sampler.</span>
+
+<span class="sd">    Allows sampling of a target distribution by a component-wise random-walk sampling of a proposal distribution along with an accept/reject step.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    target : `cuqi.distribution.Distribution` or lambda function</span>
+<span class="sd">        The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.</span>
+<span class="sd">    </span>
+<span class="sd">    proposal : `cuqi.distribution.Distribution` or callable method</span>
+<span class="sd">        The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.</span>
+
+<span class="sd">    scale : float</span>
+<span class="sd">        Scale parameter used to define correlation between previous and proposed sample in random-walk.  *Optional*.</span>
+
+<span class="sd">    x0 : ndarray</span>
+<span class="sd">        Initial parameters. *Optional*</span>
+
+<span class="sd">    dim : int</span>
+<span class="sd">        Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.</span>
+
+<span class="sd">    callback : callable, *Optional*</span>
+<span class="sd">        If set this function will be called after every sample.</span>
+<span class="sd">        The signature of the callback function is `callback(sample, sample_index)`,</span>
+<span class="sd">        where `sample` is the current sample and `sample_index` is the index of the sample.</span>
+<span class="sd">        An example is shown in demos/demo31_callback.py.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Parameters</span>
+<span class="sd">        dim = 5 # Dimension of distribution</span>
+<span class="sd">        mu = np.arange(dim) # Mean of Gaussian</span>
+<span class="sd">        std = 1 # standard deviation of Gaussian</span>
+
+<span class="sd">        # Logpdf function</span>
+<span class="sd">        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)</span>
+
+<span class="sd">        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported as inputs to UserDefinedDistribution)</span>
+<span class="sd">        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)</span>
+
+<span class="sd">        # Set up sampler</span>
+<span class="sd">        sampler = cuqi.legacy.sampler.CWMH(target, scale=1)</span>
+
+<span class="sd">        # Sample</span>
+<span class="sd">        samples = sampler.sample(2000)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CWMH.__init__">
+<a class="viewcode-back" href="../../../../api/_autosummary/cuqi.legacy.sampler/cuqi.legacy.sampler.CWMH.__init__.html#cuqi.legacy.sampler.CWMH.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span>  <span class="n">proposal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">proposal</span><span class="o">=</span><span class="n">proposal</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>  <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+        
+    <span class="nd">@ProposalBasedSampler</span><span class="o">.</span><span class="n">proposal</span><span class="o">.</span><span class="n">setter</span> 
+    <span class="k">def</span> <span class="nf">proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">fail_msg</span> <span class="o">=</span> <span class="s2">&quot;Proposal should be either None, cuqi.distribution.Distribution conditioned only on &#39;location&#39; and &#39;scale&#39;, lambda function, or cuqi.distribution.Normal conditioned only on &#39;mean&#39; and &#39;std&#39;&quot;</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">mean</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">location</span><span class="p">:</span><span class="n">location</span><span class="p">,</span><span class="n">std</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">scale</span><span class="p">:</span><span class="n">scale</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Distribution</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">())</span><span class="o">==</span><span class="p">[</span><span class="s1">&#39;location&#39;</span><span class="p">,</span><span class="s1">&#39;scale&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Normal</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">get_conditioning_variables</span><span class="p">())</span><span class="o">==</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;std&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="n">mean</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">location</span><span class="p">:</span><span class="n">location</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">scale</span><span class="p">:</span><span class="n">scale</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Distribution</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">fail_msg</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Nb</span><span class="p">):</span>
+        <span class="n">Ns</span> <span class="o">=</span> <span class="n">N</span><span class="o">+</span><span class="n">Nb</span>   <span class="c1"># number of simulations</span>
+
+        <span class="c1"># allocation</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">Ns</span><span class="p">))</span>
+        <span class="n">target_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># initial state    </span>
+        <span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span>
+        <span class="n">target_eval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+        <span class="n">acc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># run MCMC</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># run component by component</span>
+            <span class="n">samples</span><span class="p">[:,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_eval</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">acc</span><span class="p">[:,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_update</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="n">s</span><span class="p">],</span> <span class="n">target_eval</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_progress</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">Ns</span><span class="p">)</span> <span class="c1">#s+2 is the sample number, s+1 is index assuming x0 is the first sample</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_callback</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># remove burn-in</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="n">Nb</span><span class="p">:]</span>
+        <span class="n">target_eval</span> <span class="o">=</span> <span class="n">target_eval</span><span class="p">[</span><span class="n">Nb</span><span class="p">:]</span>
+        <span class="n">acccomp</span> <span class="o">=</span> <span class="n">acc</span><span class="p">[:,</span> <span class="n">Nb</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>   
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Average acceptance rate all components:&#39;</span><span class="p">,</span> <span class="n">acccomp</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">samples</span><span class="p">,</span> <span class="n">target_eval</span><span class="p">,</span> <span class="n">acccomp</span>
+
+    <span class="k">def</span> <span class="nf">_sample_adapt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Nb</span><span class="p">):</span>
+        <span class="c1"># this follows the vanishing adaptation Algorithm 4 in:</span>
+        <span class="c1"># Andrieu and Thoms (2008) - A tutorial on adaptive MCMC</span>
+        <span class="n">Ns</span> <span class="o">=</span> <span class="n">N</span><span class="o">+</span><span class="n">Nb</span>   <span class="c1"># number of simulations</span>
+
+        <span class="c1"># allocation</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">Ns</span><span class="p">))</span>
+        <span class="n">target_eval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">Ns</span><span class="p">)</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">Ns</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># initial state</span>
+        <span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span>
+        <span class="n">target_eval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">)</span>
+        <span class="n">acc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># initial adaptation params </span>
+        <span class="n">Na</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>                                        <span class="c1"># iterations to adapt</span>
+        <span class="n">hat_acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">Ns</span><span class="o">/</span><span class="n">Na</span><span class="p">))))</span>     <span class="c1"># average acceptance rate of the chains</span>
+        <span class="n">lambd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">Ns</span><span class="o">/</span><span class="n">Na</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>     <span class="c1"># scaling parameter \in (0,1)</span>
+        <span class="n">lambd</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
+        <span class="n">star_acc</span> <span class="o">=</span> <span class="mf">0.21</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+</span> <span class="mf">0.23</span>    <span class="c1"># target acceptance rate RW</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="c1"># run MCMC</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># run component by component</span>
+            <span class="n">samples</span><span class="p">[:,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_eval</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">acc</span><span class="p">[:,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_update</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="n">s</span><span class="p">],</span> <span class="n">target_eval</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+            
+            <span class="c1"># adapt prop spread of each component using acc of past samples</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">Na</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="c1"># evaluate average acceptance rate</span>
+                <span class="n">hat_acc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="n">Na</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># compute new scaling parameter</span>
+                <span class="n">zeta</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># ensures that the variation of lambda(i) vanishes</span>
+                <span class="n">lambd</span><span class="p">[:,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lambd</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">zeta</span><span class="o">*</span><span class="p">(</span><span class="n">hat_acc</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">star_acc</span><span class="p">))</span>  
+
+                <span class="c1"># update parameters</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">lambd</span><span class="p">[:,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+
+                <span class="c1"># update counters</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">idx</span> <span class="o">+=</span> <span class="n">Na</span>
+
+            <span class="c1"># display iterations </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_progress</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">Ns</span><span class="p">)</span> <span class="c1">#s+2 is the sample number, s+1 is index assuming x0 is the first sample</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_callback</span><span class="p">(</span><span class="n">samples</span><span class="p">[:,</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            
+        <span class="c1"># remove burn-in</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="n">Nb</span><span class="p">:]</span>
+        <span class="n">target_eval</span> <span class="o">=</span> <span class="n">target_eval</span><span class="p">[</span><span class="n">Nb</span><span class="p">:]</span>
+        <span class="n">acccomp</span> <span class="o">=</span> <span class="n">acc</span><span class="p">[:,</span> <span class="n">Nb</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Average acceptance rate all components:&#39;</span><span class="p">,</span> <span class="n">acccomp</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">samples</span><span class="p">,</span> <span class="n">target_eval</span><span class="p">,</span> <span class="n">acccomp</span>
+
+<div class="viewcode-block" id="CWMH.single_update">
+<a class="viewcode-back" href="../../../../api/_autosummary/cuqi.legacy.sampler/cuqi.legacy.sampler.CWMH.single_update.html#cuqi.legacy.sampler.CWMH.single_update">[docs]</a>
+    <span class="k">def</span> <span class="nf">single_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_t</span><span class="p">,</span> <span class="n">target_eval_t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proposal</span><span class="p">,</span><span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Distribution</span><span class="p">):</span>
+            <span class="n">x_i_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal</span><span class="p">(</span><span class="n">location</span><span class="o">=</span> <span class="n">x_t</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_i_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal</span><span class="p">(</span><span class="n">x_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span> 
+        <span class="n">x_star</span> <span class="o">=</span> <span class="n">x_t</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+            <span class="c1"># propose state</span>
+            <span class="n">x_star</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_i_star</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+            <span class="c1"># evaluate target</span>
+            <span class="n">target_eval_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">x_star</span><span class="p">)</span>
+
+            <span class="c1"># ratio and acceptance probability</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">target_eval_star</span> <span class="o">-</span> <span class="n">target_eval_t</span>  <span class="c1"># proposal is symmetric</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ratio</span><span class="p">)</span>
+
+            <span class="c1"># accept/reject</span>
+            <span class="n">u_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">())</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">u_theta</span> <span class="o">&lt;=</span> <span class="n">alpha</span><span class="p">):</span>
+                <span class="n">x_t</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_i_star</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">target_eval_t</span> <span class="o">=</span> <span class="n">target_eval_star</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+                <span class="c1"># x_t[j]       = x_t[j]</span>
+                <span class="c1"># target_eval_t = target_eval_t</span>
+            <span class="n">x_star</span> <span class="o">=</span> <span class="n">x_t</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1">#</span>
+        <span class="k">return</span> <span class="n">x_t</span><span class="p">,</span> <span class="n">target_eval_t</span><span class="p">,</span> <span class="n">acc</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

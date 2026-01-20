@@ -1,0 +1,36 @@
+SecondOrderFiniteDifference
+===========================
+
+.. currentmodule:: cuqi.operator
+
+.. autoclass:: SecondOrderFiniteDifference
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SecondOrderFiniteDifference.__init__
+      ~SecondOrderFiniteDifference.get_matrix
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SecondOrderFiniteDifference.T
+      ~SecondOrderFiniteDifference.bc_type
+      ~SecondOrderFiniteDifference.dim
+      ~SecondOrderFiniteDifference.num_nodes
+      ~SecondOrderFiniteDifference.physical_dim
+      ~SecondOrderFiniteDifference.shape
+   
+   

@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.dim
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.dim

@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.FD\_epsilon
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.FD_epsilon

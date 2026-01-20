@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.is\_cond
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.is_cond

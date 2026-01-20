@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.FD\_enabled
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.FD_enabled

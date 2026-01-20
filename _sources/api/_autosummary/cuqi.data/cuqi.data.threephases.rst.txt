@@ -1,0 +1,6 @@
+threephases
+===========
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: threephases

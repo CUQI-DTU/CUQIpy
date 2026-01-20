@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.to\_device
+===============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.to_device

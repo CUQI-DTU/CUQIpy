@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.method
+======================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: TimeDependentLinearPDE.method

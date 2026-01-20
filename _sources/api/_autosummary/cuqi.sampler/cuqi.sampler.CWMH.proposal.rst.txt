@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.proposal
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: CWMH.proposal

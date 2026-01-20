@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.get\_mutable\_variables
+==============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.get_mutable_variables

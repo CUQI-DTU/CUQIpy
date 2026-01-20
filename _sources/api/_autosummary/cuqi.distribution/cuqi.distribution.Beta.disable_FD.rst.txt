@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.disable\_FD
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.disable_FD

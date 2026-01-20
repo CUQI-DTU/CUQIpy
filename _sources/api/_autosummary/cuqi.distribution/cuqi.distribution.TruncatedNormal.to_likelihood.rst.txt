@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.to\_likelihood
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.to_likelihood

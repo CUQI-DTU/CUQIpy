@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.dim
+===================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: TweediePrior.dim
