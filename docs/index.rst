@@ -28,8 +28,8 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 **Quick Links**:
 :ref:`Installation <install>` |
-:doc:`Tutorials <user/_auto_tutorials/index>` |
 :doc:`How-To Guides <user/_auto_howtos/index>` |
+`CUQI Book <https://cuqi-dtu.github.io/CUQI-Book/>`_ |
 `Source Repository <https://github.com/CUQI-DTU/CUQIpy>`_ |
 `🔌 CUQIpy Plugins`_
 
