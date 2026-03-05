@@ -748,7 +748,8 @@ class Samples(object):
         # Construct inference data structure
         datadict =  dict(zip(variables,self.samples[variable_indices,:]))
 
-        return datadict
+        _check_for_arviz()
+        return arviz.from_dict(datadict)
         
     def compute_ess(self, **kwargs):
         """ Compute effective sample size (ESS) of samples.
@@ -817,7 +818,7 @@ class Samples(object):
 
         # Compute rhat
         _check_for_arviz()
-        RHAT_xarray = arviz.rhat(datadict, **kwargs)
+        RHAT_xarray = arviz.rhat(arviz.from_dict(datadict), **kwargs)
 
         # Convert to numpy array
         RHAT = np.empty(self._geometry_shape)
