@@ -1,4 +1,4 @@
-pkg_resources
+setuptools
 matplotlib
 numpy<=2.2.0
 scipy==1.12.0; python_version <= '3.9'
