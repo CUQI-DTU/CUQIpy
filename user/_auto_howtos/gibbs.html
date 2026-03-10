@@ -1,0 +1,1132 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Gibbs sampling &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/gibbs';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="The use of Image2D" href="image_2d.html" />
+    <link rel="prev" title="Support vector representation of function values in CUQIpy geometries and samples" href="fun_vec_representation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="deconvolution_2d.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defining_posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_2d.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="joint_distribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_input.html">Multiple input model: bathtub demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="random_variables_and_algebra.html">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_dependent_linear_pde.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uq_in_deconvolution_1d.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Gibbs sampling</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-gibbs-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="gibbs-sampling">
+<span id="sphx-glr-user-auto-howtos-gibbs-py"></span><h1>Gibbs sampling<a class="headerlink" href="#gibbs-sampling" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>This tutorial shows how to use CUQIpy to perform Gibbs sampling.
+Gibbs sampling is a Markov chain Monte Carlo (MCMC) method for
+sampling a joint probability distribution.</p>
+<p>Opposed to jointly sampling the distribution simultaneously, Gibbs
+sampling samples the variables of the distribution sequentially,
+one variable at a time. When a variable represents a random vector, the
+whole vector is sampled simultaneously.</p>
+<p>The sampling of each variable is done by sampling from the conditional
+distribution of that variable given (fixed, previously sampled) values
+of the other variables.</p>
+<p>This is often a very efficient way of sampling from a joint
+distribution if the conditional distributions are easy to sample
+from. This is one way to exploit the structure of the joint
+distribution. On the other hand, if the conditional distributions
+are highly correlated and/or are difficult to sample from, then
+Gibbs sampling can be very inefficient.</p>
+<p>For these reasons, Gibbs sampling is often a double-edged sword,
+that needs to be used in the right context.</p>
+</div></blockquote>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<p>We start by importing the necessary modules</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution1D</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">JointDistribution</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">,</span> <span class="n">LMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.sampler</span> <span class="kn">import</span> <span class="n">HybridGibbs</span><span class="p">,</span> <span class="n">LinearRTO</span><span class="p">,</span> <span class="n">Conjugate</span><span class="p">,</span> <span class="n">UGLA</span><span class="p">,</span> <span class="n">ConjugateApprox</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="forward-model-and-data">
+<h2>Forward model and data<a class="headerlink" href="#forward-model-and-data" title="Link to this heading">#</a></h2>
+<p>We define the forward model and data.
+Here we use a 1D deconvolution problem, so the forward model is linear,
+that is:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y} = \mathbf{A} \mathbf{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is the convolution matrix, and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is the input signal.</p>
+<p>We load this example from the testproblem library of CUQIpy and visualize the
+true solution (sharp signal) and data (convolved signal).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Model and data</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">probinfo</span> <span class="o">=</span> <span class="n">Deconvolution1D</span><span class="p">(</span><span class="n">phantom</span><span class="o">=</span><span class="s1">&#39;square&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+
+<span class="c1"># Get dimension of signal</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span>
+
+<span class="c1"># Plot exact solution and observed data</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">probinfo</span><span class="o">.</span><span class="n">exactSolution</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;exact solution&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">y_obs</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Observed data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_001.png" srcset="../../_images/sphx_glr_gibbs_001.png" alt="exact solution, Observed data" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Text(0.5, 1.0, &#39;Observed data&#39;)
+</pre></div>
+</div>
+</section>
+<section id="hierarchical-bayesian-model">
+<h2>Hierarchical Bayesian model<a class="headerlink" href="#hierarchical-bayesian-model" title="Link to this heading">#</a></h2>
+<p>We define the following hierarchical model:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    d &amp;\sim \mathrm{Gamma}(1, 10^{-4}) \\
+    l &amp;\sim \mathrm{Gamma}(1, 10^{-4}) \\
+    \mathbf{x} &amp;\sim \mathrm{GMRF}(\mathbf{0}, d) \\
+    \mathbf{y} &amp;\sim \mathcal{N}(\mathbf{A} \mathbf{x}, l^{-1} \mathbf{I}_m)
+\end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is the observed data, and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>
+is the unknown signal. The hyperparameters <span class="math notranslate nohighlight">\(d\)</span> and <span class="math notranslate nohighlight">\(l\)</span> are
+the precision of the prior distribution of <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> and
+the noise, respectively.</p>
+<p>The prior distribution of <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is a Gaussian Markov random
+field (GMRF) with zero mean and precision <span class="math notranslate nohighlight">\(d\)</span>. It can
+be viewed as a Gaussian prior on the differences between neighboring
+elements of <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+<p>In CUQIpy the model can be defined as follows:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define distributions</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">GMRF</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">l</span><span class="p">)</span>
+
+<span class="c1"># Combine into a joint distribution</span>
+<span class="n">joint</span> <span class="o">=</span> <span class="n">JointDistribution</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># View the joint distribution</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>JointDistribution(
+    Equation:
+        p(d,l,x,y) = p(d)p(l)p(x|d)p(y|x,l)
+    Densities:
+        d ~ CUQI Gamma.
+        l ~ CUQI Gamma.
+        x ~ CUQI GMRF. Conditioning variables [&#39;d&#39;].
+        y ~ CUQI Gaussian. Conditioning variables [&#39;x&#39;, &#39;l&#39;].
+ )
+</pre></div>
+</div>
+<p>Notice that the joint distribution prints a mathematical expression
+for the density functions that make up <span class="math notranslate nohighlight">\(p(d,l,\mathbf{x},\mathbf{y})\)</span>.
+In this case they are all distributions, but this need not be the case.</p>
+</section>
+<section id="defining-the-posterior-distribution">
+<h2>Defining the posterior distribution<a class="headerlink" href="#defining-the-posterior-distribution" title="Link to this heading">#</a></h2>
+<p>Now we define the posterior distribution, which is the joint distribution
+conditioned on the observed data. That is, <span class="math notranslate nohighlight">\(p(d, l, \mathbf{x} \mid \mathbf{y}=\mathbf{y}_\mathrm{obs})\)</span></p>
+<p>This is done in the following way:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define posterior by conditioning on the data</span>
+<span class="n">posterior</span> <span class="o">=</span> <span class="n">joint</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+
+<span class="c1"># View the structure of the posterior</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">posterior</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>JointDistribution(
+    Equation:
+        p(d,l,x|y) ∝ p(d)p(l)p(x|d)L(x,l|y)
+    Densities:
+        d ~ CUQI Gamma.
+        l ~ CUQI Gamma.
+        x ~ CUQI GMRF. Conditioning variables [&#39;d&#39;].
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;, &#39;l&#39;].
+ )
+</pre></div>
+</div>
+<p>Notice that after conditioning on the data, the distribution associated with
+<span class="math notranslate nohighlight">\(\mathbf{y}\)</span> became a likelihood function and that the posterior is now
+a joint distribution of the variables <span class="math notranslate nohighlight">\(d\)</span>, <span class="math notranslate nohighlight">\(l\)</span>, <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+</section>
+<section id="gibbs-sampler">
+<h2>Gibbs Sampler<a class="headerlink" href="#gibbs-sampler" title="Link to this heading">#</a></h2>
+<p>The hierarchical model above has some important properties that we
+can exploit to make the sampling more efficient. First, note that
+the Gamma distribution are conjugate priors for the precision of
+the Gaussian distributions. This means that we can efficiently sample
+from <span class="math notranslate nohighlight">\(d\)</span> and <span class="math notranslate nohighlight">\(l\)</span> conditional on the other variables.</p>
+<p>Second, note that the prior distribution of <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is
+a Gaussian Markov random field (GMRF) and that the distribution for
+<span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is also Gaussian with a Linear operator acting
+on <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> as the mean variable. This means that we can
+efficiently sample from <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> conditional on the other
+variables using the <code class="docutils literal notranslate"><span class="pre">LinearRTO</span></code> sampler.</p>
+<p>Taking these two facts into account, we can define a HybridGibbs sampler
+that uses the <code class="docutils literal notranslate"><span class="pre">Conjugate</span></code> sampler for <span class="math notranslate nohighlight">\(d\)</span> and <span class="math notranslate nohighlight">\(l\)</span> and
+the <code class="docutils literal notranslate"><span class="pre">LinearRTO</span></code> sampler for <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+<p>This is done in CUQIpy as follows:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define sampling strategy</span>
+<span class="n">sampling_strategy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">LinearRTO</span><span class="p">(),</span>
+    <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">Conjugate</span><span class="p">(),</span>
+    <span class="s1">&#39;l&#39;</span><span class="p">:</span> <span class="n">Conjugate</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1"># Define HybridGibbs sampler</span>
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">HybridGibbs</span><span class="p">(</span><span class="n">posterior</span><span class="p">,</span> <span class="n">sampling_strategy</span><span class="p">)</span>
+
+<span class="c1"># Run sampler</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   6%|▌         | 12/200 [00:00&lt;00:01, 118.65it/s]
+Warmup:  12%|█▎        | 25/200 [00:00&lt;00:01, 119.84it/s]
+Warmup:  19%|█▉        | 38/200 [00:00&lt;00:01, 120.92it/s]
+Warmup:  26%|██▌       | 51/200 [00:00&lt;00:01, 121.36it/s]
+Warmup:  32%|███▏      | 64/200 [00:00&lt;00:01, 121.46it/s]
+Warmup:  38%|███▊      | 77/200 [00:00&lt;00:01, 121.59it/s]
+Warmup:  45%|████▌     | 90/200 [00:00&lt;00:00, 121.07it/s]
+Warmup:  52%|█████▏    | 103/200 [00:00&lt;00:00, 121.42it/s]
+Warmup:  58%|█████▊    | 116/200 [00:00&lt;00:00, 121.41it/s]
+Warmup:  64%|██████▍   | 129/200 [00:01&lt;00:00, 121.79it/s]
+Warmup:  71%|███████   | 142/200 [00:01&lt;00:00, 121.73it/s]
+Warmup:  78%|███████▊  | 155/200 [00:01&lt;00:00, 120.85it/s]
+Warmup:  84%|████████▍ | 168/200 [00:01&lt;00:00, 120.46it/s]
+Warmup:  90%|█████████ | 181/200 [00:01&lt;00:00, 120.40it/s]
+Warmup:  97%|█████████▋| 194/200 [00:01&lt;00:00, 120.53it/s]
+Warmup: 100%|██████████| 200/200 [00:01&lt;00:00, 120.94it/s]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   1%|▏         | 13/1000 [00:00&lt;00:08, 120.33it/s]
+Sample:   3%|▎         | 26/1000 [00:00&lt;00:08, 120.48it/s]
+Sample:   4%|▍         | 39/1000 [00:00&lt;00:07, 121.35it/s]
+Sample:   5%|▌         | 52/1000 [00:00&lt;00:07, 120.81it/s]
+Sample:   6%|▋         | 65/1000 [00:00&lt;00:07, 120.92it/s]
+Sample:   8%|▊         | 78/1000 [00:00&lt;00:07, 120.90it/s]
+Sample:   9%|▉         | 91/1000 [00:00&lt;00:07, 121.32it/s]
+Sample:  10%|█         | 104/1000 [00:00&lt;00:07, 121.50it/s]
+Sample:  12%|█▏        | 117/1000 [00:00&lt;00:07, 121.99it/s]
+Sample:  13%|█▎        | 130/1000 [00:01&lt;00:07, 122.24it/s]
+Sample:  14%|█▍        | 143/1000 [00:01&lt;00:07, 122.24it/s]
+Sample:  16%|█▌        | 156/1000 [00:01&lt;00:06, 122.49it/s]
+Sample:  17%|█▋        | 169/1000 [00:01&lt;00:06, 121.60it/s]
+Sample:  18%|█▊        | 182/1000 [00:01&lt;00:06, 120.16it/s]
+Sample:  20%|█▉        | 195/1000 [00:01&lt;00:06, 119.57it/s]
+Sample:  21%|██        | 207/1000 [00:01&lt;00:06, 119.65it/s]
+Sample:  22%|██▏       | 220/1000 [00:01&lt;00:06, 120.46it/s]
+Sample:  23%|██▎       | 233/1000 [00:01&lt;00:06, 121.34it/s]
+Sample:  25%|██▍       | 246/1000 [00:02&lt;00:06, 121.74it/s]
+Sample:  26%|██▌       | 259/1000 [00:02&lt;00:06, 121.55it/s]
+Sample:  27%|██▋       | 272/1000 [00:02&lt;00:06, 120.85it/s]
+Sample:  28%|██▊       | 285/1000 [00:02&lt;00:05, 121.17it/s]
+Sample:  30%|██▉       | 298/1000 [00:02&lt;00:05, 121.65it/s]
+Sample:  31%|███       | 311/1000 [00:02&lt;00:05, 121.88it/s]
+Sample:  32%|███▏      | 324/1000 [00:02&lt;00:05, 120.92it/s]
+Sample:  34%|███▎      | 337/1000 [00:02&lt;00:05, 121.31it/s]
+Sample:  35%|███▌      | 350/1000 [00:02&lt;00:05, 121.75it/s]
+Sample:  36%|███▋      | 363/1000 [00:02&lt;00:05, 121.99it/s]
+Sample:  38%|███▊      | 376/1000 [00:03&lt;00:05, 121.22it/s]
+Sample:  39%|███▉      | 389/1000 [00:03&lt;00:05, 121.29it/s]
+Sample:  40%|████      | 402/1000 [00:03&lt;00:04, 121.43it/s]
+Sample:  42%|████▏     | 415/1000 [00:03&lt;00:04, 121.05it/s]
+Sample:  43%|████▎     | 428/1000 [00:03&lt;00:04, 121.00it/s]
+Sample:  44%|████▍     | 441/1000 [00:03&lt;00:04, 121.38it/s]
+Sample:  45%|████▌     | 454/1000 [00:03&lt;00:04, 121.09it/s]
+Sample:  47%|████▋     | 467/1000 [00:03&lt;00:04, 121.13it/s]
+Sample:  48%|████▊     | 480/1000 [00:03&lt;00:04, 120.92it/s]
+Sample:  49%|████▉     | 493/1000 [00:04&lt;00:04, 121.34it/s]
+Sample:  51%|█████     | 506/1000 [00:04&lt;00:04, 121.89it/s]
+Sample:  52%|█████▏    | 519/1000 [00:04&lt;00:03, 121.82it/s]
+Sample:  53%|█████▎    | 532/1000 [00:04&lt;00:03, 122.04it/s]
+Sample:  55%|█████▍    | 545/1000 [00:04&lt;00:03, 122.30it/s]
+Sample:  56%|█████▌    | 558/1000 [00:04&lt;00:03, 122.22it/s]
+Sample:  57%|█████▋    | 571/1000 [00:04&lt;00:03, 122.09it/s]
+Sample:  58%|█████▊    | 584/1000 [00:04&lt;00:03, 122.26it/s]
+Sample:  60%|█████▉    | 597/1000 [00:04&lt;00:03, 122.49it/s]
+Sample:  61%|██████    | 610/1000 [00:05&lt;00:03, 122.65it/s]
+Sample:  62%|██████▏   | 623/1000 [00:05&lt;00:03, 122.90it/s]
+Sample:  64%|██████▎   | 636/1000 [00:05&lt;00:02, 122.77it/s]
+Sample:  65%|██████▍   | 649/1000 [00:05&lt;00:02, 122.63it/s]
+Sample:  66%|██████▌   | 662/1000 [00:05&lt;00:02, 122.49it/s]
+Sample:  68%|██████▊   | 675/1000 [00:05&lt;00:02, 122.30it/s]
+Sample:  69%|██████▉   | 688/1000 [00:05&lt;00:02, 122.17it/s]
+Sample:  70%|███████   | 701/1000 [00:05&lt;00:02, 122.11it/s]
+Sample:  71%|███████▏  | 714/1000 [00:05&lt;00:02, 122.58it/s]
+Sample:  73%|███████▎  | 727/1000 [00:05&lt;00:02, 122.89it/s]
+Sample:  74%|███████▍  | 740/1000 [00:06&lt;00:02, 123.26it/s]
+Sample:  75%|███████▌  | 753/1000 [00:06&lt;00:02, 123.18it/s]
+Sample:  77%|███████▋  | 766/1000 [00:06&lt;00:01, 123.36it/s]
+Sample:  78%|███████▊  | 779/1000 [00:06&lt;00:01, 122.64it/s]
+Sample:  79%|███████▉  | 792/1000 [00:06&lt;00:01, 122.72it/s]
+Sample:  80%|████████  | 805/1000 [00:06&lt;00:01, 122.51it/s]
+Sample:  82%|████████▏ | 818/1000 [00:06&lt;00:01, 122.50it/s]
+Sample:  83%|████████▎ | 831/1000 [00:06&lt;00:01, 122.52it/s]
+Sample:  84%|████████▍ | 844/1000 [00:06&lt;00:01, 122.36it/s]
+Sample:  86%|████████▌ | 857/1000 [00:07&lt;00:01, 122.42it/s]
+Sample:  87%|████████▋ | 870/1000 [00:07&lt;00:01, 122.56it/s]
+Sample:  88%|████████▊ | 883/1000 [00:07&lt;00:00, 122.41it/s]
+Sample:  90%|████████▉ | 896/1000 [00:07&lt;00:00, 121.85it/s]
+Sample:  91%|█████████ | 909/1000 [00:07&lt;00:00, 116.66it/s]
+Sample:  92%|█████████▏| 921/1000 [00:07&lt;00:00, 113.86it/s]
+Sample:  93%|█████████▎| 934/1000 [00:07&lt;00:00, 116.33it/s]
+Sample:  95%|█████████▍| 946/1000 [00:07&lt;00:00, 111.42it/s]
+Sample:  96%|█████████▌| 958/1000 [00:07&lt;00:00, 112.98it/s]
+Sample:  97%|█████████▋| 971/1000 [00:08&lt;00:00, 115.55it/s]
+Sample:  98%|█████████▊| 984/1000 [00:08&lt;00:00, 117.41it/s]
+Sample: 100%|█████████▉| 996/1000 [00:08&lt;00:00, 118.08it/s]
+Sample: 100%|██████████| 1000/1000 [00:08&lt;00:00, 121.00it/s]
+</pre></div>
+</div>
+</section>
+<section id="analyze-results">
+<h2>Analyze results<a class="headerlink" href="#analyze-results" title="Link to this heading">#</a></h2>
+<p>After sampling we can inspect the results. The samples are stored
+as a dictionary with the variable names as keys. Samples for each
+variable is stored as a CUQIpy Samples object which contains the
+many convenience methods for diagnostics and plotting of MCMC samples.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot credible intervals for the signal</span>
+<span class="n">samples</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">probinfo</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_002.png" srcset="../../_images/sphx_glr_gibbs_002.png" alt="gibbs" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D object at 0x7f6fde9dcc20&gt;, &lt;matplotlib.lines.Line2D object at 0x7f6fdea573b0&gt;, &lt;matplotlib.collections.FillBetweenPolyCollection object at 0x7f6fde9dedb0&gt;]
+</pre></div>
+</div>
+<p>Trace plot for d</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_003.png" srcset="../../_images/sphx_glr_gibbs_003.png" alt="d, d" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: title={&#39;center&#39;: &#39;d&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;d&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<p>Trace plot for l</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_004.png" srcset="../../_images/sphx_glr_gibbs_004.png" alt="l, l" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: title={&#39;center&#39;: &#39;l&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;l&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+</section>
+<section id="switching-to-a-piecewise-constant-prior">
+<h2>Switching to a piecewise constant prior<a class="headerlink" href="#switching-to-a-piecewise-constant-prior" title="Link to this heading">#</a></h2>
+<p>Notice that while the sampling went well in the previous example,
+the posterior distribution did not match the characteristics of
+the exact solution. We can improve this result by switching to a
+prior that better matches the exact solution <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+<p>One choice is the Laplace difference prior, which assumes a
+Laplace distribution for the differences between neighboring
+elements of <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>. That is,</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x} \sim \text{LMRF}(d^{-1}),\]</div>
+<p>which means that <span class="math notranslate nohighlight">\(x_i-x_{i-1} \sim \mathrm{Laplace}(0, d^{-1})\)</span>.</p>
+<p>This prior is implemented in CUQIpy as the <code class="docutils literal notranslate"><span class="pre">LMRF</span></code> distribution.
+To update our model we simply need to replace the <code class="docutils literal notranslate"><span class="pre">GMRF</span></code> distribution
+with the <code class="docutils literal notranslate"><span class="pre">LMRF</span></code> distribution. Note that the Laplace distribution
+is defined via a scale parameter, so we invert the parameter <span class="math notranslate nohighlight">\(d\)</span>.</p>
+<p>This laplace distribution and new posterior can be defined as follows:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define new distribution for x</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">LMRF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">d</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
+<span class="c1"># Define new joint distribution with piecewise constant prior</span>
+<span class="n">joint_Ld</span> <span class="o">=</span> <span class="n">JointDistribution</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># Define new posterior by conditioning on the data</span>
+<span class="n">posterior_Ld</span> <span class="o">=</span> <span class="n">joint_Ld</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">posterior_Ld</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>JointDistribution(
+    Equation:
+        p(d,l,x|y) ∝ p(d)p(l)p(x|d)L(x,l|y)
+    Densities:
+        d ~ CUQI Gamma.
+        l ~ CUQI Gamma.
+        x ~ CUQI LMRF. Conditioning variables [&#39;d&#39;].
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;, &#39;l&#39;].
+ )
+</pre></div>
+</div>
+</section>
+<section id="hybridgibbs-sampler-with-laplace-prior">
+<h2>HybridGibbs Sampler (with Laplace prior)<a class="headerlink" href="#hybridgibbs-sampler-with-laplace-prior" title="Link to this heading">#</a></h2>
+<p>Using the same approach as earlier we can define a HybridGibbs sampler
+for this new hierarchical model. The only difference is that we
+now need to use a different sampler for <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> because
+the <code class="docutils literal notranslate"><span class="pre">LinearRTO</span></code> sampler only works for Gaussian distributions.</p>
+<p>In this case we use the UGLA (Unadjusted Gaussian Laplace Approximation) sampler
+for <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>. We also use an approximate Conjugate
+sampler for <span class="math notranslate nohighlight">\(d\)</span> which approximately samples from the
+posterior distribution of <span class="math notranslate nohighlight">\(d\)</span> conditional on the other
+variables in an efficient manner. For more details see e.g.
+<cite>this paper &lt;https://arxiv.org/abs/2104.06919&gt;</cite>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define sampling strategy</span>
+<span class="n">sampling_strategy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">UGLA</span><span class="p">(),</span>
+    <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="n">ConjugateApprox</span><span class="p">(),</span>
+    <span class="s1">&#39;l&#39;</span><span class="p">:</span> <span class="n">Conjugate</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1"># Define Gibbs sampler</span>
+<span class="n">sampler_Ld</span> <span class="o">=</span> <span class="n">HybridGibbs</span><span class="p">(</span><span class="n">posterior_Ld</span><span class="p">,</span> <span class="n">sampling_strategy</span><span class="p">)</span>
+
+<span class="c1"># Run sampler</span>
+<span class="n">sampler_Ld</span><span class="o">.</span><span class="n">warmup</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">sampler_Ld</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">samples_Ld</span> <span class="o">=</span> <span class="n">sampler_Ld</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Warmup:   0%|          | 0/200 [00:00&lt;?, ?it/s]
+Warmup:   2%|▎         | 5/200 [00:00&lt;00:04, 46.50it/s]
+Warmup:   5%|▌         | 10/200 [00:00&lt;00:04, 46.76it/s]
+Warmup:   8%|▊         | 15/200 [00:00&lt;00:03, 46.90it/s]
+Warmup:  10%|█         | 20/200 [00:00&lt;00:03, 46.69it/s]
+Warmup:  12%|█▎        | 25/200 [00:00&lt;00:03, 46.79it/s]
+Warmup:  15%|█▌        | 30/200 [00:00&lt;00:03, 46.79it/s]
+Warmup:  18%|█▊        | 35/200 [00:00&lt;00:03, 46.75it/s]
+Warmup:  20%|██        | 40/200 [00:00&lt;00:03, 46.76it/s]
+Warmup:  22%|██▎       | 45/200 [00:00&lt;00:03, 46.72it/s]
+Warmup:  25%|██▌       | 50/200 [00:01&lt;00:03, 46.60it/s]
+Warmup:  28%|██▊       | 55/200 [00:01&lt;00:03, 46.52it/s]
+Warmup:  30%|███       | 60/200 [00:01&lt;00:03, 46.59it/s]
+Warmup:  32%|███▎      | 65/200 [00:01&lt;00:02, 46.58it/s]
+Warmup:  35%|███▌      | 70/200 [00:01&lt;00:02, 46.72it/s]
+Warmup:  38%|███▊      | 75/200 [00:01&lt;00:02, 46.85it/s]
+Warmup:  40%|████      | 80/200 [00:01&lt;00:02, 46.91it/s]
+Warmup:  42%|████▎     | 85/200 [00:01&lt;00:02, 46.88it/s]
+Warmup:  45%|████▌     | 90/200 [00:01&lt;00:02, 46.64it/s]
+Warmup:  48%|████▊     | 95/200 [00:02&lt;00:02, 46.60it/s]
+Warmup:  50%|█████     | 100/200 [00:02&lt;00:02, 46.71it/s]
+Warmup:  52%|█████▎    | 105/200 [00:02&lt;00:02, 46.93it/s]
+Warmup:  55%|█████▌    | 110/200 [00:02&lt;00:01, 46.79it/s]
+Warmup:  57%|█████▊    | 115/200 [00:02&lt;00:01, 46.65it/s]
+Warmup:  60%|██████    | 120/200 [00:02&lt;00:01, 46.65it/s]
+Warmup:  62%|██████▎   | 125/200 [00:02&lt;00:01, 46.62it/s]
+Warmup:  65%|██████▌   | 130/200 [00:02&lt;00:01, 46.66it/s]
+Warmup:  68%|██████▊   | 135/200 [00:02&lt;00:01, 46.67it/s]
+Warmup:  70%|███████   | 140/200 [00:02&lt;00:01, 46.68it/s]
+Warmup:  72%|███████▎  | 145/200 [00:03&lt;00:01, 46.65it/s]
+Warmup:  75%|███████▌  | 150/200 [00:03&lt;00:01, 46.60it/s]
+Warmup:  78%|███████▊  | 155/200 [00:03&lt;00:00, 46.62it/s]
+Warmup:  80%|████████  | 160/200 [00:03&lt;00:00, 46.69it/s]
+Warmup:  82%|████████▎ | 165/200 [00:03&lt;00:00, 46.63it/s]
+Warmup:  85%|████████▌ | 170/200 [00:03&lt;00:00, 46.66it/s]
+Warmup:  88%|████████▊ | 175/200 [00:03&lt;00:00, 45.47it/s]
+Warmup:  90%|█████████ | 180/200 [00:03&lt;00:00, 45.83it/s]
+Warmup:  92%|█████████▎| 185/200 [00:03&lt;00:00, 46.05it/s]
+Warmup:  95%|█████████▌| 190/200 [00:04&lt;00:00, 46.15it/s]
+Warmup:  98%|█████████▊| 195/200 [00:04&lt;00:00, 46.03it/s]
+Warmup: 100%|██████████| 200/200 [00:04&lt;00:00, 46.12it/s]
+Warmup: 100%|██████████| 200/200 [00:04&lt;00:00, 46.55it/s]
+
+Sample:   0%|          | 0/1000 [00:00&lt;?, ?it/s]
+Sample:   0%|          | 5/1000 [00:00&lt;00:21, 46.32it/s]
+Sample:   1%|          | 10/1000 [00:00&lt;00:21, 46.04it/s]
+Sample:   2%|▏         | 15/1000 [00:00&lt;00:21, 46.44it/s]
+Sample:   2%|▏         | 20/1000 [00:00&lt;00:21, 46.51it/s]
+Sample:   2%|▎         | 25/1000 [00:00&lt;00:20, 46.46it/s]
+Sample:   3%|▎         | 30/1000 [00:00&lt;00:20, 46.54it/s]
+Sample:   4%|▎         | 35/1000 [00:00&lt;00:20, 46.43it/s]
+Sample:   4%|▍         | 40/1000 [00:00&lt;00:20, 46.40it/s]
+Sample:   4%|▍         | 45/1000 [00:00&lt;00:20, 46.36it/s]
+Sample:   5%|▌         | 50/1000 [00:01&lt;00:20, 46.33it/s]
+Sample:   6%|▌         | 55/1000 [00:01&lt;00:20, 46.36it/s]
+Sample:   6%|▌         | 60/1000 [00:01&lt;00:20, 46.43it/s]
+Sample:   6%|▋         | 65/1000 [00:01&lt;00:20, 46.51it/s]
+Sample:   7%|▋         | 70/1000 [00:01&lt;00:19, 46.51it/s]
+Sample:   8%|▊         | 75/1000 [00:01&lt;00:19, 46.47it/s]
+Sample:   8%|▊         | 80/1000 [00:01&lt;00:19, 46.31it/s]
+Sample:   8%|▊         | 85/1000 [00:01&lt;00:19, 46.37it/s]
+Sample:   9%|▉         | 90/1000 [00:01&lt;00:19, 46.33it/s]
+Sample:  10%|▉         | 95/1000 [00:02&lt;00:19, 46.28it/s]
+Sample:  10%|█         | 100/1000 [00:02&lt;00:19, 46.24it/s]
+Sample:  10%|█         | 105/1000 [00:02&lt;00:19, 46.15it/s]
+Sample:  11%|█         | 110/1000 [00:02&lt;00:19, 46.27it/s]
+Sample:  12%|█▏        | 115/1000 [00:02&lt;00:19, 46.38it/s]
+Sample:  12%|█▏        | 120/1000 [00:02&lt;00:18, 46.39it/s]
+Sample:  12%|█▎        | 125/1000 [00:02&lt;00:18, 46.53it/s]
+Sample:  13%|█▎        | 130/1000 [00:02&lt;00:18, 46.77it/s]
+Sample:  14%|█▎        | 135/1000 [00:02&lt;00:18, 46.85it/s]
+Sample:  14%|█▍        | 140/1000 [00:03&lt;00:18, 46.88it/s]
+Sample:  14%|█▍        | 145/1000 [00:03&lt;00:18, 46.73it/s]
+Sample:  15%|█▌        | 150/1000 [00:03&lt;00:18, 46.71it/s]
+Sample:  16%|█▌        | 155/1000 [00:03&lt;00:18, 46.83it/s]
+Sample:  16%|█▌        | 160/1000 [00:03&lt;00:17, 46.83it/s]
+Sample:  16%|█▋        | 165/1000 [00:03&lt;00:17, 46.86it/s]
+Sample:  17%|█▋        | 170/1000 [00:03&lt;00:17, 46.74it/s]
+Sample:  18%|█▊        | 175/1000 [00:03&lt;00:17, 46.79it/s]
+Sample:  18%|█▊        | 180/1000 [00:03&lt;00:17, 46.96it/s]
+Sample:  18%|█▊        | 185/1000 [00:03&lt;00:17, 46.87it/s]
+Sample:  19%|█▉        | 190/1000 [00:04&lt;00:17, 46.74it/s]
+Sample:  20%|█▉        | 195/1000 [00:04&lt;00:17, 46.78it/s]
+Sample:  20%|██        | 200/1000 [00:04&lt;00:17, 46.88it/s]
+Sample:  20%|██        | 205/1000 [00:04&lt;00:16, 46.97it/s]
+Sample:  21%|██        | 210/1000 [00:04&lt;00:16, 46.98it/s]
+Sample:  22%|██▏       | 215/1000 [00:04&lt;00:16, 46.98it/s]
+Sample:  22%|██▏       | 220/1000 [00:04&lt;00:16, 46.98it/s]
+Sample:  22%|██▎       | 225/1000 [00:04&lt;00:16, 46.84it/s]
+Sample:  23%|██▎       | 230/1000 [00:04&lt;00:16, 46.59it/s]
+Sample:  24%|██▎       | 235/1000 [00:05&lt;00:16, 46.51it/s]
+Sample:  24%|██▍       | 240/1000 [00:05&lt;00:16, 46.65it/s]
+Sample:  24%|██▍       | 245/1000 [00:05&lt;00:16, 46.88it/s]
+Sample:  25%|██▌       | 250/1000 [00:05&lt;00:15, 46.92it/s]
+Sample:  26%|██▌       | 255/1000 [00:05&lt;00:15, 47.04it/s]
+Sample:  26%|██▌       | 260/1000 [00:05&lt;00:15, 47.04it/s]
+Sample:  26%|██▋       | 265/1000 [00:05&lt;00:15, 47.08it/s]
+Sample:  27%|██▋       | 270/1000 [00:05&lt;00:15, 47.04it/s]
+Sample:  28%|██▊       | 275/1000 [00:05&lt;00:15, 46.87it/s]
+Sample:  28%|██▊       | 280/1000 [00:06&lt;00:15, 46.88it/s]
+Sample:  28%|██▊       | 285/1000 [00:06&lt;00:15, 46.93it/s]
+Sample:  29%|██▉       | 290/1000 [00:06&lt;00:15, 46.98it/s]
+Sample:  30%|██▉       | 295/1000 [00:06&lt;00:14, 47.07it/s]
+Sample:  30%|███       | 300/1000 [00:06&lt;00:14, 47.15it/s]
+Sample:  30%|███       | 305/1000 [00:06&lt;00:14, 47.19it/s]
+Sample:  31%|███       | 310/1000 [00:06&lt;00:14, 47.02it/s]
+Sample:  32%|███▏      | 315/1000 [00:06&lt;00:14, 46.98it/s]
+Sample:  32%|███▏      | 320/1000 [00:06&lt;00:14, 46.91it/s]
+Sample:  32%|███▎      | 325/1000 [00:06&lt;00:14, 47.08it/s]
+Sample:  33%|███▎      | 330/1000 [00:07&lt;00:14, 47.17it/s]
+Sample:  34%|███▎      | 335/1000 [00:07&lt;00:14, 47.07it/s]
+Sample:  34%|███▍      | 340/1000 [00:07&lt;00:14, 47.02it/s]
+Sample:  34%|███▍      | 345/1000 [00:07&lt;00:13, 47.03it/s]
+Sample:  35%|███▌      | 350/1000 [00:07&lt;00:13, 47.18it/s]
+Sample:  36%|███▌      | 355/1000 [00:07&lt;00:13, 47.14it/s]
+Sample:  36%|███▌      | 360/1000 [00:07&lt;00:13, 47.28it/s]
+Sample:  36%|███▋      | 365/1000 [00:07&lt;00:13, 47.29it/s]
+Sample:  37%|███▋      | 370/1000 [00:07&lt;00:13, 47.06it/s]
+Sample:  38%|███▊      | 375/1000 [00:08&lt;00:13, 47.03it/s]
+Sample:  38%|███▊      | 380/1000 [00:08&lt;00:13, 46.88it/s]
+Sample:  38%|███▊      | 385/1000 [00:08&lt;00:13, 46.86it/s]
+Sample:  39%|███▉      | 390/1000 [00:08&lt;00:13, 46.85it/s]
+Sample:  40%|███▉      | 395/1000 [00:08&lt;00:12, 46.84it/s]
+Sample:  40%|████      | 400/1000 [00:08&lt;00:12, 46.81it/s]
+Sample:  40%|████      | 405/1000 [00:08&lt;00:12, 46.74it/s]
+Sample:  41%|████      | 410/1000 [00:08&lt;00:12, 47.01it/s]
+Sample:  42%|████▏     | 415/1000 [00:08&lt;00:12, 46.98it/s]
+Sample:  42%|████▏     | 420/1000 [00:08&lt;00:12, 46.99it/s]
+Sample:  42%|████▎     | 425/1000 [00:09&lt;00:12, 46.86it/s]
+Sample:  43%|████▎     | 430/1000 [00:09&lt;00:12, 46.66it/s]
+Sample:  44%|████▎     | 435/1000 [00:09&lt;00:12, 46.61it/s]
+Sample:  44%|████▍     | 440/1000 [00:09&lt;00:12, 46.60it/s]
+Sample:  44%|████▍     | 445/1000 [00:09&lt;00:11, 46.53it/s]
+Sample:  45%|████▌     | 450/1000 [00:09&lt;00:11, 46.46it/s]
+Sample:  46%|████▌     | 455/1000 [00:09&lt;00:11, 46.56it/s]
+Sample:  46%|████▌     | 460/1000 [00:09&lt;00:11, 46.36it/s]
+Sample:  46%|████▋     | 465/1000 [00:09&lt;00:11, 46.40it/s]
+Sample:  47%|████▋     | 470/1000 [00:10&lt;00:11, 45.05it/s]
+Sample:  48%|████▊     | 475/1000 [00:10&lt;00:11, 45.44it/s]
+Sample:  48%|████▊     | 480/1000 [00:10&lt;00:11, 45.54it/s]
+Sample:  48%|████▊     | 485/1000 [00:10&lt;00:11, 45.84it/s]
+Sample:  49%|████▉     | 490/1000 [00:10&lt;00:11, 46.10it/s]
+Sample:  50%|████▉     | 495/1000 [00:10&lt;00:10, 46.23it/s]
+Sample:  50%|█████     | 500/1000 [00:10&lt;00:10, 46.20it/s]
+Sample:  50%|█████     | 505/1000 [00:10&lt;00:10, 46.17it/s]
+Sample:  51%|█████     | 510/1000 [00:10&lt;00:10, 46.26it/s]
+Sample:  52%|█████▏    | 515/1000 [00:11&lt;00:10, 46.31it/s]
+Sample:  52%|█████▏    | 520/1000 [00:11&lt;00:10, 46.37it/s]
+Sample:  52%|█████▎    | 525/1000 [00:11&lt;00:10, 46.31it/s]
+Sample:  53%|█████▎    | 530/1000 [00:11&lt;00:10, 46.30it/s]
+Sample:  54%|█████▎    | 535/1000 [00:11&lt;00:10, 46.46it/s]
+Sample:  54%|█████▍    | 540/1000 [00:11&lt;00:09, 46.44it/s]
+Sample:  55%|█████▍    | 545/1000 [00:11&lt;00:09, 46.44it/s]
+Sample:  55%|█████▌    | 550/1000 [00:11&lt;00:09, 46.36it/s]
+Sample:  56%|█████▌    | 555/1000 [00:11&lt;00:09, 46.39it/s]
+Sample:  56%|█████▌    | 560/1000 [00:12&lt;00:09, 46.50it/s]
+Sample:  56%|█████▋    | 565/1000 [00:12&lt;00:09, 46.52it/s]
+Sample:  57%|█████▋    | 570/1000 [00:12&lt;00:09, 46.55it/s]
+Sample:  57%|█████▊    | 575/1000 [00:12&lt;00:09, 46.60it/s]
+Sample:  58%|█████▊    | 580/1000 [00:12&lt;00:09, 46.59it/s]
+Sample:  58%|█████▊    | 585/1000 [00:12&lt;00:08, 46.63it/s]
+Sample:  59%|█████▉    | 590/1000 [00:12&lt;00:08, 46.86it/s]
+Sample:  60%|█████▉    | 595/1000 [00:12&lt;00:08, 46.83it/s]
+Sample:  60%|██████    | 600/1000 [00:12&lt;00:08, 46.78it/s]
+Sample:  60%|██████    | 605/1000 [00:12&lt;00:08, 46.79it/s]
+Sample:  61%|██████    | 610/1000 [00:13&lt;00:08, 46.89it/s]
+Sample:  62%|██████▏   | 615/1000 [00:13&lt;00:08, 46.82it/s]
+Sample:  62%|██████▏   | 620/1000 [00:13&lt;00:08, 46.83it/s]
+Sample:  62%|██████▎   | 625/1000 [00:13&lt;00:08, 46.81it/s]
+Sample:  63%|██████▎   | 630/1000 [00:13&lt;00:07, 46.77it/s]
+Sample:  64%|██████▎   | 635/1000 [00:13&lt;00:07, 46.75it/s]
+Sample:  64%|██████▍   | 640/1000 [00:13&lt;00:07, 46.84it/s]
+Sample:  64%|██████▍   | 645/1000 [00:13&lt;00:07, 46.92it/s]
+Sample:  65%|██████▌   | 650/1000 [00:13&lt;00:07, 46.87it/s]
+Sample:  66%|██████▌   | 655/1000 [00:14&lt;00:07, 46.87it/s]
+Sample:  66%|██████▌   | 660/1000 [00:14&lt;00:07, 46.96it/s]
+Sample:  66%|██████▋   | 665/1000 [00:14&lt;00:07, 46.81it/s]
+Sample:  67%|██████▋   | 670/1000 [00:14&lt;00:07, 47.09it/s]
+Sample:  68%|██████▊   | 675/1000 [00:14&lt;00:06, 47.11it/s]
+Sample:  68%|██████▊   | 680/1000 [00:14&lt;00:06, 46.86it/s]
+Sample:  68%|██████▊   | 685/1000 [00:14&lt;00:06, 46.85it/s]
+Sample:  69%|██████▉   | 690/1000 [00:14&lt;00:06, 46.67it/s]
+Sample:  70%|██████▉   | 695/1000 [00:14&lt;00:06, 46.68it/s]
+Sample:  70%|███████   | 700/1000 [00:14&lt;00:06, 46.68it/s]
+Sample:  70%|███████   | 705/1000 [00:15&lt;00:06, 46.60it/s]
+Sample:  71%|███████   | 710/1000 [00:15&lt;00:06, 46.63it/s]
+Sample:  72%|███████▏  | 715/1000 [00:15&lt;00:06, 46.68it/s]
+Sample:  72%|███████▏  | 720/1000 [00:15&lt;00:06, 46.57it/s]
+Sample:  72%|███████▎  | 725/1000 [00:15&lt;00:05, 46.52it/s]
+Sample:  73%|███████▎  | 730/1000 [00:15&lt;00:05, 46.66it/s]
+Sample:  74%|███████▎  | 735/1000 [00:15&lt;00:05, 46.75it/s]
+Sample:  74%|███████▍  | 740/1000 [00:15&lt;00:05, 46.54it/s]
+Sample:  74%|███████▍  | 745/1000 [00:15&lt;00:05, 46.66it/s]
+Sample:  75%|███████▌  | 750/1000 [00:16&lt;00:05, 46.74it/s]
+Sample:  76%|███████▌  | 755/1000 [00:16&lt;00:05, 46.71it/s]
+Sample:  76%|███████▌  | 760/1000 [00:16&lt;00:05, 46.71it/s]
+Sample:  76%|███████▋  | 765/1000 [00:16&lt;00:05, 46.88it/s]
+Sample:  77%|███████▋  | 770/1000 [00:16&lt;00:04, 46.93it/s]
+Sample:  78%|███████▊  | 775/1000 [00:16&lt;00:04, 46.71it/s]
+Sample:  78%|███████▊  | 780/1000 [00:16&lt;00:04, 46.61it/s]
+Sample:  78%|███████▊  | 785/1000 [00:16&lt;00:04, 46.32it/s]
+Sample:  79%|███████▉  | 790/1000 [00:16&lt;00:04, 46.14it/s]
+Sample:  80%|███████▉  | 795/1000 [00:17&lt;00:04, 46.26it/s]
+Sample:  80%|████████  | 800/1000 [00:17&lt;00:04, 46.36it/s]
+Sample:  80%|████████  | 805/1000 [00:17&lt;00:04, 46.54it/s]
+Sample:  81%|████████  | 810/1000 [00:17&lt;00:04, 46.51it/s]
+Sample:  82%|████████▏ | 815/1000 [00:17&lt;00:03, 46.55it/s]
+Sample:  82%|████████▏ | 820/1000 [00:17&lt;00:03, 46.53it/s]
+Sample:  82%|████████▎ | 825/1000 [00:17&lt;00:03, 46.54it/s]
+Sample:  83%|████████▎ | 830/1000 [00:17&lt;00:03, 46.59it/s]
+Sample:  84%|████████▎ | 835/1000 [00:17&lt;00:03, 46.55it/s]
+Sample:  84%|████████▍ | 840/1000 [00:18&lt;00:03, 46.68it/s]
+Sample:  84%|████████▍ | 845/1000 [00:18&lt;00:03, 46.79it/s]
+Sample:  85%|████████▌ | 850/1000 [00:18&lt;00:03, 46.80it/s]
+Sample:  86%|████████▌ | 855/1000 [00:18&lt;00:03, 46.88it/s]
+Sample:  86%|████████▌ | 860/1000 [00:18&lt;00:02, 46.96it/s]
+Sample:  86%|████████▋ | 865/1000 [00:18&lt;00:02, 46.79it/s]
+Sample:  87%|████████▋ | 870/1000 [00:18&lt;00:02, 46.59it/s]
+Sample:  88%|████████▊ | 875/1000 [00:18&lt;00:02, 46.71it/s]
+Sample:  88%|████████▊ | 880/1000 [00:18&lt;00:02, 46.70it/s]
+Sample:  88%|████████▊ | 885/1000 [00:18&lt;00:02, 46.53it/s]
+Sample:  89%|████████▉ | 890/1000 [00:19&lt;00:02, 46.61it/s]
+Sample:  90%|████████▉ | 895/1000 [00:19&lt;00:02, 46.71it/s]
+Sample:  90%|█████████ | 900/1000 [00:19&lt;00:02, 46.80it/s]
+Sample:  90%|█████████ | 905/1000 [00:19&lt;00:02, 46.37it/s]
+Sample:  91%|█████████ | 910/1000 [00:19&lt;00:01, 46.41it/s]
+Sample:  92%|█████████▏| 915/1000 [00:19&lt;00:01, 46.63it/s]
+Sample:  92%|█████████▏| 920/1000 [00:19&lt;00:01, 46.79it/s]
+Sample:  92%|█████████▎| 925/1000 [00:19&lt;00:01, 46.94it/s]
+Sample:  93%|█████████▎| 930/1000 [00:19&lt;00:01, 46.89it/s]
+Sample:  94%|█████████▎| 935/1000 [00:20&lt;00:01, 46.79it/s]
+Sample:  94%|█████████▍| 940/1000 [00:20&lt;00:01, 46.76it/s]
+Sample:  94%|█████████▍| 945/1000 [00:20&lt;00:01, 46.46it/s]
+Sample:  95%|█████████▌| 950/1000 [00:20&lt;00:01, 46.48it/s]
+Sample:  96%|█████████▌| 955/1000 [00:20&lt;00:00, 46.53it/s]
+Sample:  96%|█████████▌| 960/1000 [00:20&lt;00:00, 46.48it/s]
+Sample:  96%|█████████▋| 965/1000 [00:20&lt;00:00, 46.53it/s]
+Sample:  97%|█████████▋| 970/1000 [00:20&lt;00:00, 46.47it/s]
+Sample:  98%|█████████▊| 975/1000 [00:20&lt;00:00, 46.49it/s]
+Sample:  98%|█████████▊| 980/1000 [00:21&lt;00:00, 46.58it/s]
+Sample:  98%|█████████▊| 985/1000 [00:21&lt;00:00, 46.56it/s]
+Sample:  99%|█████████▉| 990/1000 [00:21&lt;00:00, 46.57it/s]
+Sample: 100%|█████████▉| 995/1000 [00:21&lt;00:00, 46.59it/s]
+Sample: 100%|██████████| 1000/1000 [00:21&lt;00:00, 46.69it/s]
+Sample: 100%|██████████| 1000/1000 [00:21&lt;00:00, 46.66it/s]
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h2>Analyze results<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<p>Again we can inspect the results.
+Here we notice the posterior distribution matches the exact solution much better.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot credible intervals for the signal</span>
+<span class="n">samples_Ld</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">probinfo</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_005.png" srcset="../../_images/sphx_glr_gibbs_005.png" alt="gibbs" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D object at 0x7f6fded30a40&gt;, &lt;matplotlib.lines.Line2D object at 0x7f6fdce873b0&gt;, &lt;matplotlib.collections.FillBetweenPolyCollection object at 0x7f6fdce587d0&gt;]
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples_Ld</span><span class="p">[</span><span class="s1">&#39;d&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_006.png" srcset="../../_images/sphx_glr_gibbs_006.png" alt="d, d" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: title={&#39;center&#39;: &#39;d&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;d&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples_Ld</span><span class="p">[</span><span class="s1">&#39;l&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_gibbs_007.png" srcset="../../_images/sphx_glr_gibbs_007.png" alt="l, l" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: title={&#39;center&#39;: &#39;l&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;l&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 36.277 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-gibbs-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/ad539661b9e78dd9062c252d30c66918/gibbs.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">gibbs.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/b274f5c1c772585148d67b4720d2e9a7/gibbs.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">gibbs.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c0cdf497d7a8eb8b8c97bef6b285ff9c/gibbs.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">gibbs.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forward-model-and-data">Forward model and data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hierarchical-bayesian-model">Hierarchical Bayesian model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-posterior-distribution">Defining the posterior distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gibbs-sampler">Gibbs Sampler</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analyze-results">Analyze results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#switching-to-a-piecewise-constant-prior">Switching to a piecewise constant prior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hybridgibbs-sampler-with-laplace-prior">HybridGibbs Sampler (with Laplace prior)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Analyze results</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/gibbs.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

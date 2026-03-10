@@ -1,0 +1,248 @@
+:orphan:
+
+How-To Guides
+=============
+
+Below is a gallery of guides on how to use the various features of the library.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we show how to quantify the uncertainty of a solution to a 2D deconvolution problem.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_deconvolution_2d_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/deconvolution_2d`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">2D Deconvolution</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The recommended way to define a posterior distribution in CUQIpy is to use the JointDistribution class to define the joint distribution of the parameters and the data and then condition on observed data to obtain the posterior distribution as shown in the examples below.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_defining_posterior_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/defining_posterior`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">How to define a Posterior distribution</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D array). In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. ">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_fun_vec_representation_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/fun_vec_representation`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Support vector representation of function values in CUQIpy geometries and samples</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This tutorial shows how to use CUQIpy to perform Gibbs sampling.     Gibbs sampling is a Markov chain Monte Carlo (MCMC) method for     sampling a joint probability distribution.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_gibbs_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/gibbs`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Gibbs sampling</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This script demonstrates the use of Image2D for domain and range geometries in CUQIpy forward models. The settings of this geometry, in particular the so-called visual_only flag, depend on how the forward model input is operated on in the forward model. visual_only flag tells the geometry to interpret the variable as a 2D image only when visualizing the variable but keep it as a vector when being operated on in the forward model. Generally, if the forward operator expects an image input, set visual_only to False, which is the default in CUQIpy. Otherwise, if it expects a vector input, set visual_only to True in the domain geometry. In the same way, the range geometry visual_only setting should be consistent with your forward operator output.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_image_2d_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/image_2d`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">The use of Image2D</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This tutorial shows how to use the Joint Distribution class.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_joint_distribution_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/joint_distribution`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Joint Distribution tutorial</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This is a demo for bathtub water temperature and volume model using CUQIpy.  We have measurements of the temperature and volume of the water in the bathtub and want to infer the temperature and volume of the hot water and the cold water that were used to fill in the bathtub">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_multiple_input_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/multiple_input`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple input model: bathtub demo</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we build a PDE-based Bayesian inverse problem where the Bayesian model has multiple likelihood functions (two different likelihood functions in this case, but it can be readily extended to more functions) for the same  Bayesian parameter theta, which represents the conductivity parameters in a 1D Poisson problem. Each likelihood is associated with a different model set up. The models we use here are obtained from the test problem  cuqi.testproblem.Poisson1D. See the class cuqi.testproblem.Poisson1D documentation for more details about the forward model.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_multiple_likelihoods_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/multiple_likelihoods`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Setting a Bayesian model with multiple likelihoods</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The recommended way to define a posterior distribution in CUQIpy is to use the JointDistribution class to define the joint distribution of the parameters and the data and then condition on observed data to obtain the posterior distribution as shown in the examples below.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_myula_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/myula`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">How to sample with MYULA</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="CUQIpy provides a simple algebraic framework for defining and manipulating random variables.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_random_variables_and_algebra_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/random_variables_and_algebra`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Random Variables and Algebra in CUQIpy</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we show how to set up various Time Dependent Linear PDE models.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_time_dependent_linear_pde_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/time_dependent_linear_pde`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Time Dependent Linear PDE</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This tutorial walks through the process of solving a simple 1D      deconvolution problem in a Bayesian setting. It also shows how     to define such a convolution model in CUQIpy.">
+
+.. only:: html
+
+  .. image:: /user/_auto_howtos/images/thumb/sphx_glr_uq_in_deconvolution_1d_thumb.png
+    :alt:
+
+  :doc:`/user/_auto_howtos/uq_in_deconvolution_1d`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Uncertainty Quantification in one-dimensional deconvolution</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /user/_auto_howtos/deconvolution_2d
+   /user/_auto_howtos/defining_posterior
+   /user/_auto_howtos/fun_vec_representation
+   /user/_auto_howtos/gibbs
+   /user/_auto_howtos/image_2d
+   /user/_auto_howtos/joint_distribution
+   /user/_auto_howtos/multiple_input
+   /user/_auto_howtos/multiple_likelihoods
+   /user/_auto_howtos/myula
+   /user/_auto_howtos/random_variables_and_algebra
+   /user/_auto_howtos/time_dependent_linear_pde
+   /user/_auto_howtos/uq_in_deconvolution_1d
+
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

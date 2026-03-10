@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.FD\_enabled
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Laplace.FD_enabled

@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.rv
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Laplace.rv

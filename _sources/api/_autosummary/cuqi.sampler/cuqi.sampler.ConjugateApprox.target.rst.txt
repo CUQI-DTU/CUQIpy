@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.target
+===================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ConjugateApprox.target

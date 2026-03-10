@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.get\_state
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.get_state

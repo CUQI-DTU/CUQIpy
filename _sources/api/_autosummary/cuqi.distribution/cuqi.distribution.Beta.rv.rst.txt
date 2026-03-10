@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.rv
+=========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.rv

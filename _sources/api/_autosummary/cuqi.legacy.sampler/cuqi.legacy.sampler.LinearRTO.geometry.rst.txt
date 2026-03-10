@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.LinearRTO.geometry
+======================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: LinearRTO.geometry

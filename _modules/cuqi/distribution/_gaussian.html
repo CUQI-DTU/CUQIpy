@@ -1,0 +1,1206 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.distribution._gaussian &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/distribution/_gaussian';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.distribution._gaussian</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.distribution._gaussian</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.linalg</span> <span class="k">as</span> <span class="nn">nplinalg</span>
+
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">sps</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">spa</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span> <span class="k">as</span> <span class="nn">splinalg</span>
+
+<span class="kn">from</span> <span class="nn">cuqi</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">cuqi.geometry</span> <span class="kn">import</span> <span class="n">_get_identity_geometries</span>
+<span class="kn">from</span> <span class="nn">cuqi.utilities</span> <span class="kn">import</span> <span class="n">force_ndarray</span><span class="p">,</span> <span class="n">sparse_cholesky</span><span class="p">,</span> <span class="n">check_if_conditional_from_attr</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Distribution</span>
+
+<span class="c1"># We potentially allow the use of sksparse.cholmod for sparse Cholesky</span>
+<span class="c1"># if it is installed. If not, we use our own sparse Cholesky.</span>
+<span class="c1"># TODO #129: add full support for sparse covariance matrices without cholmod library (missing efficient logdet computation)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sksparse.cholmod</span> <span class="k">as</span> <span class="nn">skchol</span>
+    <span class="n">has_cholmod</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">has_cholmod</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Gaussian">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.html#cuqi.distribution.Gaussian">[docs]</a>
+<span class="k">class</span> <span class="nc">Gaussian</span><span class="p">(</span><span class="n">Distribution</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian.</span>
+
+<span class="sd">    The Gaussian is defined via the probability density function</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        p(x) = \\frac{1}{(2\\pi)^{\\frac{d}{2}}|\\Sigma|^{\\frac{1}{2}}} \\exp\\left(-\\frac{1}{2}(x-\\mu)^{\\top}\\Sigma^{-1}(x-\\mu)\\right)</span>
+
+<span class="sd">    where :math:`\\mu` is the mean, :math:`\\Sigma` is the covariance matrix, and :math:`d` is the dimension of the Gaussian.</span>
+
+<span class="sd">    Depending on the specific Gaussian distribution, it is useful to have the option of defining the Gaussian by a mean and one of the following:</span>
+<span class="sd">    covariance, precision, square root of covariance, or square root of precision matrices. The relationship between these matrices is described in</span>
+<span class="sd">    the parameters section below.</span>
+
+<span class="sd">    Internally the class will always convert the given matrices to the square root of the precision matrix for efficiency. It is therefore best for</span>
+<span class="sd">    computational efficiency to define the Gaussian via the square root of the precision matrix in the multivariate case. For the i.i.d. case the</span>
+<span class="sd">    overhead of computing the square root of the precision matrix is negligible.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mean : scalar or 1d-array</span>
+<span class="sd">        Mean vector of Gaussian. If a scalar value, all entries in the mean vector are set to that scalar.</span>
+
+<span class="sd">    cov : scalar, 1d-array or 2d-array (sparse matrix is supported)</span>
+<span class="sd">        Covariance matrix of Gaussian. If a scalar or 1d-array, the value defines the diagonal entries of the covariance matrix.</span>
+
+<span class="sd">    prec : scalar, 1d-array or 2d-array (sparse matrix is supported)</span>
+<span class="sd">        Precision matrix of Gaussian defined as the inverse of the covariance.</span>
+<span class="sd">        If a scalar or 1d-array, the value defines the diagonal entries of the precision matrix.</span>
+
+<span class="sd">    sqrtcov : scalar, 1d-array or 2d-array (sparse matrix is supported)</span>
+<span class="sd">        Square root of covariance matrix of Gaussian. Defined as matrix R, where R.T@R = cov.</span>
+<span class="sd">        If a scalar or 1d-array the value is assumed to be the standard deviation of each component of the Gaussian.</span>
+
+<span class="sd">    sqrtprec : scalar or 1d-array or 2d-array (sparse matrix is supported)</span>
+<span class="sd">        Square root of precision matrix of Gaussian. Defined as matrix R, where R.T@R = prec.</span>
+<span class="sd">        If a scalar or 1d-array the value is assumed to be the inverse standard deviation of each component of the Gaussian.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -----------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.</span>
+<span class="sd">        n = 4</span>
+<span class="sd">        x = cuqi.distribution.Gaussian(mean=np.zeros(n), cov=2)</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Generate an 2-dim Gaussian with zero mean and standard deviations [2, 10].</span>
+<span class="sd">        x = cuqi.distribution.Gaussian(mean=0, sqrtcov=np.array([2, 10]))</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Generate an n-dim Gaussian from given scipy.sparse precision matrix.</span>
+<span class="sd">        n = 5</span>
+<span class="sd">        prec = scipy.sparse.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n))</span>
+<span class="sd">        x = cuqi.distribution.Gaussian(mean=0, prec=prec)</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Generate an n-dim Gaussian from given scipy.sparse square root of precision matrix.</span>
+<span class="sd">        n = 5</span>
+<span class="sd">        sqrtprec = scipy.sparse.diags([1, -1], [0, 1], shape=(n, n))</span>
+<span class="sd">        x = cuqi.distribution.Gaussian(mean=0, sqrtprec=sqrtprec)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Gaussian.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.__init__.html#cuqi.distribution.Gaussian.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sqrtcov</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sqrtprec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_symmetric</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="n">mean</span>
+
+        <span class="c1"># If everything is None we default to covariance as the mutable variables</span>
+        <span class="c1"># If more than one of the matrices are given we throw an error</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">cov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">prec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">sqrtprec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">sqrtcov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;cov&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cov</span> <span class="o">=</span> <span class="n">cov</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">cov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">prec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">sqrtprec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">sqrtcov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Exactly one of &#39;cov&#39;, &#39;prec&#39;, &#39;sqrtcov&#39;, or &#39;sqrtprec&#39; may be specified&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># This sets the mutable variables according to which matrix is given</span>
+        <span class="k">if</span> <span class="n">cov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;cov&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cov</span> <span class="o">=</span> <span class="n">cov</span>
+        <span class="k">elif</span> <span class="n">prec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;prec&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prec</span> <span class="o">=</span> <span class="n">prec</span>
+        <span class="k">elif</span> <span class="n">sqrtcov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;sqrtcov&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sqrtcov</span> <span class="o">=</span> <span class="n">sqrtcov</span>
+        <span class="k">elif</span> <span class="n">sqrtprec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;sqrtprec&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">sqrtprec</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_geometry_consistency</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Mean of the distribution &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span>
+
+    <span class="nd">@mean</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Covariance of the distribution &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_cov&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="s1">&#39;cov&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Covariance is not computed by default for a Gaussian initialized with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span><span class="si">}</span><span class="s2"> and dim </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">. Use method compute_cov() to compute it if needed.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span>
+
+    <span class="nd">@cov</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;cov&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mutable variables are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>        
+        <span class="n">value</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="o">=</span> <span class="n">value</span>       
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>  
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">MIN_DIM_SPARSE</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># do sparse computations</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># use numpy</span>
+            <span class="n">prec</span><span class="p">,</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">get_sqrtprec_from_cov</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span> <span class="o">=</span> <span class="n">prec</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprec</span> <span class="o">=</span> <span class="n">sqrtprec</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logdet</span> <span class="o">=</span> <span class="n">logdet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rank</span> <span class="o">=</span> <span class="n">rank</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Precision of the distribution &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_prec&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Precision is not computed by default for a Gaussian initialized with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span><span class="si">}</span><span class="s2"> and dim </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span>
+
+    <span class="nd">@prec</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">prec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;prec&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mutable variables are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>        
+        <span class="n">value</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Reset covariance (in case it was computed before)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>  
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">MIN_DIM_SPARSE</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># do sparse computations</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># use numpy</span>
+            <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">get_sqrtprec_from_prec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprec</span> <span class="o">=</span> <span class="n">sqrtprec</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logdet</span> <span class="o">=</span> <span class="n">logdet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rank</span> <span class="o">=</span> <span class="n">rank</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sqrtcov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Square root of the covariance of the distribution. For 1D Gaussian this is the standard deviation. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_sqrtcov&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Square root of covariance is not computed by default for a Gaussian initialized with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span><span class="si">}</span><span class="s2"> and dim </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtcov</span>
+
+    <span class="nd">@sqrtcov</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sqrtcov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;sqrtcov&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mutable variables are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>        
+        <span class="n">value</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtcov</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Reset covariance (in case it was computed before)      </span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">MIN_DIM_SPARSE</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># do sparse computations</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># use numpy</span>
+            <span class="n">prec</span><span class="p">,</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">get_sqrtprec_from_sqrtcov</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span> <span class="o">=</span> <span class="n">prec</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprec</span> <span class="o">=</span> <span class="n">sqrtprec</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logdet</span> <span class="o">=</span> <span class="n">logdet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rank</span> <span class="o">=</span> <span class="n">rank</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sqrtprec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Square root of the precision of the distribution. For 1D Gaussian this is the inverse standard deviation. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprec</span>
+
+    <span class="nd">@sqrtprec</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sqrtprec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;sqrtprec&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mutable variables are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_mutable_vars</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>        
+        <span class="n">value</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprec</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Reset covariance (in case it was computed before)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_if_conditional_from_attr</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">MIN_DIM_SPARSE</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># do sparse computations</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sparse_flag</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># use numpy</span>
+            <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">get_sqrtprec_from_sqrtprec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprec</span> <span class="o">=</span> <span class="n">sqrtprec</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logdet</span> <span class="o">=</span> <span class="n">logdet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rank</span> <span class="o">=</span> <span class="n">rank</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">logdet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Logarithm of the determinant of the covariance of the distribution &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_logdet&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log determinant is not computed by default for a Gaussian initialized with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span><span class="si">}</span><span class="s2"> and dim </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logdet</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rank</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sqrtprecTimesMean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="nd">@mean</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Gaussian.compute_cov">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.compute_cov.html#cuqi.distribution.Gaussian.compute_cov">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_cov</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Computes the covariance matrix regardless of the mutable variables. </span>
+<span class="sd">        </span>
+<span class="sd">        This is useful for smaller scale problems where we may want to use the full covariance matrix.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First determine which mutable variables are set</span>
+        <span class="n">mutable_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span>
+
+        <span class="c1"># Check if main matrix is set</span>
+        <span class="n">main_matrix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mutable_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># 1. index is the main matrix</span>
+        <span class="k">if</span> <span class="n">main_matrix</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">callable</span><span class="p">(</span><span class="n">main_matrix</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mutable variable </span><span class="si">{</span><span class="n">mutable_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> is not set. Cannot get covariance matrix.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If dim is too large, we do not support computing the covariance matrix</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">&gt;</span> <span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting the full covariance matrix is not implemented for dim &gt; </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="si">}</span><span class="s2">. To modify this edit the option cuqi.config.MAX_DIM_INV to a larger number.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># First check if covariance is already computed</span>
+        <span class="k">if</span> <span class="s1">&#39;cov&#39;</span> <span class="ow">in</span> <span class="n">mutable_vars</span><span class="p">:</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cov</span>
+            <span class="k">if</span> <span class="n">cov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">cov</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># Scalar</span>
+                    <span class="n">computed_cov</span> <span class="o">=</span> <span class="n">cov</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># Vector</span>
+                    <span class="n">computed_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">computed_cov</span> <span class="o">=</span> <span class="n">cov</span>
+        <span class="c1"># If not, we compute it via sqrtprec which is guaranteed to exist</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">T</span><span class="nd">@sqrtprec</span>
+            <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">prec</span><span class="p">):</span>
+                <span class="n">computed_cov</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">computed_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="o">=</span> <span class="n">computed_cov</span>
+        <span class="k">return</span> <span class="n">computed_cov</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_logupdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Un-normalized log density &quot;&quot;&quot;</span>
+        <span class="n">dev</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span>
+        <span class="n">mahadist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span> <span class="o">@</span> <span class="n">dev</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">mahadist</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Gaussian.logpdf">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.logpdf.html#cuqi.distribution.Gaussian.logpdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">logpdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logdet</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Normalized density is not implemented for Gaussian when precision or covariance is sparse and cholmod is not installed.&quot;</span><span class="p">)</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">logdet</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>  <span class="c1"># normalizing constant</span>
+        <span class="n">logup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logupdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                            <span class="c1"># un-normalized density</span>
+        <span class="k">return</span> <span class="n">Z</span> <span class="o">+</span> <span class="n">logup</span></div>
+
+
+<div class="viewcode-block" id="Gaussian.cdf">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.cdf.html#cuqi.distribution.Gaussian.cdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">cdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">):</span>   <span class="c1"># no closed form, we rely on scipy with full covariance</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_cov</span><span class="p">()</span> <span class="c1"># Ensure that we have the full covariance matrix</span>
+        <span class="k">return</span> <span class="n">sps</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1">#Avoid complicated geometries that change the gradient.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_get_identity_geometries</span><span class="p">()</span> <span class="ow">and</span> \
+           <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="s1">&#39;gradient&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Gradient not implemented for distribution </span><span class="si">{}</span><span class="s2"> with geometry </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">):</span> <span class="c1"># for prior</span>
+            <span class="k">return</span> <span class="o">-</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">prec</span> <span class="o">@</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="s2">&quot;gradient&quot;</span><span class="p">):</span> <span class="c1"># for likelihood</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span>
+            <span class="n">dev</span> <span class="o">=</span> <span class="n">val</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+                <span class="n">dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dev</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prec</span> <span class="o">@</span> <span class="n">dev</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Gradient not implemented for </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate samples of the Gaussian distribution using</span>
+<span class="sd">        `s = mean + pseudoinverse(sqrtprec)*e`,</span>
+<span class="sd">        where `e` is a standard Gaussian random vector and `s` is the desired sample </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sample N(0,I)</span>
+        <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span>
+
+        <span class="c1"># Compute perturbation</span>
+        <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">):</span> <span class="c1"># do sparse</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">perturbation</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="n">e</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">perturbation</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">)):</span> <span class="c1"># matrix is triangular</span>
+                <span class="n">perturbation</span> <span class="o">=</span> <span class="n">splinalg</span><span class="o">.</span><span class="n">solve_triangular</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">perturbation</span> <span class="o">=</span> <span class="n">splinalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Add mean</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">perturbation</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<span class="c1"># ======= Helper functions for Gaussian distribution =======</span>
+<span class="k">def</span> <span class="nf">get_sqrtprec_from_cov</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute square root of precision matrix from covariance matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Also computes log determinant and rank of covariance matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Dimension of the covariance matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    cov : 1-d or 2-d ndarray or sparse matrix</span>
+<span class="sd">        Covariance matrix. If 1-dimensional, then assumed to be a diagonal covariance matrix.</span>
+
+<span class="sd">    sparse_flag: bool</span>
+<span class="sd">        Whether to store matrices as Dense or Sparse</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># cov is scalar</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> 
+        <span class="n">var</span> <span class="o">=</span> <span class="n">cov</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">dim</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span><span class="o">*</span><span class="n">spa</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span><span class="o">*</span><span class="n">spa</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="c1"># cov is vector</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">cov</span><span class="p">):</span> 
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">cov</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">cov</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">cov</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">cov</span><span class="p">))</span>
+
+    <span class="c1"># cov diagonal</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="s1">&#39;diagonal&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">cov</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">cov</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">))</span>
+
+    <span class="c1"># cov is full</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">cov</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">has_cholmod</span><span class="p">:</span>
+                <span class="n">L_cholmod</span> <span class="o">=</span> <span class="n">skchol</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">ordering_method</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">)</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">L_cholmod</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">sparse_cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="n">L_cholmod</span><span class="o">.</span><span class="n">logdet</span><span class="p">()</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span> <span class="c1"># or nplinalg.matrix_rank(cov.todense())</span>
+                <span class="c1"># sqrtcov = L_cholmod.L()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">sparse_cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># np.log(nplinalg.det(cov.todense()))</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>                        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">cov</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Covariance matrix has to be symmetric.&quot;</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+                <span class="c1"># this comes from scipy implementation</span>
+                <span class="n">s</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">splinalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">check_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">eps</span> <span class="o">=</span> <span class="n">eigvalsh_to_eps</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">eps</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input matrix must be symmetric positive semidefinite.&quot;</span><span class="p">)</span>                    
+                <span class="n">d</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">]</span>                    
+                <span class="n">s_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                
+                <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s_pinv</span><span class="p">))</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">U</span><span class="p">)))</span> <span class="c1">#ensure sign is deterministic (scipy gives non-deterministic result)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span> <span class="c1"># We want to have the columns as the eigenvectors</span>
+                
+                <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">sqrtprec</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">nplinalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">prec</span><span class="p">,</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span>
+
+<span class="k">def</span> <span class="nf">get_sqrtprec_from_prec</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute square root of precision matrix from precision matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Also computes log determinant and rank of precision matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Dimension of the precision matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    prec : 1-d or 2-d ndarray or sparse matrix</span>
+<span class="sd">        Precision matrix. If 1-dimensional, then assumed to be a diagonal matrix.</span>
+
+<span class="sd">    sparse_flag: bool</span>
+<span class="sd">        Whether to store matrices as Dense or Sparse</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># prec is scalar</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">prec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> 
+        <span class="n">precision</span> <span class="o">=</span> <span class="n">prec</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">dim</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="c1"># cov = (1/precision)*spa.identity(dim, format=&quot;csr&quot;) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span><span class="o">*</span><span class="n">spa</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># cov = (1/precision)*np.identity(dim) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="c1"># prec is vector</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span> <span class="ow">and</span> <span class="n">prec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">prec</span><span class="p">):</span> 
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prec</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="c1"># cov = spa.diags(1/prec, format=&quot;csr&quot;) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">prec</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># cov = np.diag(1/cov) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">prec</span><span class="p">))</span>
+
+    <span class="c1"># prec diagonal</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="s1">&#39;diagonal&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">prec</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">prec</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="n">prec</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">precision</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="c1"># cov = spa.diags(1/precision, format=&quot;csr&quot;) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">precision</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># cov = np.diag(1/precision) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">precision</span><span class="p">))</span>
+
+    <span class="c1"># prec is full</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">prec</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">has_cholmod</span><span class="p">:</span>
+                <span class="n">L_cholmod</span> <span class="o">=</span> <span class="n">skchol</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">ordering_method</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">L_cholmod</span><span class="o">.</span><span class="n">L</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+                <span class="c1"># cov = L_cholmod.inv() # For computational efficiency we do not compute cov. We leave code for reference.</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">L_cholmod</span><span class="o">.</span><span class="n">logdet</span><span class="p">()</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="c1"># or nplinalg.matrix_rank(cov.todense())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># cov = spa.linalg.inv(cov) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">sparse_cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># np.log(nplinalg.det(cov.todense()))</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>                    
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">prec</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Precision matrix has to be symmetric.&quot;</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+                <span class="n">s</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">splinalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">check_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">eps</span> <span class="o">=</span> <span class="n">eigvalsh_to_eps</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">eps</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input matrix must be symmetric positive semidefinite.&quot;</span><span class="p">)</span>                    
+                <span class="n">d</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">]</span>
+                
+                <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">U</span><span class="p">)))</span> <span class="c1">#ensure sign is deterministic (scipy gives non-deterministic result)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span> <span class="c1"># We want to have the columns as the eigenvectors</span>
+                
+                <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">nplinalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">prec</span><span class="p">))</span>
+                <span class="c1"># cov = nplinalg.inv(prec) # For computational efficiency we do not compute cov. We leave code for reference.</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span>
+
+<span class="k">def</span> <span class="nf">get_sqrtprec_from_sqrtcov</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">sqrtcov</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute square root of precision matrix from square root of covariance matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Also computes log determinant and rank of precision matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Dimension of the square root of the covariance matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    sqrtcov : 1-d or 2-d ndarray or sparse matrix</span>
+<span class="sd">        Square root of covariance matrix. If 1-dimensional, then assumed to be a diagonal matrix.</span>
+
+<span class="sd">    sparse_flag: bool</span>
+<span class="sd">        Whether to store matrices as Dense or Sparse</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># sqrtcov is scalar</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">sqrtcov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> 
+        <span class="n">sqrtcov</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">dim</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span><span class="o">*</span><span class="n">spa</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">sqrtcov</span><span class="p">)</span><span class="o">*</span><span class="n">spa</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">sqrtcov</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="c1"># sqrtcov is vector</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">sqrtcov</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sqrtcov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">sqrtcov</span><span class="p">):</span> 
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">cov</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">sqrtcov</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">cov</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">sqrtcov</span><span class="p">)</span>
+
+    <span class="c1"># sqrtcov diagonal</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sqrtcov</span><span class="p">,</span> <span class="s1">&#39;diagonal&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">sqrtcov</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrtcov</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
+        <span class="n">std</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">std</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">std</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">std</span><span class="p">)</span>
+
+    <span class="c1"># sqrtcov is full</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">sqrtcov</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">has_cholmod</span><span class="p">:</span>
+                <span class="n">cov</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="nd">@sqrtcov</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">L_cholmod</span> <span class="o">=</span> <span class="n">skchol</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">ordering_method</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">)</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">L_cholmod</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sqrtcov</span><span class="p">)</span> <span class="c1"># sparse_cholesky(prec)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="n">L_cholmod</span><span class="o">.</span><span class="n">logdet</span><span class="p">()</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span><span class="c1"># or nplinalg.matrix_rank(cov.todense())</span>
+                <span class="c1"># sqrtcov = L_cholmod.L() # For computational efficiency we do not compute sqrtcov. We leave code for reference.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sqrtcov</span><span class="p">)</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">T</span><span class="nd">@sqrtprec</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># np.log(nplinalg.det(cov.todense()))</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>                  
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+                <span class="c1"># this comes from scipy implementation</span>
+                <span class="n">cov</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="nd">@sqrtcov</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">s</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">splinalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">check_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">eps</span> <span class="o">=</span> <span class="n">eigvalsh_to_eps</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">eps</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input matrix must be symmetric positive semidefinite.&quot;</span><span class="p">)</span>                    
+                <span class="n">d</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">]</span>                    
+                <span class="n">s_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">s</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                
+                <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s_pinv</span><span class="p">))</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">U</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">U</span><span class="p">)))</span> <span class="c1">#ensure sign is deterministic (scipy gives non-deterministic result)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span> <span class="c1"># We want to have the columns as the eigenvectors</span>
+                
+                <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">sqrtprec</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cov</span> <span class="o">=</span> <span class="n">sqrtcov</span><span class="nd">@sqrtcov</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">nplinalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov</span><span class="p">))</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+                <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">prec</span><span class="p">,</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span>
+
+<span class="k">def</span> <span class="nf">get_sqrtprec_from_sqrtprec</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">sparse_flag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; This computes the log determinant and rank of the precision matrix from the square root of the precision matrix.</span>
+
+<span class="sd">    Stores the square root of the precision as a matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dim : int</span>
+<span class="sd">        Dimension of the sqrtprec matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    sqrtprec : 1-d or 2-d ndarray or sparse matrix or scipy.sparse.linalg.LinearOperator</span>
+<span class="sd">        Square root of precision matrix. If 1-dimensional, then assumed to be a diagonal matrix.</span>
+
+<span class="sd">    sparse_flag: bool</span>
+<span class="sd">        Whether to store matrices as Dense or Sparse</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+
+    <span class="c1"># sqrtprec is scalar</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">sqrtprec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> 
+        <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">dim</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sqrtprec</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="n">dia</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span><span class="o">*</span><span class="n">sqrtprec</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">dia</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">dia</span><span class="p">)</span>
+
+    <span class="c1"># sqrtprec is vector</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">):</span> 
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sqrtprec</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+        <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sqrtprec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">)</span>
+
+    <span class="c1"># check if sqrtprec matrix is square</span>
+    <span class="k">elif</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sqrtprec must be square&quot;</span><span class="p">)</span>     
+
+    <span class="c1"># sqrtprec is sparse diagonal</span>
+    <span class="k">elif</span> <span class="n">spa</span><span class="o">.</span><span class="n">isspmatrix_dia</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">):</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sqrtprec</span><span class="o">.</span><span class="n">data</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+
+    <span class="c1"># sqrtprec is LinearOperator</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">,</span> <span class="s1">&#39;logdet&#39;</span><span class="p">):</span>
+            <span class="n">logdet</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">logdet</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logdet</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+
+    <span class="c1"># sqrtprec diagonal</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">sqrtprec</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrtprec</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">stdinv</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="n">stdinv</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">logdet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">precision</span><span class="p">))</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">dim</span>
+
+    <span class="c1"># sqrtprec is full</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">sqrtprec</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">has_cholmod</span><span class="p">:</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="nd">@sqrtprec</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">L_cholmod</span> <span class="o">=</span> <span class="n">skchol</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">ordering_method</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">L_cholmod</span><span class="o">.</span><span class="n">logdet</span><span class="p">()</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span><span class="c1"># or nplinalg.matrix_rank(cov.todense())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="nd">@sqrtprec</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># np.log(nplinalg.det(cov.todense()))</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csgraph</span><span class="o">.</span><span class="n">structural_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>                 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sparse_flag</span><span class="p">:</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="nd">@sqrtprec</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">splinalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">prec</span><span class="p">,</span> <span class="n">check_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">eps</span> <span class="o">=</span> <span class="n">eigvalsh_to_eps</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">eps</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input matrix must be symmetric positive semidefinite.&quot;</span><span class="p">)</span>                    
+                <span class="n">d</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">]</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">sqrtprec</span><span class="nd">@sqrtprec</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">nplinalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">prec</span><span class="p">)</span>
+                <span class="n">logdet</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">nplinalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">prec</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">sqrtprec</span><span class="p">,</span> <span class="n">logdet</span><span class="p">,</span> <span class="n">rank</span>
+
+<span class="k">def</span> <span class="nf">eigvalsh_to_eps</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">cond</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1">#Determine which eigenvalues are &quot;small&quot; given the spectrum.</span>
+    <span class="k">if</span> <span class="n">rcond</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="n">rcond</span>
+    <span class="k">if</span> <span class="n">cond</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="mf">1E3</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="mf">1E6</span><span class="p">}</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="n">factor</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">cond</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">spectrum</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">eps</span>
+
+<div class="viewcode-block" id="JointGaussianSqrtPrec">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.JointGaussianSqrtPrec.html#cuqi.distribution.JointGaussianSqrtPrec">[docs]</a>
+<span class="k">class</span> <span class="nc">JointGaussianSqrtPrec</span><span class="p">(</span><span class="n">Distribution</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Joint Gaussian probability distribution defined by means and sqrt of precision matricies of independent Gaussians.</span>
+<span class="sd">    Generates instance of cuqi.distribution.JointGaussianSqrtPrec.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    means: List of means for each Gaussian distribution.</span>
+<span class="sd">    sqrtprecs: List of sqrt precision matricies for each Gaussian distribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+<div class="viewcode-block" id="JointGaussianSqrtPrec.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.JointGaussianSqrtPrec.__init__.html#cuqi.distribution.JointGaussianSqrtPrec.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">means</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">sqrtprecs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">is_symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># Check if given as list</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">means</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sqrtprecs</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Means and sqrtprecs need to be a list of vectors and matrices respectively.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Force to numpy arrays</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">means</span><span class="p">)):</span>
+            <span class="n">means</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">means</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sqrtprecs</span><span class="p">)):</span>
+            <span class="n">sqrtprecs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">sqrtprecs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># Check dimension match TODO: move to setter methods for means and sqrtprecs</span>
+        <span class="n">dim1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">means</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">mean</span> <span class="ow">in</span> <span class="n">means</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dim1</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mean</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All means must have the same dimension&quot;</span><span class="p">)</span>
+        <span class="n">dim2</span> <span class="o">=</span> <span class="n">sqrtprecs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">sqrtprec</span> <span class="ow">in</span> <span class="n">sqrtprecs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dim2</span> <span class="o">!=</span> <span class="n">sqrtprec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All sqrtprecs must have the same number of columns&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">is_symmetric</span><span class="o">=</span><span class="n">is_symmetric</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_means</span> <span class="o">=</span> <span class="n">means</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprecs</span> <span class="o">=</span> <span class="n">sqrtprecs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dim1</span><span class="p">,</span><span class="n">dim2</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Sampling not implemented&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JointGaussianSqrtPrec.logpdf">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.distribution/cuqi.distribution.JointGaussianSqrtPrec.logpdf.html#cuqi.distribution.JointGaussianSqrtPrec.logpdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">logpdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;pdf not implemented&quot;</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sqrtprec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the sqrt precision matrix of the joined gaussian in stacked form. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">spa</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprecs</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">spa</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprecs</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprecs</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sqrtprecTimesMean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the sqrt precision matrix times the mean of the distribution.&quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_means</span><span class="p">)):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_sqrtprecs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="nd">@self</span><span class="o">.</span><span class="n">_means</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

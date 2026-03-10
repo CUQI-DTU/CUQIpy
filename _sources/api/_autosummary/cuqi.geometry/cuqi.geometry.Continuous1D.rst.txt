@@ -1,0 +1,44 @@
+Continuous1D
+============
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: Continuous1D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Continuous1D.__init__
+      ~Continuous1D.fun2par
+      ~Continuous1D.fun2vec
+      ~Continuous1D.par2fun
+      ~Continuous1D.plot
+      ~Continuous1D.plot_envelope
+      ~Continuous1D.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Continuous1D.fun_dim
+      ~Continuous1D.fun_is_array
+      ~Continuous1D.fun_shape
+      ~Continuous1D.funvec_dim
+      ~Continuous1D.funvec_shape
+      ~Continuous1D.grid
+      ~Continuous1D.par_dim
+      ~Continuous1D.par_shape
+      ~Continuous1D.variables
+   
+   

@@ -1,0 +1,42 @@
+Likelihood
+==========
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoclass:: Likelihood
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Likelihood.__init__
+      ~Likelihood.disable_FD
+      ~Likelihood.enable_FD
+      ~Likelihood.get_parameter_names
+      ~Likelihood.gradient
+      ~Likelihood.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Likelihood.FD_enabled
+      ~Likelihood.FD_epsilon
+      ~Likelihood.dim
+      ~Likelihood.fun_shape
+      ~Likelihood.geometry
+      ~Likelihood.model
+      ~Likelihood.name
+      ~Likelihood.par_shape
+   
+   

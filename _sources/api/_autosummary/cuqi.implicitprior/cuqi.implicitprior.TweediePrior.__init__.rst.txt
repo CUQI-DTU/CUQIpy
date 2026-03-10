@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.\_\_init\_\_
+============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.__init__

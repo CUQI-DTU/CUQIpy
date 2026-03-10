@@ -1,0 +1,6 @@
+cuqi.likelihood.UserDefinedLikelihood.name
+==========================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: UserDefinedLikelihood.name

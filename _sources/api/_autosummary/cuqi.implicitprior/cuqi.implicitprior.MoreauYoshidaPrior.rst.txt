@@ -1,0 +1,49 @@
+MoreauYoshidaPrior
+==================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: MoreauYoshidaPrior
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MoreauYoshidaPrior.__init__
+      ~MoreauYoshidaPrior.disable_FD
+      ~MoreauYoshidaPrior.enable_FD
+      ~MoreauYoshidaPrior.get_conditioning_variables
+      ~MoreauYoshidaPrior.get_mutable_variables
+      ~MoreauYoshidaPrior.get_parameter_names
+      ~MoreauYoshidaPrior.gradient
+      ~MoreauYoshidaPrior.logd
+      ~MoreauYoshidaPrior.logpdf
+      ~MoreauYoshidaPrior.pdf
+      ~MoreauYoshidaPrior.sample
+      ~MoreauYoshidaPrior.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MoreauYoshidaPrior.FD_enabled
+      ~MoreauYoshidaPrior.FD_epsilon
+      ~MoreauYoshidaPrior.dim
+      ~MoreauYoshidaPrior.geometry
+      ~MoreauYoshidaPrior.is_cond
+      ~MoreauYoshidaPrior.name
+      ~MoreauYoshidaPrior.prior
+      ~MoreauYoshidaPrior.rv
+      ~MoreauYoshidaPrior.smoothing_strength
+   
+   

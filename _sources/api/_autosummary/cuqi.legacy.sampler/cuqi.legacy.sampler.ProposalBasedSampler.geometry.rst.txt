@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.ProposalBasedSampler.geometry
+=================================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: ProposalBasedSampler.geometry

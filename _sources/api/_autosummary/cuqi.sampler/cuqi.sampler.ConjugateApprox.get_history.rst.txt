@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.get\_history
+=========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ConjugateApprox.get_history

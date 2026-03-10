@@ -1,0 +1,6 @@
+cuqi.density.EvaluatedDensity.\_\_init\_\_
+==========================================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: EvaluatedDensity.__init__

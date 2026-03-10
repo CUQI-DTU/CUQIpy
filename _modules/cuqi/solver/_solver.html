@@ -1,0 +1,1380 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.solver._solver &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/solver/_solver';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.solver._solver</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.solver._solver</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">LA</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span><span class="p">,</span> <span class="n">least_squares</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">opt</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">spa</span>
+
+<span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">from</span> <span class="nn">cuqi</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sksparse.cholmod</span> <span class="kn">import</span> <span class="n">cholesky</span>
+    <span class="n">has_cholmod</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">has_cholmod</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="ScipyLBFGSB">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLBFGSB.html#cuqi.solver.ScipyLBFGSB">[docs]</a>
+<span class="k">class</span> <span class="nc">ScipyLBFGSB</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.</span>
+
+<span class="sd">    Minimize a function func using the L-BFGS-B algorithm.</span>
+<span class="sd">    </span>
+<span class="sd">    Note, Scipy does not recommend using this method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func : callable f(x,*args)</span>
+<span class="sd">        Function to minimize.</span>
+<span class="sd">    x0 : ndarray</span>
+<span class="sd">        Initial guess.</span>
+<span class="sd">    gradfunc : callable f(x,*args), optional</span>
+<span class="sd">        The gradient of func. </span>
+<span class="sd">        If None, the solver approximates the gradient with a finite difference scheme.</span>
+<span class="sd">    kwargs : keyword arguments passed to scipy&#39;s L-BFGS-B algorithm. See documentation for scipy.optimize.minimize</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ScipyLBFGSB.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLBFGSB.__init__.html#cuqi.solver.ScipyLBFGSB.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">gradfunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradfunc</span> <span class="o">=</span> <span class="n">gradfunc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+    
+<div class="viewcode-block" id="ScipyLBFGSB.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLBFGSB.solve.html#cuqi.solver.ScipyLBFGSB.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs optimization algorithm and returns solution and info.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : array_like</span>
+<span class="sd">            Estimated position of the minimum.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            Information dictionary.</span>
+<span class="sd">            success: 1 if minimization has converged, 0 if not.</span>
+<span class="sd">            message: Description of the cause of the termination.</span>
+<span class="sd">            func: Function value at the estimated minimum.</span>
+<span class="sd">            grad: Gradient at the estimated minimum.</span>
+<span class="sd">            nit: Number of iterations.</span>
+<span class="sd">            nfev: Number of func evaluations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if there is a gradient. If not, let the solver use an approximate gradient</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradfunc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">approx_grad</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">approx_grad</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># run solver</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">fprime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradfunc</span><span class="p">,</span> <span class="n">approx_grad</span> <span class="o">=</span> <span class="n">approx_grad</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">solution</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;warnflag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Optimization terminated successfully.&#39;</span>
+        <span class="k">elif</span> <span class="n">solution</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;warnflag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Terminated due to too many function evaluations or too many iterations.&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;task&#39;</span><span class="p">]</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">success</span><span class="p">,</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+                <span class="s2">&quot;func&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">&quot;grad&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;grad&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;nit&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;nit&#39;</span><span class="p">],</span> 
+                <span class="s2">&quot;nfev&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;funcalls&#39;</span><span class="p">]}</span>
+        <span class="k">return</span> <span class="n">solution</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">info</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ScipyMinimizer">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyMinimizer.html#cuqi.solver.ScipyMinimizer">[docs]</a>
+<span class="k">class</span> <span class="nc">ScipyMinimizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for :meth:`scipy.optimize.minimize`.</span>
+
+<span class="sd">    Minimize a function func using scipy&#39;s optimize.minimize module.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func : callable f(x,*args)</span>
+<span class="sd">        Function to minimize.</span>
+<span class="sd">    x0 : ndarray</span>
+<span class="sd">        Initial guess.</span>
+<span class="sd">    gradfunc : callable f(x,*args), optional</span>
+<span class="sd">        The gradient of func. </span>
+<span class="sd">        If None, then the solver approximates the gradient.</span>
+<span class="sd">    method : str or callable, optional</span>
+<span class="sd">        Type of solver. Should be one of</span>
+<span class="sd">        ‘Nelder-Mead’</span>
+<span class="sd">        ‘Powell’</span>
+<span class="sd">        ‘CG’</span>
+<span class="sd">        ‘BFGS’</span>
+<span class="sd">        ‘Newton-CG’ </span>
+<span class="sd">        ‘L-BFGS-B’</span>
+<span class="sd">        ‘TNC’ </span>
+<span class="sd">        ‘COBYLA’ </span>
+<span class="sd">        ‘SLSQP’</span>
+<span class="sd">        ‘trust-constr’</span>
+<span class="sd">        ‘dogleg’ </span>
+<span class="sd">        ‘trust-ncg’ </span>
+<span class="sd">        ‘trust-exact’ </span>
+<span class="sd">        ‘trust-krylov’ </span>
+<span class="sd">        If not given, chosen to be one of BFGS, L-BFGS-B, SLSQP, depending if the problem has constraints or bounds.</span>
+<span class="sd">    kwargs : keyword arguments passed to scipy&#39;s minimizer. See documentation for scipy.optimize.minimize</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ScipyMinimizer.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyMinimizer.__init__.html#cuqi.solver.ScipyMinimizer.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">gradfunc</span> <span class="o">=</span> <span class="s1">&#39;2-point&#39;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradfunc</span> <span class="o">=</span> <span class="n">gradfunc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+    
+<div class="viewcode-block" id="ScipyMinimizer.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyMinimizer.solve.html#cuqi.solver.ScipyMinimizer.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs optimization algorithm and returns solution and info.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : array_like</span>
+<span class="sd">            Estimated position of the minimum.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            Information dictionary.</span>
+<span class="sd">            success: 1 if minimization has converged, 0 if not.</span>
+<span class="sd">            message: Description of the cause of the termination.</span>
+<span class="sd">            func: Function value at the estimated minimum.</span>
+<span class="sd">            grad: Gradient at the estimated minimum.</span>
+<span class="sd">            nit: Number of iterations.</span>
+<span class="sd">            nfev: Number of func evaluations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">jac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradfunc</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;func&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;nit&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;nit&#39;</span><span class="p">],</span> 
+                <span class="s2">&quot;nfev&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;nfev&#39;</span><span class="p">]}</span>
+        <span class="c1"># if gradfunc is callable, record the gradient in the info dict</span>
+        <span class="k">if</span> <span class="s1">&#39;jac&#39;</span> <span class="ow">in</span> <span class="n">solution</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;grad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;jac&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span><span class="n">CUQIarray</span><span class="p">):</span>
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">CUQIarray</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span><span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">sol</span><span class="p">,</span> <span class="n">info</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ScipyMaximizer">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyMaximizer.html#cuqi.solver.ScipyMaximizer">[docs]</a>
+<span class="k">class</span> <span class="nc">ScipyMaximizer</span><span class="p">(</span><span class="n">ScipyMinimizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simply calls ::class:: cuqi.solver.ScipyMinimizer with -func.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ScipyMaximizer.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyMaximizer.__init__.html#cuqi.solver.ScipyMaximizer.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">gradfunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">nfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gradfunc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">ngradfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">gradfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ngradfunc</span> <span class="o">=</span> <span class="n">gradfunc</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">nfunc</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">ngradfunc</span><span class="p">,</span><span class="n">method</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="ScipyLSQ">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLSQ.html#cuqi.solver.ScipyLSQ">[docs]</a>
+<span class="k">class</span> <span class="nc">ScipyLSQ</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for :meth:`scipy.optimize.least_squares`.</span>
+
+<span class="sd">    Solve nonlinear least-squares problems with bounds:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">    </span>
+<span class="sd">        \min F(x) = 0.5 * \sum(\\rho(f_i(x)^2), i = 0, ..., m-1)</span>
+
+<span class="sd">    subject to :math:`lb &lt;= x &lt;= ub`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func : callable f(x,*args)</span>
+<span class="sd">        Function to minimize.</span>
+<span class="sd">    x0 : ndarray</span>
+<span class="sd">        Initial guess.</span>
+<span class="sd">    Jac : callable f(x,*args), optional</span>
+<span class="sd">        The Jacobian of func. </span>
+<span class="sd">        If not specified, the solver approximates the Jacobian with a finite difference scheme.</span>
+<span class="sd">    loss: callable rho(x,*args)</span>
+<span class="sd">        Determines the loss function</span>
+<span class="sd">        &#39;linear&#39; : rho(z) = z. Gives a standard least-squares problem.</span>
+<span class="sd">        &#39;soft_l1&#39;: rho(z) = 2*((1 + z)**0.5 - 1). The smooth approximation of l1 (absolute value) loss.</span>
+<span class="sd">        &#39;huber&#39;  : rho(z) = z if z &lt;= 1 else 2*z**0.5 - 1. Works similar to &#39;soft_l1&#39;.</span>
+<span class="sd">        &#39;cauchy&#39; : rho(z) = ln(1 + z). Severely weakens outliers influence, but may cause difficulties in optimization process.</span>
+<span class="sd">        &#39;arctan&#39; : rho(z) = arctan(z). Limits a maximum loss on a single residual, has properties similar to &#39;cauchy&#39;.        </span>
+<span class="sd">    method : str or callable, optional</span>
+<span class="sd">        Type of solver. Should be one of</span>
+<span class="sd">        &#39;trf&#39;, Trust Region Reflective algorithm: for large sparse problems with bounds.</span>
+<span class="sd">        &#39;dogbox&#39;, dogleg algorithm with rectangular trust regions, for small problems with bounds.</span>
+<span class="sd">        &#39;lm&#39;, Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn&#39;t handle bounds and sparse Jacobians.</span>
+<span class="sd">    tol : The numerical tolerance for convergence checks.</span>
+<span class="sd">    maxit : The maximum number of iterations.</span>
+<span class="sd">    kwargs : Additional keyword arguments passed to scipy&#39;s least_squares. Empty by default. See documentation for scipy.optimize.least_squares</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ScipyLSQ.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLSQ.__init__.html#cuqi.solver.ScipyLSQ.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">jacfun</span><span class="o">=</span><span class="s1">&#39;2-point&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;trf&#39;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mf">1e4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span> <span class="o">=</span> <span class="n">jacfun</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+    
+<div class="viewcode-block" id="ScipyLSQ.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLSQ.solve.html#cuqi.solver.ScipyLSQ.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs optimization algorithm and returns solution and info.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : Tuple</span>
+<span class="sd">            Solution found (array_like) and optimization information (dictionary).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span><span class="p">,</span> \
+                                <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_nfev</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;func&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;fun&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;jac&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;jac&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;nfev&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;nfev&#39;</span><span class="p">]}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">):</span>
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">CUQIarray</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">sol</span><span class="p">,</span> <span class="n">info</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ScipyLinearLSQ">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLinearLSQ.html#cuqi.solver.ScipyLinearLSQ">[docs]</a>
+<span class="k">class</span> <span class="nc">ScipyLinearLSQ</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for :meth:`scipy.optimize.lsq_linear`.</span>
+
+<span class="sd">    Solve linear least-squares problems with bounds:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">    </span>
+<span class="sd">        \min \|A x - b\|_2^2</span>
+
+<span class="sd">    subject to :math:`lb &lt;= x &lt;= ub`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray, LinearOperator</span>
+<span class="sd">        Design matrix (system matrix).</span>
+<span class="sd">    b : ndarray</span>
+<span class="sd">        The right-hand side of the linear system.</span>
+<span class="sd">    bounds : 2-tuple of array_like or scipy.optimize Bounds</span>
+<span class="sd">        Bounds for variables. </span>
+<span class="sd">    kwargs : Other keyword arguments passed to Scipy&#39;s `lsq_linear`. See documentation of `scipy.optimize.lsq_linear` for details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ScipyLinearLSQ.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLinearLSQ.__init__.html#cuqi.solver.ScipyLinearLSQ.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+    
+<div class="viewcode-block" id="ScipyLinearLSQ.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ScipyLinearLSQ.solve.html#cuqi.solver.ScipyLinearLSQ.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs optimization algorithm and returns solution and optimization information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : Tuple</span>
+<span class="sd">            Solution found (array_like) and optimization information (dictionary).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">lsq_linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">res</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CGLS">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.CGLS.html#cuqi.solver.CGLS">[docs]</a>
+<span class="k">class</span> <span class="nc">CGLS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Conjugate Gradient method for unsymmetric linear equations and least squares problems.</span>
+
+<span class="sd">    See http://web.stanford.edu/group/SOL/software/cgls/ for the matlab version it is based on.</span>
+<span class="sd">    </span>
+<span class="sd">    If SHIFT is 0, then CGLS is Hestenes and Stiefel&#39;s conjugate-gradient method for least-squares problems. </span>
+<span class="sd">    If SHIFT is nonzero, the system (A&#39;*A + SHIFT*I)*X = A&#39;*b is solved.</span>
+
+<span class="sd">    Solve Ax=b or minimize ||Ax-b||^2 or solve (A^TA+sI)x=A^Tb.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray or callable f(x,*args).</span>
+<span class="sd">    b : ndarray.</span>
+<span class="sd">    x0 : ndarray. Initial guess.</span>
+<span class="sd">    maxit : The maximum number of iterations.</span>
+<span class="sd">    tol : The numerical tolerance for convergence checks.</span>
+<span class="sd">    shift : The shift parameter (s) shown above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+<div class="viewcode-block" id="CGLS.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.CGLS.__init__.html#cuqi.solver.CGLS.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">maxit</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">shift</span> <span class="o">=</span> <span class="n">shift</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+            
+<div class="viewcode-block" id="CGLS.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.CGLS.solve.html#cuqi.solver.CGLS.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># initial state</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="o">*</span><span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>        
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="o">*</span><span class="n">x</span>
+    
+        <span class="c1"># initialization</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">norms0</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">normx</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">gamma</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">norms0</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">normx</span>
+    
+        <span class="c1"># main loop</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">indefinite</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">flag</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">@</span> <span class="n">p</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">delta_cgls</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="o">*</span><span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">delta_cgls</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">indefinite</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">delta_cgls</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">delta_cgls</span> <span class="o">=</span> <span class="n">eps</span>
+            <span class="n">alpha_cgls</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">/</span> <span class="n">delta_cgls</span>
+
+            <span class="n">x</span> <span class="o">+=</span> <span class="n">alpha_cgls</span><span class="o">*</span><span class="n">p</span>
+            <span class="n">r</span> <span class="o">-=</span> <span class="n">alpha_cgls</span><span class="o">*</span><span class="n">q</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">r</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="o">*</span><span class="n">x</span>     
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="o">*</span><span class="n">x</span>
+
+            <span class="n">gamma1</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">norms</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="n">norms</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="p">(</span><span class="n">gamma</span><span class="o">/</span><span class="n">gamma1</span><span class="p">)</span><span class="o">*</span><span class="n">p</span>
+        
+            <span class="c1"># convergence</span>
+            <span class="n">normx</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xmax</span><span class="p">,</span> <span class="n">normx</span><span class="p">)</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="p">(</span><span class="n">norms</span> <span class="o">&lt;=</span> <span class="n">norms0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">normx</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># resNE = norms / norms0</span>
+
+        <span class="n">shrink</span> <span class="o">=</span> <span class="n">normx</span><span class="o">/</span><span class="n">xmax</span>
+        <span class="c1"># if k == self.maxit:          </span>
+        <span class="c1">#     flag = 2   # CGLS iterated MAXIT times but did not converge</span>
+        <span class="c1">#     Warning(&#39;\n maxit reached without convergence !&#39;)</span>
+        <span class="k">if</span> <span class="n">indefinite</span><span class="p">:</span>          
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">3</span>   <span class="c1"># Matrix (A&#39;*A + delta*L) seems to be singular or indefinite</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Negative curvature detected !&#39;</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="n">shrink</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">):</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">4</span>   <span class="c1"># Instability likely: (A&#39;*A + delta*L) indefinite and NORM(X) decreased</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Instability likely !&#39;</span><span class="p">)</span> 
+    
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">PCGLS</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Conjugate Gradient method for least squares problems with preconditioning</span>
+<span class="sd">    </span>
+<span class="sd">    See Bjorck (1996) - Numerical Methods for Least Squares Problems. Pag 294.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray or callable f(x,*args).</span>
+<span class="sd">        Function or array representing the forward model.</span>
+<span class="sd">    b : ndarray</span>
+<span class="sd">        Data vector.</span>
+<span class="sd">    x0 : ndarray</span>
+<span class="sd">        Initial guess.    </span>
+<span class="sd">    P : ndarray</span>
+<span class="sd">        Preconditioner array in sparse format.</span>
+<span class="sd">    maxit : int</span>
+<span class="sd">        The maximum number of iterations.</span>
+<span class="sd">    tol : float</span>
+<span class="sd">        The numerical tolerance for convergence checks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">maxit</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_P</span> <span class="o">=</span> <span class="n">P</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_maxit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tol</span> <span class="o">=</span> <span class="n">tol</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shift</span> <span class="o">=</span> <span class="n">shift</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_explicitA</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_explicitA</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">MAX_DIM_INV</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_explicitPinv</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">Pinv</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_explicitPinv</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">Pinv</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># we do cholesky.solve or sparse.solve with P</span>
+            <span class="k">if</span> <span class="n">has_cholmod</span><span class="p">:</span>
+                <span class="c1"># turn P into a cholesky object</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">cholesky</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">ordering_method</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Pinv</span> <span class="o">=</span> <span class="n">Pinv</span> <span class="c1"># inverse of the preconditioner as a ndarray or function</span>
+
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># initial state</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_A</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_Pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_A</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># initial computations        </span>
+        <span class="n">norms0</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">normx</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">gamma</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">norms0</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">normx</span>
+
+        <span class="c1"># main loop</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">indefinite</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maxit</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">flag</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1">#</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_Pinv</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_A</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1">#</span>
+            <span class="n">delta_cgls</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">delta_cgls</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">indefinite</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">delta_cgls</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">delta_cgls</span> <span class="o">=</span> <span class="n">eps</span>
+            <span class="n">alpha_cgls</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">/</span> <span class="n">delta_cgls</span>
+            <span class="c1">#</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="n">alpha_cgls</span><span class="o">*</span><span class="n">t</span>
+            <span class="n">r</span> <span class="o">-=</span> <span class="n">alpha_cgls</span><span class="o">*</span><span class="n">q</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_Pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_A</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="c1">#</span>
+            <span class="n">norms</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">gamma1</span> <span class="o">=</span> <span class="n">gamma</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="n">norms</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">/</span> <span class="n">gamma1</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="n">beta</span><span class="o">*</span><span class="n">p</span>
+
+            <span class="c1"># convergence</span>
+            <span class="n">normx</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xmax</span><span class="p">,</span> <span class="n">normx</span><span class="p">)</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="p">(</span><span class="n">norms</span> <span class="o">&lt;=</span> <span class="n">norms0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_tol</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">normx</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_tol</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># resNE = norms / norms0</span>
+
+        <span class="n">shrink</span> <span class="o">=</span> <span class="n">normx</span><span class="o">/</span><span class="n">xmax</span>
+        <span class="k">if</span> <span class="n">indefinite</span><span class="p">:</span>          
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">3</span>   <span class="c1"># Matrix (A&#39;*A + delta*L) seems to be singular or indefinite</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Negative curvature detected !&#39;</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="n">shrink</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tol</span><span class="p">):</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">4</span>   <span class="c1"># Instability likely: (A&#39;*A + delta*L) indefinite and NORM(X) decreased</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Instability likely !&#39;</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span>
+
+    <span class="k">def</span> <span class="nf">_apply_A</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="c1"># applies system operator A: forward or adjoint</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_explicitA</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">evalu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">@</span> <span class="n">x</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">evalu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">evalu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">evalu</span>
+
+    <span class="k">def</span> <span class="nf">_apply_Pinv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="c1"># applies the inverse of the preconditioner P: forward or adjoint (see Bjorck (1996) P. 294)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_explicitPinv</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">precond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Pinv</span> <span class="o">@</span> <span class="n">x</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                 <span class="n">precond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Pinv</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">has_cholmod</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">precond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_P</span><span class="o">.</span><span class="n">solve_A</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">use_LDLt_decomposition</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> 
+                <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">precond</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_P</span><span class="o">.</span><span class="n">solve_At</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">use_LDLt_decomposition</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">precond</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_P</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> 
+                <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">precond</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_P</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">precond</span>
+
+
+
+<div class="viewcode-block" id="LM">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.LM.html#cuqi.solver.LM">[docs]</a>
+<span class="k">class</span> <span class="nc">LM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Levenberg-Marquardt algorithm for nonlinear least-squares problems.</span>
+<span class="sd">    This is a translation of LevMaq.m from</span>
+<span class="sd">    https://github.com/bardsleyj/SIAMBookCodes/tree/master/Functions    </span>
+<span class="sd">    Used in Bardsley (2019) - Computational UQ for inverse problems. SIAM.</span>
+
+<span class="sd">    Based Algorithm 3.3.5 from:</span>
+<span class="sd">    Kelley (1999) - Iterative Methods for Optimization. SIAM.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : callable f(x,*args).</span>
+<span class="sd">    x0 : ndarray. Initial guess.</span>
+<span class="sd">    jacfun : callable Jac(x). Jacobian of func. </span>
+<span class="sd">    maxit : The maximum number of iterations.</span>
+<span class="sd">    tol : The numerical tolerance for convergence checks.</span>
+<span class="sd">    gradtol : The numerical tolerance for gradient.</span>
+<span class="sd">    nu0 : default value for nu parameter in the algorithm.</span>
+<span class="sd">    sparse : True: if &#39;jacfun&#39; is defined as a sparse matrix, or as a function that </span>
+<span class="sd">            supports sparse operations. False: if &#39;jacfun&#39; is dense.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="LM.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.LM.__init__.html#cuqi.solver.LM.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">jacfun</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mf">1e4</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">gradtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">nu0</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span> <span class="o">=</span> <span class="n">jacfun</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradtol</span> <span class="o">=</span> <span class="n">gradtol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu0</span> <span class="o">=</span> <span class="n">nu0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span> <span class="o">=</span> <span class="n">sparse</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">A</span><span class="p">):</span> <span class="c1"># also applies for jacfun</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="LM.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.LM.solve.html#cuqi.solver.LM.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span>
+            <span class="n">J</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span> <span class="o">@</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">J</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">r</span>
+        <span class="n">ng</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">ng0</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ng</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ng</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># solve function depending on sparsity</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
+            <span class="n">insolve</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">spa</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">spsolve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">insolve</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">LA</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># parameters required for the LM parameter update</span>
+        <span class="n">mu0</span><span class="p">,</span> <span class="n">mulow</span><span class="p">,</span> <span class="n">muhigh</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span>
+        <span class="n">omdown</span><span class="p">,</span> <span class="n">omup</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span>
+        <span class="k">while</span> <span class="p">((</span><span class="n">ng</span><span class="o">/</span><span class="n">ng0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradtol</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">insolve</span><span class="p">((</span><span class="n">J</span><span class="o">.</span><span class="n">T</span><span class="nd">@J</span> <span class="o">+</span> <span class="n">nu</span><span class="o">*</span><span class="n">I</span><span class="p">),</span> <span class="n">g</span><span class="p">)</span>
+            <span class="n">xtemp</span> <span class="o">=</span> <span class="n">x</span><span class="o">-</span><span class="n">s</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explicitA</span><span class="p">:</span>
+                <span class="n">rtemp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">@</span> <span class="n">xtemp</span>
+                <span class="n">Jtemp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span> <span class="o">@</span> <span class="n">xtemp</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rtemp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">xtemp</span><span class="p">)</span>
+                <span class="n">Jtemp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jacfun</span><span class="p">(</span><span class="n">xtemp</span><span class="p">)</span>
+            <span class="n">ftemp</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">rtemp</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">rtemp</span><span class="p">)</span>
+
+            <span class="c1"># LM parameter update</span>
+            <span class="n">num</span><span class="p">,</span> <span class="n">den</span> <span class="o">=</span> <span class="n">f</span><span class="o">-</span><span class="n">ftemp</span><span class="p">,</span> <span class="p">(</span><span class="n">xtemp</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">g</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">num</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">den</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span> 
+                <span class="n">ratio</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">num</span> <span class="o">/</span> <span class="n">den</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">&lt;</span> <span class="n">mu0</span><span class="p">):</span>
+                <span class="n">nu</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">omup</span><span class="o">*</span><span class="n">nu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">xtemp</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">rtemp</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ftemp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparse</span><span class="p">:</span>
+                    <span class="n">J</span> <span class="o">=</span> <span class="n">spa</span><span class="o">.</span><span class="n">csr_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">Jtemp</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">J</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">Jtemp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">&lt;</span> <span class="n">mulow</span><span class="p">):</span>
+                    <span class="n">nu</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">omup</span><span class="o">*</span><span class="n">nu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu0</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">muhigh</span><span class="p">):</span>
+                    <span class="n">nu</span> <span class="o">=</span> <span class="n">omdown</span><span class="o">*</span><span class="n">nu</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">nu</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu0</span><span class="p">):</span>
+                        <span class="n">nu</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">r</span>
+            <span class="n">ng</span> <span class="o">=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;func&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span>
+                <span class="s2">&quot;Jac&quot;</span><span class="p">:</span> <span class="n">J</span><span class="p">,</span>
+                <span class="s2">&quot;nfev&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">info</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="PDHG">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.PDHG.html#cuqi.solver.PDHG">[docs]</a>
+<span class="k">class</span> <span class="nc">PDHG</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Primal-Dual Hybrid Gradient algorithm.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PDHG.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.PDHG.__init__.html#cuqi.solver.PDHG.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="FISTA">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.FISTA.html#cuqi.solver.FISTA">[docs]</a>
+<span class="k">class</span> <span class="nc">FISTA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast Iterative Shrinkage-Thresholding Algorithm for regularized least squares problems.</span>
+<span class="sd">    </span>
+<span class="sd">    Reference:</span>
+<span class="sd">    Beck, Amir, and Marc Teboulle. &quot;A fast iterative shrinkage-thresholding algorithm for linear inverse problems.&quot; SIAM journal on imaging sciences 2.1 (2009): 183-202.</span>
+
+<span class="sd">    Minimize ||Ax-b||^2 + f(x).</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray or callable f(x,*args).</span>
+<span class="sd">    b : ndarray.</span>
+<span class="sd">    proximal : callable f(x, gamma) for proximal mapping.</span>
+<span class="sd">    x0 : ndarray. Initial guess.</span>
+<span class="sd">    maxit : The maximum number of iterations.</span>
+<span class="sd">    stepsize : The stepsize of the gradient step.</span>
+<span class="sd">    abstol : The numerical tolerance for convergence checks.</span>
+<span class="sd">    adapative : Whether to use FISTA or ISTA.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -----------</span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from cuqi.solver import FISTA,  ProximalL1</span>
+<span class="sd">        import scipy as sp</span>
+<span class="sd">        import numpy as np</span>
+
+<span class="sd">        rng = np.random.default_rng()</span>
+
+<span class="sd">        m, n = 10, 5</span>
+<span class="sd">        A = rng.standard_normal((m, n))</span>
+<span class="sd">        b = rng.standard_normal(m)</span>
+<span class="sd">        stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)</span>
+<span class="sd">        x0 = np.zeros(n)</span>
+<span class="sd">        fista = FISTA(A, b, proximal = ProximalL1, x0, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)</span>
+<span class="sd">        sol, _ = fista.solve()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  
+<div class="viewcode-block" id="FISTA.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.FISTA.__init__.html#cuqi.solver.FISTA.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">proximal</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">stepsize</span><span class="o">=</span><span class="mf">1e0</span><span class="p">,</span> <span class="n">abstol</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">,</span> <span class="n">adaptive</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proximal</span> <span class="o">=</span> <span class="n">proximal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span> <span class="o">=</span> <span class="n">stepsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abstol</span> <span class="o">=</span> <span class="n">abstol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span> <span class="o">=</span> <span class="n">adaptive</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_explicitA</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+            
+<div class="viewcode-block" id="FISTA.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.FISTA.solve.html#cuqi.solver.FISTA.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># initial state</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">stepsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span>
+        
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">x_old</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_explicitA</span><span class="p">:</span>
+                <span class="n">grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="o">@</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">@</span> <span class="n">x_old</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">x_old</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                
+            <span class="n">x_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proximal</span><span class="p">(</span><span class="n">x_old</span><span class="o">-</span><span class="n">stepsize</span><span class="o">*</span><span class="n">grad</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">)</span>
+                        
+            <span class="k">if</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_new</span><span class="o">-</span><span class="n">x_old</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstol</span> <span class="ow">or</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x_new</span><span class="p">,</span> <span class="n">k</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">:</span>
+                <span class="n">x_new</span> <span class="o">=</span> <span class="n">x_new</span> <span class="o">+</span> <span class="p">((</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">x_new</span> <span class="o">-</span> <span class="n">x_old</span><span class="p">)</span>
+              
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x_new</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+</div>
+
+
+<div class="viewcode-block" id="ADMM">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ADMM.html#cuqi.solver.ADMM">[docs]</a>
+<span class="k">class</span> <span class="nc">ADMM</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:</span>
+<span class="sd">    Minimize ||Ax-b||^2 + sum_i f_i(L_i x),</span>
+<span class="sd">    where the sum ranges from 1 to an arbitrary n. See definition of the parameter `penalty_terms` below for more details about f_i and L_i</span>
+
+<span class="sd">    Reference:</span>
+<span class="sd">    [1] Boyd et al. &quot;Distributed optimization and statistical learning via the alternating direction method of multipliers.&quot;Foundations and Trends® in Machine learning, 2011.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    A : ndarray or callable</span>
+<span class="sd">        Represents a matrix or a function that performs matrix-vector multiplications. </span>
+<span class="sd">        When A is a callable, it accepts arguments (x, flag) where:</span>
+<span class="sd">        - flag=1 indicates multiplication of A with vector x, that is A @ x.</span>
+<span class="sd">        - flag=2 indicates multiplication of the transpose of A with vector x, that is  A.T @ x.</span>
+<span class="sd">    b : ndarray.</span>
+<span class="sd">    penalty_terms : List of tuples (callable proximal operator of f_i, linear operator L_i)</span>
+<span class="sd">        Each callable proximal operator of f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.</span>
+<span class="sd">    x0 : ndarray. Initial guess.</span>
+<span class="sd">    penalty_parameter : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as &quot;rho&quot; in [1].</span>
+<span class="sd">    maxit : The maximum number of iterations.</span>
+<span class="sd">    adaptive : Whether to adaptively update the penalty_parameter each iteration such that the primal and dual residual norms are of the same order of magnitude. Based on [1], Subsection 3.4.1</span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -----------</span>
+<span class="sd">    .. code-block:: python</span>
+<span class="sd">    </span>
+<span class="sd">        from cuqi.solver import ADMM, ProximalL1, ProjectNonnegative</span>
+<span class="sd">        import numpy as np</span>
+
+<span class="sd">        rng = np.random.default_rng()</span>
+
+<span class="sd">        m, n, k = 10, 5, 4</span>
+<span class="sd">        A = rng.standard_normal((m, n))</span>
+<span class="sd">        b = rng.standard_normal(m)</span>
+<span class="sd">        L = rng.standard_normal((k, n))</span>
+
+<span class="sd">        x0 = np.zeros(n)</span>
+<span class="sd">        admm = ADMM(A, b, x0, penalty_terms = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), np.eye(n))], tradeoff = 10)</span>
+<span class="sd">        sol, _ = admm.solve()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  
+
+<div class="viewcode-block" id="ADMM.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ADMM.__init__.html#cuqi.solver.ADMM.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">penalty_terms</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">penalty_parameter</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">maxit</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">inner_max_it</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">adaptive</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_cur</span> <span class="o">=</span> <span class="n">x0</span>
+
+        <span class="n">dual_len</span> <span class="o">=</span> <span class="p">[</span><span class="n">penalty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">penalty</span> <span class="ow">in</span> <span class="n">penalty_terms</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_cur</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">dual_len</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_cur</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">dual_len</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">penalty_terms</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">=</span> <span class="n">penalty_parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="n">maxit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_max_it</span> <span class="o">=</span> <span class="n">inner_max_it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span> <span class="o">=</span> <span class="n">adaptive</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span> <span class="o">=</span> <span class="n">penalty_terms</span>
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_big_matrix</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_big_vector</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ADMM.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ADMM.solve.html#cuqi.solver.ADMM.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solves the regularized linear least squares problem using ADMM in scaled form. Based on [1], Subsection 3.1.1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">*</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">u_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">*</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Iterating</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_pre_processing</span><span class="p">()</span>
+
+            <span class="c1"># Main update (Least Squares)</span>
+            <span class="n">solver</span> <span class="o">=</span> <span class="n">CGLS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_big_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_big_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_cur</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_max_it</span><span class="p">)</span>
+            <span class="n">x_new</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        
+            <span class="c1"># Regularization update</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">penalty</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">):</span>
+                <span class="n">z_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">penalty</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">penalty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="nd">@x_new</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_cur</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="mf">1.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span>
+                
+            <span class="n">res_primal</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="c1"># Dual update</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">penalty</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">):</span>
+                <span class="n">r_partial</span> <span class="o">=</span> <span class="n">penalty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="nd">@x_new</span> <span class="o">-</span> <span class="n">z_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">res_primal</span> <span class="o">+=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">r_partial</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+                <span class="n">u_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_cur</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">r_partial</span>
+            
+            <span class="n">res_dual</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">penalty</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">):</span>
+                <span class="n">res_dual</span> <span class="o">+=</span> <span class="n">LA</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">penalty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">@</span><span class="p">(</span><span class="n">z_new</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_cur</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span><span class="o">**</span><span class="mi">2</span>
+
+            <span class="c1"># Adaptive approach based on [1], Subsection 3.4.1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">res_dual</span> <span class="o">&gt;</span> <span class="mf">1e2</span><span class="o">*</span><span class="n">res_primal</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">*=</span> <span class="mf">0.5</span> <span class="c1"># More regularization</span>
+                <span class="k">elif</span> <span class="n">res_primal</span> <span class="o">&gt;</span> <span class="mf">1e2</span><span class="o">*</span><span class="n">res_dual</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">*=</span> <span class="mf">2.0</span> <span class="c1"># More data fidelity</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_cur</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_cur</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_cur</span> <span class="o">=</span> <span class="n">x_new</span><span class="p">,</span> <span class="n">z_new</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">u_new</span>
+            
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_cur</span><span class="p">,</span> <span class="n">i</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_iteration_pre_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Preprocessing</span>
+<span class="sd">            Every iteration of ADMM requires solving a linear least squares system of the form</span>
+<span class="sd">                minimize 1/(rho) \|Ax-b\|_2^2 + sum_{i=1}^{p} \|penalty[1]x - (y - u)\|_2^2</span>
+<span class="sd">            To solve this, all linear least squares terms are combined into a single big term</span>
+<span class="sd">            with matrix big_matrix and data big_vector.</span>
+
+<span class="sd">            The matrix only needs to be updated when rho changes, i.e., when the adaptive option is used.</span>
+<span class="sd">            The data vector needs to be updated every iteration.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_big_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">z_cur</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_cur</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)])</span>
+
+            <span class="c1"># Check whether matrix needs to be updated</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_big_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Update big_matrix</span>
+            <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">):</span>
+                <span class="k">def</span> <span class="nf">matrix_eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">out1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">out2</span> <span class="o">=</span> <span class="p">[</span><span class="n">penalty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="nd">@x</span> <span class="k">for</span> <span class="n">penalty</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">]</span>
+                        <span class="n">out</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">out1</span><span class="p">]</span> <span class="o">+</span> <span class="n">out2</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                        <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                        <span class="n">out1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">):</span>
+                            <span class="n">idx_start</span> <span class="o">-=</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">out1</span> <span class="o">+=</span> <span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="nd">@x</span><span class="p">[</span><span class="n">idx_start</span><span class="p">:</span><span class="n">idx_end</span><span class="p">]</span>
+                            <span class="n">idx_end</span> <span class="o">=</span> <span class="n">idx_start</span>
+                        <span class="n">out2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="n">idx_end</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="n">out</span>  <span class="o">=</span> <span class="n">out1</span> <span class="o">+</span> <span class="n">out2</span>     
+                    <span class="k">return</span> <span class="n">out</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_big_matrix</span> <span class="o">=</span> <span class="n">matrix_eval</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_big_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">penalty</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">penalty</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">penalty_terms</span><span class="p">])</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="ProjectNonnegative">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ProjectNonnegative.html#cuqi.solver.ProjectNonnegative">[docs]</a>
+<span class="k">def</span> <span class="nf">ProjectNonnegative</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(Euclidean) projection onto the nonnegative orthant.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like.</span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProjectBox">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ProjectBox.html#cuqi.solver.ProjectBox">[docs]</a>
+<span class="k">def</span> <span class="nf">ProjectBox</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(Euclidean) projection onto a box.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like.</span>
+<span class="sd">    lower : array_like. Lower bound of box. Zero if None.</span>
+<span class="sd">    upper : array_like. Upper bound of box. One if None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">if</span> <span class="n">lower</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">upper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower</span><span class="p">),</span> <span class="n">upper</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">ProjectHalfspace</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(Euclidean) projection onto the halfspace defined {z|&lt;a,z&gt; &lt;= b}.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like.</span>
+<span class="sd">    a : array_like.</span>
+<span class="sd">    b : array_like.</span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+
+    <span class="n">ax_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">b</span>
+    <span class="k">if</span> <span class="n">ax_b</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="n">ax_b</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">))</span><span class="o">*</span><span class="n">a</span>
+
+<div class="viewcode-block" id="ProximalL1">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.solver/cuqi.solver.ProximalL1.html#cuqi.solver.ProximalL1">[docs]</a>
+<span class="k">def</span> <span class="nf">ProximalL1</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">gamma</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(Euclidean) proximal operator of the \|x\|_1 norm.</span>
+<span class="sd">    Also known as the shrinkage or soft thresholding operator.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like.</span>
+<span class="sd">    gamma : scale parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">gamma</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

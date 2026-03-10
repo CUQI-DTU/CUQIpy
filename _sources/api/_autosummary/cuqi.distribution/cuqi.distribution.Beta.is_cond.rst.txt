@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.is\_cond
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.is_cond

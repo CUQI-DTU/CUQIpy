@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.initialize
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.initialize

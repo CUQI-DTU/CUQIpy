@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.fun\_shape
+=====================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.fun_shape

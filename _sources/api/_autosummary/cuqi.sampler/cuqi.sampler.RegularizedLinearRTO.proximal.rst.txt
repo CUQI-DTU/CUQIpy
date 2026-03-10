@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.proximal
+==========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: RegularizedLinearRTO.proximal

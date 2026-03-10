@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.initialize
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.initialize

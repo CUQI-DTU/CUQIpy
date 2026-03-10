@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.dim
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.dim

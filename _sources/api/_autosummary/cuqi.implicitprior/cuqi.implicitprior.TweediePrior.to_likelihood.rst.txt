@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.to\_likelihood
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.to_likelihood

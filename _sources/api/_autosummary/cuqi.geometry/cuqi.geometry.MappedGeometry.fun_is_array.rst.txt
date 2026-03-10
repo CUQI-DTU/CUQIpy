@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.fun\_is\_array
+===========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.fun_is_array

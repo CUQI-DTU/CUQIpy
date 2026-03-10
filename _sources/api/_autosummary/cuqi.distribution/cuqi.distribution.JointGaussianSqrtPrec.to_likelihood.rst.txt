@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.to\_likelihood
+======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.to_likelihood

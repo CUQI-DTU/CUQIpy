@@ -1,0 +1,25 @@
+Node
+====
+
+.. currentmodule:: cuqi.algebra
+
+.. autoclass:: Node
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Node.__init__
+      ~Node.condition
+      ~Node.get_variables
+   
+   
+
+   
+   
+   

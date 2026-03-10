@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.range\_geometry
+======================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: AffineModel.range_geometry

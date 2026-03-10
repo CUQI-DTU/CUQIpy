@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.geometry
+========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: TweediePrior.geometry
