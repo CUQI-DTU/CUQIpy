@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def satellite(size=None):
     """Photograph of a satelite."""
-    stream = importlib.resources.files().joinpath('satellite.mat').open('rb')
+    stream = importlib.resources.files(__package__).joinpath('satellite.mat').open('rb')
     img= spio.loadmat(stream)['x_true']
     if size:
         img = imresize(img, size) 
@@ -17,7 +17,7 @@ def astronaut(size=None, grayscale=True):
 
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.astronaut
     """
-    stream = importlib.resources.files().joinpath('astronaut.npz').open('rb')
+    stream = importlib.resources.files(__package__).joinpath('astronaut.npz').open('rb')
     img = np.load(stream)['arr_0']
     if grayscale:
         img = rgb2gray(img)
@@ -30,7 +30,7 @@ def camera(size=None):
 
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.camera
     """
-    stream = importlib.resources.files().joinpath('camera.npz').open('rb')
+    stream = importlib.resources.files(__package__).joinpath('camera.npz').open('rb')
     img = np.load(stream)['arr_0']
     if size:
         img = imresize(img, size) 
@@ -41,7 +41,7 @@ def cat(size=None, grayscale=True):
 
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cat
     """
-    stream = importlib.resources.files().joinpath('cat.npz').open('rb')
+    stream = importlib.resources.files(__package__).joinpath('cat.npz').open('rb')
     img = np.load(stream)['arr_0']
     if grayscale:
         img = rgb2gray(img)
@@ -341,7 +341,7 @@ def cookie(size=128, grayscale=True):
     """
 
     # Read cookie.png file and convert to rgb
-    stream = importlib.resources.files().joinpath('cookie.png').open('rb')
+    stream = importlib.resources.files(__package__).joinpath('cookie.png').open('rb')
     cookie = plt.imread(stream)
 
     # Convert to rgb
