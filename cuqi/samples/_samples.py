@@ -748,7 +748,7 @@ class Samples(object):
         # Construct inference data structure
         datadict =  dict(zip(variables,self.samples[variable_indices,:]))
 
-        return arviz.from_dict(datadict)
+        return datadict
         
     def compute_ess(self, **kwargs):
         """ Compute effective sample size (ESS) of samples.
