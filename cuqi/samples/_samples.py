@@ -744,18 +744,11 @@ class Samples(object):
         # Get variable names from geometry
         variables = np.array(self.geometry.variables) #Convert to np array for better slicing
         variables = variables[variable_indices].flatten()
-        
-        # Ensure variables are list of strings
-        variables = [str(v) for v in variables]
 
         # Construct inference data structure
         datadict =  dict(zip(variables,self.samples[variable_indices,:]))
 
-        _check_for_arviz()
-        try:
-            return arviz.from_dict(posterior=datadict)
-        except TypeError:
-            return arviz.from_dict(datadict)
+        return arviz.from_dict(datadict)
         
     def compute_ess(self, **kwargs):
         """ Compute effective sample size (ESS) of samples.
@@ -824,12 +817,7 @@ class Samples(object):
 
         # Compute rhat
         _check_for_arviz()
-        try:
-            idata = arviz.from_dict(posterior=datadict)
-        except TypeError:
-            idata = arviz.from_dict(datadict)
-
-        RHAT_xarray = arviz.rhat(idata, **kwargs)
+        RHAT_xarray = arviz.rhat(datadict, **kwargs)
 
         # Convert to numpy array
         RHAT = np.empty(self._geometry_shape)
