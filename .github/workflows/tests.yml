@@ -11,6 +11,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest] # Add windows-latest, macos-latest to test on multiple OS
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
