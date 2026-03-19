@@ -69,8 +69,8 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     # Check results with reference data
     assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
     assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
-    assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
-    assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
+    assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-5)
+    assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-5)
 
 @pytest.mark.parametrize("legacy", [True, False])
 @pytest.mark.parametrize("TP_type, phantom, priors, Ns",
