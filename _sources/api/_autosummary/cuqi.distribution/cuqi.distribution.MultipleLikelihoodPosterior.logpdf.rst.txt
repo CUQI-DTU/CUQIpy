@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.logpdf
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: MultipleLikelihoodPosterior.logpdf

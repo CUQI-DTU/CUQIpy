@@ -1,0 +1,50 @@
+ModifiedHalfNormal
+==================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: ModifiedHalfNormal
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ModifiedHalfNormal.__init__
+      ~ModifiedHalfNormal.disable_FD
+      ~ModifiedHalfNormal.enable_FD
+      ~ModifiedHalfNormal.get_conditioning_variables
+      ~ModifiedHalfNormal.get_mutable_variables
+      ~ModifiedHalfNormal.get_parameter_names
+      ~ModifiedHalfNormal.gradient
+      ~ModifiedHalfNormal.logd
+      ~ModifiedHalfNormal.logpdf
+      ~ModifiedHalfNormal.pdf
+      ~ModifiedHalfNormal.sample
+      ~ModifiedHalfNormal.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ModifiedHalfNormal.FD_enabled
+      ~ModifiedHalfNormal.FD_epsilon
+      ~ModifiedHalfNormal.alpha
+      ~ModifiedHalfNormal.beta
+      ~ModifiedHalfNormal.dim
+      ~ModifiedHalfNormal.gamma
+      ~ModifiedHalfNormal.geometry
+      ~ModifiedHalfNormal.is_cond
+      ~ModifiedHalfNormal.name
+      ~ModifiedHalfNormal.rv
+   
+   

@@ -1,0 +1,46 @@
+implicitprior
+=============
+
+Module path: cuqi.implicitprior
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.implicitprior
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.implicitprior
+    :nosignatures:
+    :recursive:
+
+   
+      ConstrainedGMRF
+      ConstrainedGaussian
+      MoreauYoshidaPrior
+      NonnegativeGMRF
+      NonnegativeGaussian
+      RegularizedGMRF
+      RegularizedGaussian
+      RegularizedUnboundedUniform
+      RestorationPrior
+      TweediePrior
+   
+   
+
+   
+   
+   
+
+
+

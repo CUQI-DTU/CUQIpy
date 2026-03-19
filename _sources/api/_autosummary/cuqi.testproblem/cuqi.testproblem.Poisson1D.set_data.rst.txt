@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson1D.set\_data
+====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Poisson1D.set_data

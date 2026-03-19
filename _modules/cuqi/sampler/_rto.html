@@ -1,0 +1,773 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.sampler._rto &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/sampler/_rto';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.sampler._rto</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.sampler._rto</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">scipy</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg.interpolative</span> <span class="kn">import</span> <span class="n">estimate_spectral_norm</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">LinearOperator</span> <span class="k">as</span> <span class="n">scipyLinearOperator</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">from</span> <span class="nn">cuqi.solver</span> <span class="kn">import</span> <span class="n">CGLS</span><span class="p">,</span> <span class="n">FISTA</span><span class="p">,</span> <span class="n">ADMM</span><span class="p">,</span> <span class="n">ScipyLinearLSQ</span><span class="p">,</span> <span class="n">ScipyMinimizer</span>
+<span class="kn">from</span> <span class="nn">cuqi.sampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+
+
+<div class="viewcode-block" id="LinearRTO">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.LinearRTO.html#cuqi.sampler.LinearRTO">[docs]</a>
+<span class="k">class</span> <span class="nc">LinearRTO</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Linear RTO (Randomize-Then-Optimize) sampler.</span>
+
+<span class="sd">    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is linear or more generally affine.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    target : `cuqi.distribution.Posterior`, `cuqi.distribution.MultipleLikelihoodPosterior` or 5-dimensional tuple.</span>
+<span class="sd">        If target is of type cuqi.distribution.Posterior or cuqi.distribution.MultipleLikelihoodPosterior, it represents the posterior distribution.</span>
+<span class="sd">        If target is a 5-dimensional tuple, it assumes the following structure:</span>
+<span class="sd">        (data, model, L_sqrtprec, P_mean, P_sqrtrec)</span>
+<span class="sd">        </span>
+<span class="sd">        Here:</span>
+<span class="sd">        data: is a m-dimensional numpy array containing the measured data.</span>
+<span class="sd">        model: is a m by n dimensional matrix, AffineModel or LinearModel representing the forward model.</span>
+<span class="sd">        L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.</span>
+<span class="sd">        P_mean: is the prior mean.</span>
+<span class="sd">        P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.</span>
+
+<span class="sd">    initial_point : `np.ndarray` </span>
+<span class="sd">        Initial point for the sampler. *Optional*.</span>
+
+<span class="sd">    maxit : int</span>
+<span class="sd">        Maximum number of iterations of the inner CGLS solver. *Optional*.</span>
+
+<span class="sd">    tol : float</span>
+<span class="sd">        Tolerance of the inner CGLS solver. *Optional*.</span>
+
+<span class="sd">    inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray</span>
+<span class="sd">        Initial point for the inner optimization problem. Can be &quot;previous_sample&quot; (default), &quot;MAP&quot;, or a specific numpy or cuqi array. *Optional*.</span>
+<span class="sd">        </span>
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="LinearRTO.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.LinearRTO.__init__.html#cuqi.sampler.LinearRTO.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">inner_initial_point</span><span class="o">=</span><span class="s2">&quot;previous_sample&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">initial_point</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Other parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="n">maxit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_initial_point</span> <span class="o">=</span> <span class="n">inner_initial_point</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_precompute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_map</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inner_initial_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inner_initial_point</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inner_initial_point</span> <span class="o">==</span> <span class="s2">&quot;previous_sample&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inner_initial_point</span> <span class="o">==</span> <span class="s2">&quot;map&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inner_initial_point</span>
+
+    <span class="nd">@inner_initial_point</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">inner_initial_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">is_correct_string</span> <span class="o">=</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span>
+                             <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;previous_sample&quot;</span> <span class="ow">or</span>
+                              <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;map&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">is_correct_string</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inner_initial_point</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">CUQIarray</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inner_initial_point</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid value for inner_initial_point. Choose either &#39;previous_sample&#39;, &#39;MAP&#39;, or provide a numpy array/cuqi array.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">likelihoods</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">MultipleLikelihoodPosterior</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihoods</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span> 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">model</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">MultipleLikelihoodPosterior</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">models</span>    
+
+    <span class="k">def</span> <span class="nf">_compute_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sim</span> <span class="o">=</span> <span class="n">CGLS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>            
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_precompute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">L1</span> <span class="o">=</span> <span class="p">[</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">sqrtprec</span> <span class="k">for</span> <span class="n">likelihood</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">]</span>
+        <span class="n">L2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">sqrtprec</span>
+        <span class="n">L2mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">sqrtprecTimesMean</span>
+
+        <span class="c1"># pre-computations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">L</span><span class="o">@</span><span class="p">(</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">_shift</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">L1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">)]</span><span class="o">+</span> <span class="p">[</span><span class="n">L2mu</span><span class="p">])</span> <span class="c1"># With shift from AffineModel</span>
+        <span class="n">callability</span> <span class="o">=</span> <span class="p">[</span><span class="nb">callable</span><span class="p">(</span><span class="n">likelihood</span><span class="o">.</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">likelihood</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">]</span>
+        <span class="n">notcallability</span> <span class="o">=</span> <span class="p">[</span><span class="ow">not</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">callability</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">notcallability</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">L</span><span class="nd">@likelihood</span><span class="o">.</span><span class="n">model</span> <span class="k">for</span> <span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">L1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="n">L2</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">callability</span><span class="p">):</span>
+            <span class="c1"># in this case, model is a function doing forward and backward operations</span>
+            <span class="k">def</span> <span class="nf">M</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">out1</span> <span class="o">=</span> <span class="p">[</span><span class="n">L</span> <span class="o">@</span> <span class="n">likelihood</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_forward_func_no_shift</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">L1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">)]</span> <span class="c1"># Use forward function which excludes shift</span>
+                    <span class="n">out2</span> <span class="o">=</span> <span class="n">L2</span> <span class="o">@</span> <span class="n">x</span>
+                    <span class="n">out</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">out1</span> <span class="o">+</span> <span class="p">[</span><span class="n">out2</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">idx_start</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">idx_end</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">out1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">likelihood</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">:</span>
+                        <span class="n">idx_end</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">out1</span> <span class="o">+=</span> <span class="n">likelihood</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_adjoint_func_no_shift</span><span class="p">(</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">sqrtprec</span><span class="o">.</span><span class="n">T</span><span class="nd">@x</span><span class="p">[</span><span class="n">idx_start</span><span class="p">:</span><span class="n">idx_end</span><span class="p">])</span>
+                        <span class="n">idx_start</span> <span class="o">=</span> <span class="n">idx_end</span>
+                    <span class="n">out2</span> <span class="o">=</span> <span class="n">L2</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">x</span><span class="p">[</span><span class="n">idx_end</span><span class="p">:]</span>
+                    <span class="n">out</span>  <span class="o">=</span> <span class="n">out1</span> <span class="o">+</span> <span class="n">out2</span>                
+                <span class="k">return</span> <span class="n">out</span>   
+            <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">M</span>  
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;All likelihoods need to be callable or none need to be callable.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LinearRTO.step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.LinearRTO.step.html#cuqi.sampler.LinearRTO.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span><span class="p">))</span>
+        <span class="n">sim</span> <span class="o">=</span> <span class="n">CGLS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_initial_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>            
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">acc</span></div>
+
+
+<div class="viewcode-block" id="LinearRTO.tune">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.LinearRTO.tune.html#cuqi.sampler.LinearRTO.tune">[docs]</a>
+    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_len</span><span class="p">,</span> <span class="n">update_count</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    
+<div class="viewcode-block" id="LinearRTO.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.LinearRTO.validate_target.html#cuqi.sampler.LinearRTO.validate_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check target type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="p">(</span><span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Posterior</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">MultipleLikelihoodPosterior</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;To initialize an object of type </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2">, &#39;target&#39; need to be of type &#39;cuqi.distribution.Posterior&#39; or &#39;cuqi.distribution.MultipleLikelihoodPosterior&#39;.&quot;</span><span class="p">)</span>       
+
+        <span class="c1"># Check Linear model and Gaussian likelihood(s)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">AffineModel</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Model needs to be linear or more generally affine&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="s2">&quot;sqrtprec&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Distribution in Likelihood must contain a sqrtprec attribute&quot;</span><span class="p">)</span>
+            
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">MultipleLikelihoodPosterior</span><span class="p">):</span> <span class="c1"># Elif used for further alternatives, e.g., stacked posterior</span>
+            <span class="k">for</span> <span class="n">likelihood</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">likelihood</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">AffineModel</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Model needs to be linear or more generally affine&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="s2">&quot;sqrtprec&quot;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Distribution in Likelihood must contain a sqrtprec attribute&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Check Gaussian prior</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="s2">&quot;sqrtprec&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;prior must contain a sqrtprec attribute&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="s2">&quot;sqrtprecTimesMean&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Prior must contain a sqrtprecTimesMean attribute&quot;</span><span class="p">)</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_get_default_initial_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get the default initial point for the sampler. Defaults to an array of zeros. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegularizedLinearRTO">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.RegularizedLinearRTO.html#cuqi.sampler.RegularizedLinearRTO">[docs]</a>
+<span class="k">class</span> <span class="nc">RegularizedLinearRTO</span><span class="p">(</span><span class="n">LinearRTO</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Regularized Linear RTO (Randomize-Then-Optimize) sampler.</span>
+
+<span class="sd">    Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.</span>
+<span class="sd">    The sampler works by repeatedly solving regularized linear least squares problems for perturbed data.</span>
+<span class="sd">    The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.</span>
+<span class="sd">    Currently we use the following solvers:</span>
+<span class="sd">    FISTA: [1] Beck, Amir, and Marc Teboulle. &quot;A fast iterative shrinkage-thresholding algorithm for linear inverse problems.&quot; SIAM journal on imaging sciences 2.1 (2009): 183-202.</span>
+<span class="sd">           Used when prior.proximal is callable.</span>
+<span class="sd">    ADMM:  [2] Boyd et al. &quot;Distributed optimization and statistical learning via the alternating direction method of multipliers.&quot;Foundations and Trends® in Machine learning, 2011.</span>
+<span class="sd">           Used when prior.proximal is a list of penalty terms.</span>
+<span class="sd">    ScipyLinearLSQ: Wrapper for Scipy&#39;s lsq_linear for the Trust Region Reflective algorithm. Optionally used when the constraint is either &quot;nonnegativity&quot; or &quot;box&quot;.</span>
+<span class="sd">    ScipyMinimizer: Wrapper for Scipy&#39;s minimize. Optionally used when the constraint is either &quot;nonnegativity&quot; or &quot;box&quot;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    target : `cuqi.distribution.Posterior`</span>
+<span class="sd">        See `cuqi.sampler.LinearRTO`</span>
+
+<span class="sd">    initial_point : `np.ndarray` </span>
+<span class="sd">        Initial point for the sampler. *Optional*.</span>
+
+<span class="sd">    maxit : int</span>
+<span class="sd">        Maximum number of iterations of the FISTA/ADMM/ScipyLinearLSQ/ScipyMinimizer solver. *Optional*.</span>
+
+<span class="sd">    inner_max_it : int</span>
+<span class="sd">        Maximum number of iterations of the CGLS solver used within the ADMM solver. *Optional*.</span>
+<span class="sd">        </span>
+<span class="sd">    stepsize : string or float</span>
+<span class="sd">        If stepsize is a string and equals either &quot;automatic&quot;, then the stepsize is automatically estimated based on the spectral norm.</span>
+<span class="sd">        If stepsize is a float, then this stepsize is used.</span>
+
+<span class="sd">    penalty_parameter : int</span>
+<span class="sd">        Penalty parameter of the ADMM solver. *Optional*.</span>
+<span class="sd">        See [2] or `cuqi.solver.ADMM`</span>
+
+<span class="sd">    abstol : float</span>
+<span class="sd">        Absolute tolerance of the FISTA/ScipyLinearLSQ/ScipyMinimizer solver. *Optional*.</span>
+<span class="sd">    </span>
+<span class="sd">    inner_abstol : float</span>
+<span class="sd">        Tolerance parameter for ScipyLinearLSQ&#39;s inner solve of the unbounded least-squares problem. *Optional*.</span>
+<span class="sd">    </span>
+<span class="sd">    adaptive : bool</span>
+<span class="sd">        If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.</span>
+<span class="sd">    </span>
+<span class="sd">    solver : string</span>
+<span class="sd">        Options are &quot;FISTA&quot; (default for a single constraint or regularization), &quot;ADMM&quot; (default and the only option for multiple constraints or regularizations), &quot;ScipyLinearLSQ&quot; and &quot;ScipyMinimizer&quot;. Note &quot;ScipyLinearLSQ&quot; and &quot;ScipyMinimizer&quot; can only be used with `RegularizedGaussian` of a single `box` or `nonnegativity` constraint. *Optional*.</span>
+
+<span class="sd">    inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray</span>
+<span class="sd">        Initial point for the inner optimization problem. Can be &quot;previous_sample&quot; (default), &quot;MAP&quot;, or a specific numpy or cuqi array. *Optional*.</span>
+
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="RegularizedLinearRTO.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.RegularizedLinearRTO.__init__.html#cuqi.sampler.RegularizedLinearRTO.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">inner_max_it</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">stepsize</span><span class="o">=</span><span class="s2">&quot;automatic&quot;</span><span class="p">,</span> <span class="n">penalty_parameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">abstol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inner_abstol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inner_initial_point</span><span class="o">=</span><span class="s2">&quot;previous_sample&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="n">initial_point</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Other parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span> <span class="o">=</span> <span class="n">stepsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abstol</span> <span class="o">=</span> <span class="n">abstol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_abstol</span> <span class="o">=</span> <span class="n">inner_abstol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span> <span class="o">=</span> <span class="n">adaptive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="n">maxit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_max_it</span> <span class="o">=</span> <span class="n">inner_max_it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">penalty_parameter</span> <span class="o">=</span> <span class="n">penalty_parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inner_initial_point</span> <span class="o">=</span> <span class="n">inner_initial_point</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="s2">&quot;FISTA&quot;</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proximal</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;ADMM&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;FISTA&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stepsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_choose_stepsize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_map_regularized</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solver</span>
+
+    <span class="nd">@solver</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;ScipyLinearLSQ&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;ScipyMinimizer&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">preset</span><span class="p">[</span><span class="s2">&quot;constraint&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;nonnegativity&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">preset</span><span class="p">[</span><span class="s2">&quot;constraint&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;box&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_solver</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ScipyLinearLSQ and ScipyMinimizer only support RegularizedGaussian with box or nonnegativity constraint.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solver</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">proximal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">proximal</span>
+    
+<div class="viewcode-block" id="RegularizedLinearRTO.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.RegularizedLinearRTO.validate_target.html#cuqi.sampler.RegularizedLinearRTO.validate_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_target</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="p">(</span><span class="n">cuqi</span><span class="o">.</span><span class="n">implicitprior</span><span class="o">.</span><span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">implicitprior</span><span class="o">.</span><span class="n">RegularizedGMRF</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Prior needs to be RegularizedGaussian or RegularizedGMRF&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_choose_stepsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;automatic&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+                    <span class="n">M_op</span> <span class="o">=</span> <span class="n">scipyLinearOperator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">matvec</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="nd">@v</span><span class="p">,</span> <span class="n">rmatvec</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">w</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="o">.</span><span class="n">T</span><span class="nd">@w</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">M_op</span> <span class="o">=</span> <span class="n">scipyLinearOperator</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">matvec</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">rmatvec</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">w</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+                    
+                <span class="n">_stepsize</span> <span class="o">=</span> <span class="mf">0.99</span><span class="o">/</span><span class="p">(</span><span class="n">estimate_spectral_norm</span><span class="p">(</span><span class="n">M_op</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="c1"># print(f&quot;Estimated stepsize for regularized Linear RTO: {_stepsize}&quot;)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Stepsize choice not supported&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_stepsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepsize</span>
+        <span class="k">return</span> <span class="n">_stepsize</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">gaussian</span>
+
+    <span class="k">def</span> <span class="nf">_compute_map_regularized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_customized_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_customized_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;FISTA&quot;</span><span class="p">:</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">FISTA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proximal</span><span class="p">,</span>
+                        <span class="n">x0</span><span class="p">,</span> <span class="n">maxit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">,</span> <span class="n">stepsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stepsize</span><span class="p">,</span> <span class="n">abstol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstol</span><span class="p">,</span> <span class="n">adaptive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">)</span>         
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;ADMM&quot;</span><span class="p">:</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">ADMM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proximal</span><span class="p">,</span>
+                        <span class="n">x0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">penalty_parameter</span><span class="p">,</span> <span class="n">maxit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">,</span> <span class="n">inner_max_it</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_max_it</span><span class="p">,</span> <span class="n">adaptive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adaptive</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;ScipyLinearLSQ&quot;</span><span class="p">:</span>
+            <span class="n">A_op</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">((</span><span class="nb">sum</span><span class="p">([</span><span class="n">llh</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">dim</span> <span class="k">for</span> <span class="n">llh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">])</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span><span class="p">),</span>
+                                    <span class="n">matvec</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                    <span class="n">rmatvec</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                                    <span class="p">)</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">ScipyLinearLSQ</span><span class="p">(</span><span class="n">A_op</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">_box_bounds</span><span class="p">,</span> 
+                                    <span class="n">max_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">,</span>
+                                    <span class="n">lsmr_maxiter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_max_it</span><span class="p">,</span> 
+                                    <span class="n">tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstol</span><span class="p">,</span>
+                                    <span class="n">lsmr_tol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_abstol</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;ScipyMinimizer&quot;</span><span class="p">:</span>
+            <span class="c1"># Adapt bounds format, as scipy.minimize requires a bounds format </span>
+            <span class="c1"># different than that in scipy.lsq_linear.</span>
+            <span class="n">bounds</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">_box_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">_box_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span><span class="p">)]</span>
+            <span class="c1"># Note that the objective function is defined as 0.5*||Mx-y||^2, </span>
+            <span class="c1"># and the corresponding gradient (gradfunc) is given by M^T(Mx-y).</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">ScipyMinimizer</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">x0</span><span class="p">,</span> <span class="n">gradfunc</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abstol</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Choice of solver not supported.&quot;</span><span class="p">)</span>
+        
+        <span class="n">sol</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sol</span>
+
+<div class="viewcode-block" id="RegularizedLinearRTO.step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.RegularizedLinearRTO.step.html#cuqi.sampler.RegularizedLinearRTO.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_tild</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_customized_step</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_initial_point</span><span class="p">)</span>
+
+        <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">acc</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

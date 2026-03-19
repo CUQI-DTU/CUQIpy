@@ -1,0 +1,6 @@
+cuqi.operator.Operator.T
+========================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: Operator.T

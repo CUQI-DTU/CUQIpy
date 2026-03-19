@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution2D.posterior
+==========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deconvolution2D.posterior

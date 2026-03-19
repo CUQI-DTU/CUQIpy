@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Joint Distribution technical details &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dev/_auto_dev/joint_distribution_technical';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Class structure" href="../style_guide.html" />
+    <link rel="prev" title="Developer demos" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../step_by_step.html">Step-by-step instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to.html">How-To Guides</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Developer demos</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Joint Distribution technical details</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../style_guide.html">Class structure</a></li>
+
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Contributor’s Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Developer demos</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Joint Distribution technical details</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-dev-auto-dev-joint-distribution-technical-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="joint-distribution-technical-details">
+<span id="sphx-glr-dev-auto-dev-joint-distribution-technical-py"></span><h1>Joint Distribution technical details<a class="headerlink" href="#joint-distribution-technical-details" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>This shows technical aspects of the JointDistribution class.
+These are mostly relevant for developers and advanced users.
+See <span class="xref std std-doc">Joint distribution tutorial</span>
+for a more user-friendly introduction.</p>
+</div></blockquote>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="p">;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../..&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">JointDistribution</span>
+<span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution1D</span>
+
+<span class="c1"># Model and data</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Deconvolution1D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+
+<span class="c1"># Model dimensions</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">range_dim</span>
+</pre></div>
+</div>
+</section>
+<section id="defining-hierarchical-bayesian-models">
+<h2>Defining hierarchical Bayesian models<a class="headerlink" href="#defining-hierarchical-bayesian-models" title="Link to this heading">#</a></h2>
+<p>The joint distribution is general enough to allow us to define hierarchical
+Bayesian models.</p>
+<p>For example, consider the following extension of the Bayesian model earlier:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    d &amp;\sim \mathrm{Gamma}(1, 10^{-4}) \\
+    l &amp;\sim \mathrm{Gamma}(1,10^{-4}) \\
+    \mathbf{x} &amp;\sim \mathcal{N}(\mathbf{0}, d^{-1} \mathbf{I}_n) \\
+    \mathbf{y} &amp;\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^{-1} \mathbf{I}_m)
+\end{align}\end{split}\]</div>
+<p>We can write this model in CUQIpy as follows:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define distribution</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">d</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">A</span><span class="nd">@x</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">l</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Define joint distribution p(d,l,x,y)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">joint</span> <span class="o">=</span> <span class="n">JointDistribution</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>JointDistribution(
+    Equation:
+        p(d,l,x,y) = p(d)p(l)p(x|d)p(y|x,l)
+    Densities:
+        d ~ CUQI Gamma.
+        l ~ CUQI Gamma.
+        x ~ CUQI Gaussian. Conditioning variables [&#39;d&#39;].
+        y ~ CUQI Gaussian. Conditioning variables [&#39;x&#39;, &#39;l&#39;].
+ )
+</pre></div>
+</div>
+<p>Define posterior</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">posterior</span> <span class="o">=</span> <span class="n">joint</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">posterior</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>JointDistribution(
+    Equation:
+        p(d,l,x|y) ∝ p(d)p(l)p(x|d)L(x,l|y)
+    Densities:
+        d ~ CUQI Gamma.
+        l ~ CUQI Gamma.
+        x ~ CUQI Gaussian. Conditioning variables [&#39;d&#39;].
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;, &#39;l&#39;].
+ )
+</pre></div>
+</div>
+</section>
+<section id="enabling-gibbs-sampling">
+<h2>Enabling Gibbs sampling<a class="headerlink" href="#enabling-gibbs-sampling" title="Link to this heading">#</a></h2>
+<p>One of the main purposes of the joint distribution is to be able to sample
+using a Gibbs scheme. For this to work we need to be able to define the
+distribution of each variable conditioned on the other variables.</p>
+<p>That is, we need to define</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}C_\mathbf{x}&amp;=p(\mathbf{x} \mid \hat{\mathbf{y}}, \hat{d}, \hat{l})\\
+C_d&amp;=p(d \mid \hat{\mathbf{y}}, \hat{\mathbf{x}}, \hat{l})\\
+C_l&amp;=p(l \mid \hat{\mathbf{y}}, \hat{\mathbf{x}}, \hat{d})\end{split}\]</div>
+<p>Assuming we have some fixed values for <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>, <span class="math notranslate nohighlight">\(d\)</span> and <span class="math notranslate nohighlight">\(l\)</span>,
+which we have denoted with the hat symbol. These simply indicate any fixed value.</p>
+<p>Then we can simply condition the joint distribution on these values and it will
+handle the rest.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume we want to condition on these values</span>
+<span class="n">yh</span> <span class="o">=</span> <span class="n">y_obs</span>
+<span class="n">xh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="n">dh</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">lh</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># The conditionals can be computed as follows:</span>
+<span class="n">Cx</span> <span class="o">=</span> <span class="n">joint</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">yh</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">dh</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">lh</span><span class="p">)</span>
+<span class="n">Cd</span> <span class="o">=</span> <span class="n">joint</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">yh</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">xh</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">lh</span><span class="p">)</span>
+<span class="n">Cl</span> <span class="o">=</span> <span class="n">joint</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">yh</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">xh</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">dh</span><span class="p">)</span>
+
+<span class="c1"># We can try inspecting one of these conditional distributions.</span>
+<span class="c1"># Notice how conditional distributions changed into a posterior distribution.</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">Cd</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Posterior(
+    Equation:
+         p(d|x) ∝ L(d|x)p(d)
+    Densities:
+        x ~ CUQI Gaussian Likelihood function. Parameters [&#39;d&#39;].
+        d ~ CUQI Gamma.
+ )
+</pre></div>
+</div>
+</section>
+<section id="going-into-the-internals-of-the-joint-distribution">
+<h2>Going into the internals of the joint distribution<a class="headerlink" href="#going-into-the-internals-of-the-joint-distribution" title="Link to this heading">#</a></h2>
+<p>A useful “hack” is to have the joint distribution act as if it were a single
+parameter density. This is achieved by calling the <cite>._as_stacked()</cite> method.
+This returns a new “stacked” joint distribution that the samplers/solvers
+can use as if it were any other Density.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_stacked</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">_as_stacked</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">posterior_stacked</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>_StackedJointDistribution(
+    Equation:
+        p(d,l,x|y) ∝ p(d)p(l)p(x|d)L(x,l|y)
+    Densities:
+        d ~ CUQI Gamma.
+        l ~ CUQI Gamma.
+        x ~ CUQI Gaussian. Conditioning variables [&#39;d&#39;].
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;, &#39;l&#39;].
+ )
+</pre></div>
+</div>
+<p>Here the dimension is the sum of the dimensions of the individual variables.
+The geometry is assumed as a default geometry matching the dimension.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stacked Posterior dimension: </span><span class="si">{</span><span class="n">posterior_stacked</span><span class="o">.</span><span class="n">dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stacked Posterior geometry: </span><span class="si">{</span><span class="n">posterior_stacked</span><span class="o">.</span><span class="n">geometry</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Stacked Posterior dimension: 130
+Stacked Posterior geometry: _DefaultGeometry1D[130]
+</pre></div>
+</div>
+<p>Finally you can evaluate the log density of the stacked using a single vector
+of parameters.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">logd</span> <span class="o">=</span> <span class="n">posterior_stacked</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">posterior_stacked</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">logd</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[-370.57384221]
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.011 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-dev-auto-dev-joint-distribution-technical-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/1a2a5d65d66fcaf0f0171779978f7e42/joint_distribution_technical.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">joint_distribution_technical.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/072d9ee5c23fecc08494b5dc63a0cff1/joint_distribution_technical.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">joint_distribution_technical.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/269c824cd6372f24328446252946998a/joint_distribution_technical.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">joint_distribution_technical.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-hierarchical-bayesian-models">Defining hierarchical Bayesian models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-gibbs-sampling">Enabling Gibbs sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#going-into-the-internals-of-the-joint-distribution">Going into the internals of the joint distribution</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/dev/_auto_dev/joint_distribution_technical.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

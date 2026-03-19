@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.set\_history
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.set_history

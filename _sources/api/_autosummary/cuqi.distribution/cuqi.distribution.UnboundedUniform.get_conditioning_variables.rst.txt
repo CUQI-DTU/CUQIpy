@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.get\_conditioning\_variables
+===============================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.get_conditioning_variables

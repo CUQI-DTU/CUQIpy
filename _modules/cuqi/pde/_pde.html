@@ -1,0 +1,865 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.pde._pde &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/pde/_pde';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.pde._pde</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.pde._pde</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">getsource</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cuqi.utilities</span> <span class="kn">import</span> <span class="n">get_non_default_args</span>
+
+
+<div class="viewcode-block" id="PDE">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.PDE.html#cuqi.pde.PDE">[docs]</a>
+<span class="k">class</span> <span class="nc">PDE</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parametrized PDE abstract base class</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------   </span>
+<span class="sd">    PDE_form : callable function</span>
+<span class="sd">        Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) </span>
+
+<span class="sd">    grid_sol: np.ndarray</span>
+<span class="sd">        The grid on which solution is defined</span>
+
+<span class="sd">    grid_obs: np.ndarray</span>
+<span class="sd">        The grid on which the observed solution should be interpolated (currently only supported for 1D problems).</span>
+
+<span class="sd">    observation_map: a function handle</span>
+<span class="sd">        A function that takes the PDE solution, interpolated on `grid_obs`, as input and returns the observed solution. e.g., `observation_map=lambda u, grid_obs: u**2`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PDE.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.PDE.__init__.html#cuqi.pde.PDE.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PDE_form</span><span class="p">,</span> <span class="n">grid_sol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid_obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observation_map</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PDE_form</span> <span class="o">=</span> <span class="n">PDE_form</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_sol</span> <span class="o">=</span> <span class="n">grid_sol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_obs</span> <span class="o">=</span> <span class="n">grid_obs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_map</span> <span class="o">=</span> <span class="n">observation_map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PDE.assemble">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.PDE.assemble.html#cuqi.pde.PDE.assemble">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">assemble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PDE.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.PDE.solve.html#cuqi.pde.PDE.solve">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="PDE.observe">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.PDE.observe.html#cuqi.pde.PDE.observe">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">solution</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;CUQI </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;PDE_form&quot;</span><span class="p">):</span>
+            <span class="n">msg</span><span class="o">+=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">PDE form expression:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">getsource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PDE_form</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">msg</span>
+        
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_compare_grid</span><span class="p">(</span><span class="n">grid1</span><span class="p">,</span><span class="n">grid2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compares two grids and returns if they are equal&quot;&quot;&quot;</span>
+
+        <span class="c1"># If one of the grids are none, we assume they are equal</span>
+        <span class="k">if</span> <span class="n">grid1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">grid2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">n</span><span class="p">):</span>            
+            <span class="n">equal_arrays</span> <span class="o">=</span> <span class="p">(</span><span class="n">grid1</span> <span class="o">==</span> <span class="n">grid2</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">equal_arrays</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">equal_arrays</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_non_default_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the non-default arguments of the PDE_form function&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span> <span class="o">=</span> <span class="n">get_non_default_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PDE_form</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grid_sol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;_grid_sol&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_sol</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@grid_sol</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">grid_sol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grids_equal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_grid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_obs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_sol</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grid_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;_grid_obs&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_obs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@grid_obs</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">grid_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_sol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grids_equal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compare_grid</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_sol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_obs</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grids_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grids_equal</span>
+
+    <span class="k">def</span> <span class="nf">_parse_args_add_to_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span>  <span class="n">map_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Private function that parses the input arguments and adds them as</span>
+<span class="sd">        keyword arguments matching (the order of) the non default arguments of</span>
+<span class="sd">        the pde class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If any args are given, add them to kwargs</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="o">+</span> <span class="n">map_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="o">+</span> <span class="s2">&quot; input is specified both as positional and keyword arguments. This is not supported.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Check if the number of args does not match the number of</span>
+            <span class="c1"># non_default_args of the model</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_non_default_args</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The number of positional arguments does not match the number of non-default arguments of &quot;</span>
+                    <span class="o">+</span> <span class="n">map_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Add args to kwargs following the order of non_default_args</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_non_default_args</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">arg</span>
+
+        <span class="c1"># Check kwargs matches non_default_args</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_non_default_args</span><span class="p">):</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">map_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; input is specified by keywords arguments </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2"> that does not match the non_default_args of &quot;</span>
+                <span class="o">+</span> <span class="n">map_name</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_non_default_args</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+
+        <span class="c1"># Make sure order of kwargs is the same as non_default_args</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_non_default_args</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">kwargs</span></div>
+
+
+<div class="viewcode-block" id="LinearPDE">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.LinearPDE.html#cuqi.pde.LinearPDE">[docs]</a>
+<span class="k">class</span> <span class="nc">LinearPDE</span><span class="p">(</span><span class="n">PDE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parametrized Linear PDE base class</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------   </span>
+<span class="sd">    PDE_form : callable function</span>
+<span class="sd">        Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) </span>
+
+<span class="sd">    linalg_solve: lambda function or function handle</span>
+<span class="sd">        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. </span>
+
+<span class="sd">    linalg_solve_kwargs: a dictionary </span>
+<span class="sd">        A dictionary of the keywords arguments that linalg_solve can take.</span>
+
+<span class="sd">    kwargs: </span>
+<span class="sd">        See :class:`~cuqi.pde.PDE` for the remaining keyword arguments. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LinearPDE.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.LinearPDE.__init__.html#cuqi.pde.LinearPDE.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PDE_form</span><span class="p">,</span> <span class="n">linalg_solve</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linalg_solve_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PDE_form</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">linalg_solve</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">linalg_solve</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span>
+        <span class="k">if</span> <span class="n">linalg_solve_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">linalg_solve_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linalg_solve</span> <span class="o">=</span> <span class="n">linalg_solve</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linalg_solve_kwargs</span> <span class="o">=</span> <span class="n">linalg_solve_kwargs</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_solve_linear_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">linalg_solve</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function that solves the linear system `A*x=b` using the provided solve method `linalg_solve` and its keyword arguments `kwargs`. It then returns the output in the format: `solution`, `info`&quot;&quot;&quot;</span>
+        <span class="n">returned_values</span> <span class="o">=</span> <span class="n">linalg_solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">returned_values</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">returned_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">returned_values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">returned_values</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">solution</span><span class="p">,</span> <span class="n">info</span>
+    
+<div class="viewcode-block" id="LinearPDE.interpolate_on_observed_domain">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.LinearPDE.interpolate_on_observed_domain.html#cuqi.pde.LinearPDE.interpolate_on_observed_domain">[docs]</a>
+    <span class="k">def</span> <span class="nf">interpolate_on_observed_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate solution on observed space domain.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;interpolate_on_observed_domain method is not implemented for LinearPDE base class.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="SteadyStateLinearPDE">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.SteadyStateLinearPDE.html#cuqi.pde.SteadyStateLinearPDE">[docs]</a>
+<span class="k">class</span> <span class="nc">SteadyStateLinearPDE</span><span class="p">(</span><span class="n">LinearPDE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linear steady state PDE.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------   </span>
+<span class="sd">    PDE_form : callable function</span>
+<span class="sd">        Callable function with signature `PDE_form(parameter1, parameter2, ...)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.). The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively.</span>
+
+<span class="sd">    observation_map: a function handle</span>
+<span class="sd">        A function that takes the PDE solution, interpolated on `grid_obs`, as input and returns the observed solution. e.g. `observation_map=lambda u, grid_obs: u**2`.</span>
+
+<span class="sd">    kwargs: </span>
+<span class="sd">        See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments. </span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------- </span>
+<span class="sd">    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2d.py and demos/demo26_fwd_poisson_mixed_bc.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2d.py also illustrates how to observe on a specific boundary, for example.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SteadyStateLinearPDE.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.SteadyStateLinearPDE.__init__.html#cuqi.pde.SteadyStateLinearPDE.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PDE_form</span><span class="p">,</span> <span class="n">observation_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PDE_form</span><span class="p">,</span> <span class="n">observation_map</span><span class="o">=</span><span class="n">observation_map</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyStateLinearPDE.assemble">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.SteadyStateLinearPDE.assemble.html#cuqi.pde.SteadyStateLinearPDE.assemble">[docs]</a>
+    <span class="k">def</span> <span class="nf">assemble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assembles differential operator and rhs according to PDE_form&quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_args_add_to_kwargs</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">map_name</span><span class="o">=</span><span class="s2">&quot;assemble&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diff_op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PDE_form</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyStateLinearPDE.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.SteadyStateLinearPDE.solve.html#cuqi.pde.SteadyStateLinearPDE.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;diff_op&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;rhs&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;PDE is not assembled.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_linear_system</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diff_op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linalg_solve</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linalg_solve_kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SteadyStateLinearPDE.interpolate_on_observed_domain">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.SteadyStateLinearPDE.interpolate_on_observed_domain.html#cuqi.pde.SteadyStateLinearPDE.interpolate_on_observed_domain">[docs]</a>
+    <span class="k">def</span> <span class="nf">interpolate_on_observed_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate solution on observed space grid.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grids_equal</span><span class="p">:</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_sol</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;quadratic&#39;</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_obs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">solution_obs</span></div>
+
+
+<div class="viewcode-block" id="SteadyStateLinearPDE.observe">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.SteadyStateLinearPDE.observe.html#cuqi.pde.SteadyStateLinearPDE.observe">[docs]</a>
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply observation operator to the solution. This includes</span>
+<span class="sd">        interpolation to observation points (if different from the</span>
+<span class="sd">        solution grid) then applying the observation map (if provided).&quot;&quot;&quot;</span>
+ 
+        <span class="c1"># Interpolate solution on observed domain</span>
+        <span class="n">solution_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_on_observed_domain</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_map</span><span class="p">(</span><span class="n">solution_obs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_obs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">solution_obs</span></div>
+</div>
+
+
+<div class="viewcode-block" id="TimeDependentLinearPDE">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.html#cuqi.pde.TimeDependentLinearPDE">[docs]</a>
+<span class="k">class</span> <span class="nc">TimeDependentLinearPDE</span><span class="p">(</span><span class="n">LinearPDE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Time Dependent Linear PDE with fixed time stepping using Euler method (backward or forward).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------   </span>
+<span class="sd">    PDE_form : callable function</span>
+<span class="sd">        Callable function with signature `PDE_form(parameter1, parameter2, ..., t)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.) and `t` is the time at which the PDE form is evaluated. The function returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. The types of `differential_operator` and `source_term` are determined by what the method :meth:`linalg_solve` accepts as linear operator and right-hand side, respectively. The type of `initial_condition` should be the same type as the solution returned by :meth:`linalg_solve`.</span>
+
+<span class="sd">    time_steps : ndarray </span>
+<span class="sd">        An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time</span>
+<span class="sd">        </span>
+<span class="sd">    time_obs : array_like or str</span>
+<span class="sd">        If passed as an array_like, it is an array of the times at which the solution is observed. If passed as a string it can be set to `final` to observe at the final time step, or `all` to observe at all time steps. Default is `final`.</span>
+
+<span class="sd">    method: str</span>
+<span class="sd">        Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`.</span>
+
+<span class="sd">    observation_map: a function handle</span>
+<span class="sd">        A function that takes the PDE solution, interpolated on `grid_obs` and `time_obs`, as input and returns the observed solution. e.g. `observation_map=lambda u, grid_obs, time_obs: u**2`.</span>
+
+<span class="sd">    kwargs: </span>
+<span class="sd">        See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments </span>
+<span class="sd"> </span>
+<span class="sd">    Example</span>
+<span class="sd">    -----------  </span>
+<span class="sd">    See demos/howtos/time_dependent_linear_pde.py for 1D heat and 1D wave equations examples. It demonstrates setting up `TimeDependentLinearPDE` objects, including the choice of time stepping methods, observation domain, and observation map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TimeDependentLinearPDE.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.__init__.html#cuqi.pde.TimeDependentLinearPDE.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PDE_form</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">,</span> <span class="n">time_obs</span><span class="o">=</span><span class="s1">&#39;final&#39;</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s1">&#39;forward_euler&#39;</span><span class="p">,</span> <span class="n">observation_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">PDE_form</span><span class="p">,</span> <span class="n">observation_map</span><span class="o">=</span><span class="n">observation_map</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">=</span> <span class="n">time_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+
+        <span class="c1"># Set time_obs</span>
+        <span class="k">if</span> <span class="n">time_obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;time_obs cannot be None&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_obs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">time_obs</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;final&#39;</span><span class="p">:</span>
+                <span class="n">time_obs</span> <span class="o">=</span> <span class="n">time_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">elif</span> <span class="n">time_obs</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+                <span class="n">time_obs</span> <span class="o">=</span> <span class="n">time_steps</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;if time_obs is a string, it can only be set &quot;</span>
+                                 <span class="o">+</span><span class="s2">&quot;to `final` or `all`&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_obs</span> <span class="o">=</span> <span class="n">time_obs</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_non_default_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the non-default arguments of the PDE_form function&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span> <span class="o">=</span> <span class="n">get_non_default_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PDE_form</span><span class="p">)</span>
+            <span class="c1"># Remove the time argument from the non-default arguments</span>
+            <span class="c1"># since it is provided automatically by `solve` method and is not</span>
+            <span class="c1"># an argument to be inferred in Bayesian inference setting.</span>
+            <span class="k">if</span> <span class="s1">&#39;t&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stored_non_default_args</span>
+
+    <span class="nd">@method</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;forward_euler&#39;</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;backward_euler&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;method can be set to either `forward_euler` or `backward_euler`&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="TimeDependentLinearPDE.assemble">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.assemble.html#cuqi.pde.TimeDependentLinearPDE.assemble">[docs]</a>
+    <span class="k">def</span> <span class="nf">assemble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble PDE&quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_args_add_to_kwargs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">map_name</span><span class="o">=</span><span class="s2">&quot;assemble&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameter_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+
+<div class="viewcode-block" id="TimeDependentLinearPDE.assemble_step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.assemble_step.html#cuqi.pde.TimeDependentLinearPDE.assemble_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">assemble_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble time step at time t&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diff_op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PDE_form</span><span class="p">(</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameter_kwargs</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeDependentLinearPDE.solve">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.solve.html#cuqi.pde.TimeDependentLinearPDE.solve">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Solve PDE by time-stepping&quot;&quot;&quot;</span>
+        <span class="c1"># initialize time-dependent solution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assemble_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">)))</span>
+        <span class="n">u</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;forward_euler&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assemble_step</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">u_pre</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span>
+                <span class="n">u</span><span class="p">[:,</span> <span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dt</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">diff_op</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">u_pre</span><span class="p">)))</span><span class="nd">@u_pre</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">rhs</span>  <span class="c1"># from u at time t, gives u at t+dt</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;backward_euler&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assemble_step</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">u_pre</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">u_pre</span><span class="p">))</span> <span class="o">-</span> <span class="n">dt</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">diff_op</span>
+                <span class="c1"># from u at time t-dt, gives u at t</span>
+                <span class="n">u</span><span class="p">[:,</span> <span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_linear_system</span><span class="p">(</span>
+                    <span class="n">A</span><span class="p">,</span> <span class="n">u_pre</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">rhs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linalg_solve</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linalg_solve_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">u</span><span class="p">,</span> <span class="n">info</span></div>
+
+
+<div class="viewcode-block" id="TimeDependentLinearPDE.interpolate_on_observed_domain">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.interpolate_on_observed_domain.html#cuqi.pde.TimeDependentLinearPDE.interpolate_on_observed_domain">[docs]</a>
+    <span class="k">def</span> <span class="nf">interpolate_on_observed_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate solution on observed time and space points.&quot;&quot;&quot;</span>
+        <span class="c1"># If observation grid is the same as solution grid and observation time</span>
+        <span class="c1"># is the final time step then no need to interpolate</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grids_equal</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_obs</span><span class="p">):</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Interpolate solution in time and space to the observation</span>
+        <span class="c1"># time and space</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Raise error if solution is 2D or 3D in space</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Interpolation of solutions of 2D and 3D &quot;</span><span class="o">+</span> 
+                                 <span class="s2">&quot;space dimensions based on the provided &quot;</span><span class="o">+</span>
+                                 <span class="s2">&quot;grid_obs and time_obs are not supported. &quot;</span><span class="o">+</span>
+                                 <span class="s2">&quot;You can, instead, pass a custom &quot;</span><span class="o">+</span>
+                                 <span class="s2">&quot;observation_map and pass grid_obs and &quot;</span><span class="o">+</span>
+                                 <span class="s2">&quot;time_obs as None.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Interpolate solution in space and time to the observation</span>
+            <span class="c1"># time and space</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">RectBivariateSpline</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid_sol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">solution</span>
+            <span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_obs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_obs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">solution_obs</span></div>
+
+
+<div class="viewcode-block" id="TimeDependentLinearPDE.observe">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.pde/cuqi.pde.TimeDependentLinearPDE.observe.html#cuqi.pde.TimeDependentLinearPDE.observe">[docs]</a>
+    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply observation operator to the solution. This includes</span>
+<span class="sd">        interpolation to observation points (if different from the</span>
+<span class="sd">        solution grid) then applying the observation map (if provided).&quot;&quot;&quot;</span>
+
+        <span class="c1"># Interpolate solution on observed domain</span>
+        <span class="n">solution_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate_on_observed_domain</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+        
+        <span class="c1"># Apply observation map</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_map</span><span class="p">(</span><span class="n">solution_obs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_obs</span><span class="p">,</span> 
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">_time_obs</span><span class="p">)</span>
+
+        <span class="c1"># squeeze if only one time observation</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_obs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">solution_obs</span> <span class="o">=</span> <span class="n">solution_obs</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">solution_obs</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

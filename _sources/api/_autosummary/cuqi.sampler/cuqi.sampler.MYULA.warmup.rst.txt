@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.warmup
+=========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.warmup

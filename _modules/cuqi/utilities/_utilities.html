@@ -1,0 +1,983 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.utilities._utilities &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/utilities/_utilities';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.utilities._utilities</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.utilities._utilities</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">from</span> <span class="nn">cuqi.density</span> <span class="kn">import</span> <span class="n">Density</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">issparse</span><span class="p">,</span> <span class="n">diags</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">spslinalg</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<div class="viewcode-block" id="force_ndarray">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.force_ndarray.html#cuqi.utilities.force_ndarray">[docs]</a>
+<span class="k">def</span> <span class="nf">force_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+            
+        <span class="k">if</span> <span class="n">flatten</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span> <span class="c1">#Convert to array if matrix (matrix acts different on (n,) arrays)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">A</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="infer_len">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.infer_len.html#cuqi.utilities.infer_len">[docs]</a>
+<span class="k">def</span> <span class="nf">infer_len</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Infer the length of the given input value.</span>
+
+<span class="sd">    Matrices are assumed to have length equal to the number of rows.</span>
+<span class="sd">    Numbers are considered to have length 1.</span>
+<span class="sd">    Other objects with no length are considered to have length 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="s1">&#39;__len__&#39;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span> <span class="c1">#Special-case for scipy sparse matrices, which have len but return an error</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="get_non_default_args">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.get_non_default_args.html#cuqi.utilities.get_non_default_args">[docs]</a>
+<span class="k">def</span> <span class="nf">get_non_default_args</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Returns the non-default arguments and kwargs from a callable function&quot;&quot;&quot;</span>
+    <span class="c1"># If the function has variable _non_default_args, use that for speed.</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;_non_default_args&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">_non_default_args</span>
+
+    <span class="c1"># Otherwise, get the arguments from the function signature.</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">para</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span>
+
+    <span class="n">nonDefaultArgs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">para</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;kwargs&quot;</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;args&quot;</span> <span class="ow">and</span> <span class="n">para</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_empty</span><span class="p">:</span> <span class="c1">#no default and not kwargs</span>
+            <span class="n">nonDefaultArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nonDefaultArgs</span></div>
+
+
+
+<div class="viewcode-block" id="get_direct_attributes">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.get_direct_attributes.html#cuqi.utilities.get_direct_attributes">[docs]</a>
+<span class="k">def</span> <span class="nf">get_direct_attributes</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_indirect_variables">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.get_indirect_variables.html#cuqi.utilities.get_indirect_variables">[docs]</a>
+<span class="k">def</span> <span class="nf">get_indirect_variables</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">():</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check_if_conditional_from_attr</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">get_non_default_args</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span> <span class="c1">#Ensure we did not already find this key</span>
+                    <span class="n">attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">attributes</span> </div>
+
+
+<div class="viewcode-block" id="check_if_conditional_from_attr">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.check_if_conditional_from_attr.html#cuqi.utilities.check_if_conditional_from_attr">[docs]</a>
+<span class="k">def</span> <span class="nf">check_if_conditional_from_attr</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a distribution is conditional from a given attribute.</span>
+<span class="sd">    So far, we assume that a distribution is conditional if</span>
+<span class="sd">    - the given attribute is a callable function and</span>
+<span class="sd">    - the given attribute is not a LinearOperator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">spslinalg</span><span class="o">.</span><span class="n">LinearOperator</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="get_writeable_attributes">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.get_writeable_attributes.html#cuqi.utilities.get_writeable_attributes">[docs]</a>
+<span class="k">def</span> <span class="nf">get_writeable_attributes</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get writeable attributes of object instance. &quot;&quot;&quot;</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
+            <span class="n">attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">attributes</span></div>
+
+
+<div class="viewcode-block" id="get_writeable_properties">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.get_writeable_properties.html#cuqi.utilities.get_writeable_properties">[docs]</a>
+<span class="k">def</span> <span class="nf">get_writeable_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">stop_at_class</span><span class="o">=</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get writeable properties of class type.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Potentially convert object instance to class type.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">stop_at_class</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">cls</span><span class="p">),</span> <span class="n">ABCMeta</span><span class="p">):</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+    <span class="c1"># Compute writeable properties of this class</span>
+    <span class="n">writeable_properties</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">fset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Stop recursion at stop_at_class</span>
+    <span class="k">if</span> <span class="bp">cls</span> <span class="o">==</span> <span class="n">stop_at_class</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">writeable_properties</span>
+
+    <span class="c1"># Recursively get writeable properties of parents</span>
+    <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">:</span>
+        <span class="n">writeable_properties</span> <span class="o">+=</span> <span class="n">get_writeable_properties</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">writeable_properties</span></div>
+
+
+<div class="viewcode-block" id="ProblemInfo">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.ProblemInfo.html#cuqi.utilities.ProblemInfo">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ProblemInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Problem info dataclass. Gives a convenient way to store data defined in test-problems.&quot;&quot;&quot;</span>
+    <span class="n">exactSolution</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">exactData</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">Miscellaneous</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">infoString</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">out_str</span> <span class="o">=</span> <span class="s2">&quot;ProblemInfo with the following set attributes:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getSetAttributes</span><span class="p">())</span>      
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">infoString</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> infoString: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">infoString</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Miscellaneous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Miscellaneous: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Miscellaneous</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">out_str</span>
+
+<div class="viewcode-block" id="ProblemInfo.getSetAttributes">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.ProblemInfo.getSetAttributes.html#cuqi.utilities.ProblemInfo.getSetAttributes">[docs]</a>
+    <span class="k">def</span> <span class="nf">getSetAttributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of all attributes that are not None.&quot;&quot;&quot;</span>
+        <span class="nb">dict</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">({</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">dict</span> <span class="k">if</span> <span class="nb">dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">})</span></div>
+</div>
+
+
+<span class="c1"># work-around to compute sparse Cholesky</span>
+<div class="viewcode-block" id="sparse_cholesky">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.sparse_cholesky.html#cuqi.utilities.sparse_cholesky">[docs]</a>
+<span class="k">def</span> <span class="nf">sparse_cholesky</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes Cholesky factorization for sparse matrix `A` and returns the upper triangular factor `U`, where `A=U^T@U`&quot;&quot;&quot;</span>
+    <span class="c1"># https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d</span>
+    <span class="n">LU</span> <span class="o">=</span> <span class="n">spslinalg</span><span class="o">.</span><span class="n">splu</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">diag_pivot_thresh</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">permc_spec</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">)</span> <span class="c1"># sparse LU decomposition</span>
+
+
+    <span class="c1"># check the matrix A is positive definite</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">LU</span><span class="o">.</span><span class="n">perm_r</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">LU</span><span class="o">.</span><span class="n">U</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span> 
+        <span class="k">return</span> <span class="p">(</span><span class="n">LU</span><span class="o">.</span><span class="n">L</span> <span class="o">@</span> <span class="p">(</span><span class="n">diags</span><span class="p">(</span><span class="n">LU</span><span class="o">.</span><span class="n">U</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;The matrix is not positive semi-definite&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="approx_derivative">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.approx_derivative.html#cuqi.utilities.approx_derivative">[docs]</a>
+<span class="k">def</span> <span class="nf">approx_derivative</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">wrt</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Approximates the derivative of callable (possibly vector-valued) function `func` evaluated at point `wrt`. If `direction` is provided, the direction-Jacobian product will be computed and returned, otherwise, the Jacobian matrix (or the gradient in case of a scalar function `func`) will be returned. The approximation is done using forward differences.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func: function handler</span>
+<span class="sd">        A vector-valued function of the form func(x).</span>
+
+<span class="sd">    wrt : ndarray</span>
+<span class="sd">        The point at which the derivative to be evaluated.</span>
+
+<span class="sd">    direction : ndarray</span>
+<span class="sd">        The direction used to compute direction-Jacobian product. </span>
+<span class="sd">        If None, the Jacobian matrix is returned.</span>
+
+<span class="sd">    epsilon: float</span>
+<span class="sd">        The spacing in the finite difference approximation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        The approximate Jacobian matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Raise an error if wrt or direction is a CUQIarray.</span>
+    <span class="c1"># Example of scenario where this is needed: </span>
+    <span class="c1"># the line Matr[i] = (func(wrt+dx) - f0)/epsilon</span>
+    <span class="c1"># does not give correct results if for example</span>
+    <span class="c1"># wrt is a CUQIarray with is_par=False and its </span>
+    <span class="c1"># corresponding geometry par2fun map is not identity</span>
+    <span class="c1"># (e.g. funvalues=paramters**2), because wrt entries </span>
+    <span class="c1"># are interpreted as function value.</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrt</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">CUQIarray</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;approx_derivative is not implemented&quot;</span><span class="o">+</span>
+                                   <span class="s2">&quot;for inputs of type CUQIarray&quot;</span><span class="p">)</span>
+
+    <span class="c1"># We compute the Jacobian matrix of func using forward differences.</span>
+    <span class="c1"># If the function is scalar-valued, we compute the gradient instead.</span>
+    <span class="c1"># If the direction is provided, we compute the direction-Jacobian product.</span>
+    <span class="n">wrt</span> <span class="o">=</span> <span class="n">force_ndarray</span><span class="p">(</span><span class="n">wrt</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">f0</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">wrt</span><span class="p">)</span>
+    <span class="n">Matr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">infer_len</span><span class="p">(</span><span class="n">wrt</span><span class="p">),</span> <span class="n">infer_len</span><span class="p">(</span><span class="n">f0</span><span class="p">)])</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wrt</span><span class="p">))</span>
+
+    <span class="c1"># Compute the Jacobian matrix (transpose)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wrt</span><span class="p">)):</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon</span>
+        <span class="n">Matr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">wrt</span><span class="o">+</span><span class="n">dx</span><span class="p">)</span> <span class="o">-</span> <span class="n">f0</span><span class="p">)</span><span class="o">/</span><span class="n">epsilon</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Return the Jacobian matrix (or the gradient)</span>
+    <span class="c1"># or the direction-Jacobian product</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">infer_len</span><span class="p">(</span><span class="n">f0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Matr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">infer_len</span><span class="p">(</span><span class="n">wrt</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Matr</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Matr</span><span class="nd">@direction</span></div>
+
+
+<div class="viewcode-block" id="approx_gradient">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.approx_gradient.html#cuqi.utilities.approx_gradient">[docs]</a>
+<span class="k">def</span> <span class="nf">approx_gradient</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span> <span class="mf">0.000001</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Approximates the gradient of callable scalar function `func` evaluated at point `x`. The approximation is done using finite differences with</span>
+<span class="sd">    step size `epsilon`.&quot;&quot;&quot;</span>
+    
+    <span class="c1"># Derivative of a scalar function using forward differences</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span> <span class="o">-</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="n">epsilon</span>
+
+    <span class="c1"># Initialize variables</span>
+    <span class="n">FD_gradient</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="mf">0.0</span>
+    <span class="n">eps_vec</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="mf">0.0</span>
+    <span class="n">func_x</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Compute the gradient using forward differences component by component</span>
+    <span class="n">x_len</span> <span class="o">=</span> <span class="n">infer_len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x_len</span><span class="p">):</span>
+        <span class="n">eps_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon</span>
+        <span class="n">x_plus_eps</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">eps_vec</span>
+        <span class="n">FD_gradient</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">x_plus_eps</span><span class="p">)</span> <span class="o">-</span> <span class="n">func_x</span><span class="p">)</span><span class="o">/</span><span class="n">epsilon</span>
+        <span class="n">eps_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+    <span class="k">return</span> <span class="n">FD_gradient</span></div>
+
+
+
+<span class="c1"># Function for plotting 1D density functions</span>
+<div class="viewcode-block" id="plot_1D_density">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.plot_1D_density.html#cuqi.utilities.plot_1D_density">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_1D_density</span><span class="p">(</span><span class="n">density</span><span class="p">:</span><span class="n">Density</span><span class="p">,</span>
+                    <span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span><span class="p">,</span>
+                    <span class="n">N</span><span class="o">=</span><span class="mi">501</span><span class="p">,</span> <span class="n">log_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot 1D density function </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : CUQIpy Density</span>
+<span class="sd">        The density to be plotted.</span>
+
+<span class="sd">    v_min : float</span>
+<span class="sd">        Minimum value for the variable.</span>
+<span class="sd">    </span>
+<span class="sd">    v_max : float</span>
+<span class="sd">        Maximum value for the variable.</span>
+
+<span class="sd">    N : int</span>
+<span class="sd">        Number of grid points for the variable.</span>
+
+<span class="sd">    log_scale : bool</span>
+<span class="sd">        If True, the density is plotted in log scale.</span>
+<span class="sd">    </span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Additional keyword arguments for the plot that are passed to the</span>
+<span class="sd">        underlying plotting method: `matplotlib.pyplot.plot` function </span>
+<span class="sd">        in this case.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Assert that the density is 1D</span>
+    <span class="k">assert</span> <span class="n">density</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;The density must be for a scalar variable&quot;</span>
+    <span class="n">ls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+
+    <span class="c1"># Create a map to evaluate density</span>
+    <span class="n">density_map</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">log_scale</span> <span class="k">else</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># Evaluate density on grid</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">density_map</span><span class="p">(</span><span class="n">density</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">grid_point</span><span class="p">))</span> <span class="k">for</span> <span class="n">grid_point</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">]</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ls</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span></div>
+
+
+<span class="c1"># Function for plotting 2D density functions</span>
+<div class="viewcode-block" id="plot_2D_density">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.plot_2D_density.html#cuqi.utilities.plot_2D_density">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_2D_density</span><span class="p">(</span><span class="n">density</span><span class="p">:</span> <span class="n">Density</span><span class="p">,</span> 
+                    <span class="n">v1_min</span><span class="p">,</span> <span class="n">v1_max</span><span class="p">,</span>
+                    <span class="n">v2_min</span><span class="p">,</span> <span class="n">v2_max</span><span class="p">,</span>
+                    <span class="n">N1</span><span class="o">=</span><span class="mi">201</span><span class="p">,</span> <span class="n">N2</span><span class="o">=</span><span class="mi">201</span><span class="p">,</span>
+                    <span class="n">log_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot 2D density function </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    density : CUQIpy Density</span>
+<span class="sd">        The density to be plotted.</span>
+
+<span class="sd">    v1_min : float</span>
+<span class="sd">        Minimum value for the first variable.</span>
+<span class="sd">    </span>
+<span class="sd">    v1_max : float</span>
+<span class="sd">        Maximum value for the first variable.</span>
+<span class="sd">    </span>
+<span class="sd">    v2_min : float</span>
+<span class="sd">        Minimum value for the second variable.</span>
+
+<span class="sd">    v2_max : float  </span>
+<span class="sd">        Maximum value for the second variable.</span>
+
+<span class="sd">    N1 : int</span>
+<span class="sd">        Number of grid points for the first variable.</span>
+
+<span class="sd">    N2 : int</span>
+<span class="sd">        Number of grid points for the second variable.</span>
+<span class="sd">    </span>
+<span class="sd">    log_scale : bool</span>
+<span class="sd">        If True, the density is plotted in log scale.</span>
+
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Additional keyword arguments for the plot that are passed to the</span>
+<span class="sd">        underlying plotting method: `matplotlib.pyplot.imshow` function </span>
+<span class="sd">        in this case.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Assert that the density is 2D</span>
+    <span class="k">assert</span> <span class="n">density</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span>\
+        <span class="s2">&quot;The density must be for a two-dimensional variable&quot;</span>
+    <span class="c1"># Create grid</span>
+    <span class="n">ls1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">v1_min</span><span class="p">,</span> <span class="n">v1_max</span><span class="p">,</span> <span class="n">N1</span><span class="p">)</span>
+    <span class="n">ls2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">v2_min</span><span class="p">,</span> <span class="n">v2_max</span><span class="p">,</span> <span class="n">N2</span><span class="p">)</span>
+    <span class="n">grid1</span><span class="p">,</span> <span class="n">grid2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">ls1</span><span class="p">,</span> <span class="n">ls2</span><span class="p">)</span>
+
+    <span class="c1"># Create a map to evaluate density</span>
+    <span class="n">density_map</span> <span class="o">=</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">log_scale</span> <span class="k">else</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="c1"># Evaluate density on grid</span>
+    <span class="n">evaluated_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N1</span><span class="p">,</span> <span class="n">N2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N2</span><span class="p">):</span>
+            <span class="n">evaluated_density</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span> <span class="o">=</span> <span class="n">density_map</span><span class="p">(</span>
+                <span class="n">density</span><span class="o">.</span><span class="n">logd</span><span class="p">([</span><span class="n">grid1</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">],</span> <span class="n">grid2</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]]))</span> 
+
+    <span class="c1"># Plot</span>
+    <span class="n">pixelwidth_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">v1_max</span><span class="o">-</span><span class="n">v1_min</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">N2</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">pixelwidth_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">v2_max</span><span class="o">-</span><span class="n">v2_min</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">N2</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">hp_x</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">pixelwidth_x</span>
+    <span class="n">hp_y</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">pixelwidth_y</span>
+
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">(</span><span class="n">v1_min</span><span class="o">-</span><span class="n">hp_x</span><span class="p">,</span> <span class="n">v1_max</span><span class="o">+</span><span class="n">hp_x</span><span class="p">,</span> <span class="n">v2_min</span><span class="o">-</span><span class="n">hp_y</span><span class="p">,</span> <span class="n">v2_max</span><span class="o">+</span><span class="n">hp_y</span><span class="p">)</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">evaluated_density</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">im</span></div>
+
+
+
+
+<div class="viewcode-block" id="count_nonzero">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.count_nonzero.html#cuqi.utilities.count_nonzero">[docs]</a>
+<span class="k">def</span> <span class="nf">count_nonzero</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the number of values in an array whose absolute value is larger than a specified threshold</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : `np.ndarray` </span>
+<span class="sd">            Array to count nonzero elements of.</span>
+
+<span class="sd">        threshold : float</span>
+<span class="sd">            Theshold for considering a value as nonzero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span></div>
+
+
+        
+<div class="viewcode-block" id="count_within_bounds">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.count_within_bounds.html#cuqi.utilities.count_within_bounds">[docs]</a>
+<span class="k">def</span> <span class="nf">count_within_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">exception</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the number of values in an array whose value lies between the provided lower and upper bounds.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : `np.ndarray` </span>
+<span class="sd">            Array to count elements of.</span>
+
+<span class="sd">        lower_bounds : `np.ndarray` </span>
+<span class="sd">            Lower bound on values to disregard when counting.</span>
+
+<span class="sd">        upper_bounds : `np.ndarray` </span>
+<span class="sd">            Upper bound on values to disregard.</span>
+
+<span class="sd">        threshold : float</span>
+<span class="sd">            Theshold for considering a value as nonzero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">l</span> <span class="o">+</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">threshold</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">exception</span> <span class="o">-</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="n">exception</span> <span class="o">+</span> <span class="n">threshold</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_bounds</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="p">)])</span></div>
+
+        
+    
+<div class="viewcode-block" id="count_constant_components_1D">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.count_constant_components_1D.html#cuqi.utilities.count_constant_components_1D">[docs]</a>
+<span class="k">def</span> <span class="nf">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">exception</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the number of piecewise constant components in a one-dimensional array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : `np.ndarray` </span>
+<span class="sd">            1D Array to count components of.</span>
+
+<span class="sd">        threshold : float</span>
+<span class="sd">            Strict theshold on when the difference of neighbouring values is considered zero.</span>
+
+<span class="sd">        lower : float or numpy.ndarray</span>
+<span class="sd">            Piecewise constant components below this value are not counted.</span>
+
+<span class="sd">        upper : float or numpy.ndarray</span>
+<span class="sd">            Piecewise constant components above this value are not counted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lower</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span>
+            <span class="ow">not</span> <span class="p">(</span><span class="n">exception</span> <span class="o">-</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">exception</span> <span class="o">+</span> <span class="n">threshold</span><span class="p">)):</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="n">x_previous</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">x_current</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x_previous</span> <span class="o">-</span> <span class="n">x_current</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="ow">and</span>
+                <span class="n">x_current</span> <span class="o">&gt;</span> <span class="n">lower</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span>
+                <span class="n">x_current</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span>
+                <span class="ow">not</span> <span class="p">(</span><span class="n">exception</span> <span class="o">-</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="n">x_current</span> <span class="ow">and</span> <span class="n">x_current</span> <span class="o">&lt;=</span> <span class="n">exception</span> <span class="o">+</span> <span class="n">threshold</span><span class="p">)):</span>
+                    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">x_previous</span> <span class="o">=</span> <span class="n">x_current</span>
+    
+        <span class="k">return</span> <span class="n">counter</span></div>
+
+
+<div class="viewcode-block" id="count_constant_components_2D">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.count_constant_components_2D.html#cuqi.utilities.count_constant_components_2D">[docs]</a>
+<span class="k">def</span> <span class="nf">count_constant_components_2D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the number of piecewise constant components in a two-dimensional array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : `np.ndarray` </span>
+<span class="sd">            2D Array to count components of.</span>
+
+<span class="sd">        threshold : float</span>
+<span class="sd">            Strict theshold on when the difference of neighbouring values is considered zero.</span>
+
+<span class="sd">        lower : float or numpy.ndarray</span>
+<span class="sd">            Piecewise constant components below this value are not counted.</span>
+
+<span class="sd">        upper : float or numpy.ndarray</span>
+<span class="sd">            Piecewise constant components above this value are not counted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">lower</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">upper</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">filled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+            <span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+            <span class="n">filled</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="p">)</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">icur</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">filled</span><span class="p">[</span><span class="n">icur</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">icur</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                    <span class="n">filled</span><span class="p">[</span><span class="n">icur</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">icur</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">jcur</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">filled</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                    <span class="n">filled</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">icur</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">filled</span><span class="p">[</span><span class="n">icur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">icur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                    <span class="n">filled</span><span class="p">[</span><span class="n">icur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">icur</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">jcur</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">jcur</span> <span class="o">&lt;</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">filled</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                    <span class="n">filled</span><span class="p">[</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">icur</span><span class="p">,</span> <span class="n">jcur</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">filled</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]:</span>
+                        <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">process</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">counter</span></div>
+
+                    
+
+
+<div class="viewcode-block" id="piecewise_linear_1D_DoF">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.utilities/cuqi.utilities.piecewise_linear_1D_DoF.html#cuqi.utilities.piecewise_linear_1D_DoF">[docs]</a>
+<span class="k">def</span> <span class="nf">piecewise_linear_1D_DoF</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">exception_zero</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">exception_flat</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the degrees of freedom of a piecewise linear signal.</span>
+<span class="sd">        Assuming linear interpolation, this corresponds to the number of non-differentiable points, including end-points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : `np.ndarray` </span>
+<span class="sd">            1D Array to compute degrees of freedom of.</span>
+
+<span class="sd">        threshold : float</span>
+<span class="sd">            Strict theshold on when values are considered zero.</span>
+
+<span class="sd">        exception_zero : Boolean</span>
+<span class="sd">            Whether a zero piecewise linear components should be considered.</span>
+
+<span class="sd">        exception_flat : Boolean</span>
+<span class="sd">            Whether a flat piecewise linear components should be considered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">differences</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">double_differences</span> <span class="o">=</span> <span class="n">differences</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">differences</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">joints</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">double_differences</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exception_zero</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">exception_flat</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">joints</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">exception_zero</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">joints</span> <span class="ow">and</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">threshold</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">exception_flat</span><span class="p">:</span>
+            <span class="n">prev_joint</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">joints</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">joints</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">prev_joint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">prev_joint</span> <span class="o">=</span> <span class="n">i</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">prev_joint</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+                            <span class="n">counter</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="n">prev_joint</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">return</span> <span class="n">counter</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

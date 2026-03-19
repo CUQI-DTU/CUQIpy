@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.grid
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.grid

@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.pdf
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.pdf

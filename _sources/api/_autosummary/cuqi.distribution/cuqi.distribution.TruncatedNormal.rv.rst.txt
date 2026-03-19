@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.rv
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.rv

@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.get\_history
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.get_history

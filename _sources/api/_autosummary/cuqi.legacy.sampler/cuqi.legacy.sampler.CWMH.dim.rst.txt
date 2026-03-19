@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.CWMH.dim
+============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: CWMH.dim

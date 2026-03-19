@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.tune
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.tune
