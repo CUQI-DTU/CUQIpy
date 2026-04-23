@@ -11,7 +11,7 @@ If you have used implicit priors of CUQIpy in your research, we kindly ask you t
 
 - Everink JM, Zhang C, Alghamdi A, Laumont R, Riis NA, Jørgensen JS. A Computational Framework and Implementation of Implicit Priors in Bayesian Inverse Problems. arXiv preprint arXiv:2509.11781. 2025 Sep 15. `arXiv <https://arxiv.org/abs/2509.11781>`_
 
-Here we also keep a collection of papers that use CUQIpy. If your paper should be included, please open an `issue <https://github.com/CUQI-DTU/CUQIpy/issues>` or `pull request <https://github.com/CUQI-DTU/CUQIpy/pulls>` on GitHub.
+Here we also keep a collection of papers that use CUQIpy. If your paper should be included, please open an `issue <https://github.com/CUQI-DTU/CUQIpy/issues>`_ or `pull request <https://github.com/CUQI-DTU/CUQIpy/pulls>`_ on GitHub.
 
 - Rud M, Dong Y, Everink JM, Järleblad H, Jørgensen JS, Kernel Q, Madsen B, Podestà M, Valentini A, Salewski M, TCV Team. Bayesian velocity-space tomography with collision-and charge-exchange-physics prior from fast-ion D-alpha measurements at TCV with uncertainty quantification. Plasma Physics and Controlled Fusion. 2026 Jan 1;68(1):015035. `DOI <https://doi.org/10.1088/1361-6587/ae3858>`_
 - Alghamdi A, Mathiesen BK, Miyakoshi L, Nedergaard M, Jørgensen JS, Bork PA. Cochlear Aqueduct Advection and Diffusion Inferred from Computed Tomography Imaging with a Bayesian Approach. Journal of the Association for Research in Otolaryngology. 2026 Apr 13:1-3. `DOI <10.1007/s10162-026-01047-x>`_
