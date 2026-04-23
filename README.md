@@ -98,7 +98,7 @@ A big shoutout to our passionate team! Discover the talented individuals behind 
 [here](https://github.com/CUQI-DTU/CUQIpy/graphs/contributors).
 
 ## 📖 How to cite CUQIpy
-Please cite CUQIpy using the papers listed [here](https://cuqi-dtu.github.io/CUQIpy/user/papers.html). If you use CUQIpy in your research, we also encourage you to add your paper to that collection.
+To find the official CUQIpy papers to cite and a list of papers that use CUQIpy, please check [here](https://cuqi-dtu.github.io/CUQIpy/user/papers.html).
 
 ## 🤝 Contributing
 We welcome contributions to CUQIpy. Please see our [contributing guidelines](https://cuqi-dtu.github.io/CUQIpy/dev/index.html) for more information.
