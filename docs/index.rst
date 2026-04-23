@@ -201,3 +201,7 @@ A number of plugins are available as separate packages that expand the functiona
 
 A big shoutout to our passionate team! Discover the talented individuals behind CUQIpy
 `here <https://github.com/CUQI-DTU/CUQIpy/graphs/contributors>`__.
+
+📖 How to cite CUQIpy
+---------------
+Please cite CUQIpy using the papers listed [here](https://cuqi-dtu.github.io/CUQIpy/user/papers.html). If you use CUQIpy in your research, we also encourage you to add your paper to that collection.
