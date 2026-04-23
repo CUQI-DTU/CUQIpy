@@ -97,5 +97,8 @@ CUQIpy can be extended with additional functionality by installing optional plug
 A big shoutout to our passionate team! Discover the talented individuals behind CUQIpy
 [here](https://github.com/CUQI-DTU/CUQIpy/graphs/contributors).
 
+## 📖 How to cite CUQIpy
+To find the official CUQIpy papers to cite and a list of papers that use CUQIpy, please check [here](https://cuqi-dtu.github.io/CUQIpy/user/papers.html).
+
 ## 🤝 Contributing
 We welcome contributions to CUQIpy. Please see our [contributing guidelines](https://cuqi-dtu.github.io/CUQIpy/dev/index.html) for more information.
