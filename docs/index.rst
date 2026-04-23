@@ -204,4 +204,4 @@ A big shoutout to our passionate team! Discover the talented individuals behind 
 
 📖 How to cite CUQIpy
 ---------------
-Please cite CUQIpy using the papers listed [here](https://cuqi-dtu.github.io/CUQIpy/user/papers.html). If you use CUQIpy in your research, we also encourage you to add your paper to that collection.
+Please cite CUQIpy using the papers listed `here <https://cuqi-dtu.github.io/CUQIpy/user/papers.html>`_. If you use CUQIpy in your research, we also encourage you to add your paper to that collection.
