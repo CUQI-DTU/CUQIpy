@@ -17,7 +17,6 @@ The main resources for contributors are structured as follows.
 - :doc:`Style guide <style_guide>`
    These are code style guidelines for the project. They show how to write code that is consistent with the rest of the project.
 
-
 .. toctree::
    :maxdepth: 2
    :hidden:
