@@ -17,8 +17,6 @@ The main resources for contributors are structured as follows.
 - :doc:`Style guide <style_guide>`
    These are code style guidelines for the project. They show how to write code that is consistent with the rest of the project.
 
-- :doc:`Papers and citation guidance <papers>`
-   Official CUQIpy papers to cite, plus a collection of papers using CUQIpy.
 
 .. toctree::
    :maxdepth: 2
@@ -28,5 +26,4 @@ The main resources for contributors are structured as follows.
    How-To Guides <how_to>
    Developer demos <_auto_dev/index>
    Style guide <style_guide>
-   Papers and citation guidance <papers>
 
