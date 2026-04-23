@@ -7,7 +7,7 @@ If you have used CUQIpy in your research and please consider citing the followin
 - Riis NA, Alghamdi AM, Uribe F, Christensen SL, Afkham BM, Hansen PC, Jørgensen JS. CUQIpy: I. Computational uncertainty quantification for inverse problems in Python. Inverse Problems. 2024 Apr 1;40(4):045009. `DOI <doi.org/10.1088/1361-6420/ad22e7>`_; `arXiv <https://arxiv.org/abs/2305.16949>`_
 - Alghamdi AM, Riis NA, Afkham BM, Uribe F, Christensen SL, Christian Hansen P, Jørgensen JS. CUQIpy: II. Computational uncertainty quantification for PDE-based inverse problems in Python. Inverse Problems. 2024 Apr 1;40(4):045010. `DOI <https://doi.org/10.1088/1361-6420/ad22e8>`_; `arXiv <https://arxiv.org/abs/2305.16951>`_
 
-If you have used implicit priors in your research, please consider citing the following paper:
+If you have used implicit priors of CUQIpy in your research, please also consider citing the following paper:
 
 - Everink JM, Zhang C, Alghamdi A, Laumont R, Riis NA, Jørgensen JS. A Computational Framework and Implementation of Implicit Priors in Bayesian Inverse Problems. arXiv preprint arXiv:2509.11781. 2025 Sep 15. `arXiv <https://arxiv.org/abs/2509.11781>`_
 
