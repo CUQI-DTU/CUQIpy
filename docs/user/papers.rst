@@ -2,7 +2,7 @@
 Papers
 ======
 
-If you have used CUQIpy in your research and we kindly ask you to cite the following papers:
+If you have used CUQIpy in your research, we kindly ask you to cite the following papers:
 
 - Riis NA, Alghamdi AM, Uribe F, Christensen SL, Afkham BM, Hansen PC, Jørgensen JS. CUQIpy: I. Computational uncertainty quantification for inverse problems in Python. Inverse Problems. 2024 Apr 1;40(4):045009. `DOI <doi.org/10.1088/1361-6420/ad22e7>`_; `arXiv <https://arxiv.org/abs/2305.16949>`_
 - Alghamdi AM, Riis NA, Afkham BM, Uribe F, Christensen SL, Christian Hansen P, Jørgensen JS. CUQIpy: II. Computational uncertainty quantification for PDE-based inverse problems in Python. Inverse Problems. 2024 Apr 1;40(4):045010. `DOI <https://doi.org/10.1088/1361-6420/ad22e8>`_; `arXiv <https://arxiv.org/abs/2305.16951>`_
