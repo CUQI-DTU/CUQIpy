@@ -128,7 +128,7 @@ class GMRF(Distribution):
             self._rank = self.dim
             self._chol = sparse_cholesky(self._prec_op.get_matrix()).T
             self._logdet = 2*sum(np.log(self._chol.diagonal()))
-        elif (bc_type == 'periodic') or (bc_type == 'neumann'):
+        elif (bc_type == 'periodic') or (bc_type == 'neumann') or (bc_type == 'some_bc'):
             print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using LinearRTO may not produce fully accurate results.")
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
@@ -207,7 +207,7 @@ class GMRF(Distribution):
             L_sqrt = diags(np.sqrt(eigv)) 
             s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
             
-        elif (self._bc_type == 'neumann'):
+        elif (self._bc_type == 'neumann') or (self._bc_type == 'some_bc'):
 
             if rng is not None:
                 xi = rng.standard_normal((self._diff_op.shape[0], N))   # standard Gaussian
