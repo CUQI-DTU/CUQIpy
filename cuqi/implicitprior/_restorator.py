@@ -156,12 +156,18 @@ class MoreauYoshidaPrior(Distribution):
         
     smoothing_strength : float
         Smoothing strength of the Moreau-Yoshida envelope of the prior potential.
+
+    regularization_strength : float
+        Regularization strength of the Moreau-Yoshida envelope of the prior potential.
     """
 
-    def __init__(self, prior:RestorationPrior, smoothing_strength=0.1, 
+    def __init__(self, prior:RestorationPrior,
+                 smoothing_strength=0.1,
+                 regularization_strength=1,
                  **kwargs):
         self.prior = prior
         self.smoothing_strength = smoothing_strength
+        self.regularization_strength = regularization_strength
 
         # if kwargs does not contain the geometry,
         # we set it to the geometry of the prior, if it exists
@@ -206,12 +212,16 @@ class MoreauYoshidaPrior(Distribution):
     def gradient(self, x):
         """This is the gradient of the regularizer ie gradient of the negative
         logpdf of the implicit prior."""
-        return -(x - self.prior.restore(x, self.smoothing_strength))/self.smoothing_strength
+        return -self.regularization_strength * (x - self.prior.restore(x, self.smoothing_strength))/self.smoothing_strength
         
     def logpdf(self, x):
         """The logpdf function. It returns nan because we don't know the 
         logpdf of the implicit prior."""
-        if self.prior.potential == None:
+        if not np.isclose(self.regularization_strength, 1.0):
+            raise NotImplementedError(
+                "The logpdf function is not implemented for the MoreauYoshidaPrior "+\
+                    "class when regularization_strength is not equal to 1.")
+        elif self.prior.potential == None:
             return np.nan
         else:
             return -(self.prior.potential(self.prior.restore(x, self.smoothing_strength))*self.smoothing_strength +
