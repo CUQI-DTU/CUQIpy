@@ -9,6 +9,8 @@ from cuqi.operator import PrecisionFiniteDifference
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
 
+import collections
+
 class GMRF(Distribution):
     """ Gaussian Markov random field (GMRF).
        
@@ -94,6 +96,9 @@ class GMRF(Distribution):
     """
 
     def __init__(self, mean=None, prec=None, bc_type="zero", order=1, **kwargs):
+        if not isinstance(mean, collections.abc.Iterable) and 'geometry' not in kwargs.keys():
+            raise ValueError(f"Cannot infer dimension if scalar mean and no supported geometry is provided.")
+        
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
@@ -147,7 +152,12 @@ class GMRF(Distribution):
     
     @mean.setter
     def mean(self, value):
-        self._mean = force_ndarray(value, flatten=True)
+        # Force the mean to be an array of proper length.
+        if isinstance(value, collections.abc.Iterable) or callable(value):
+            self._mean = force_ndarray(value, flatten=True)
+        else:
+            # Direct call to the private '_geometry' as the public 'geometry' tries to infer the dimension using the variable we currently setting.
+            self._mean = value*np.ones(self._geometry.par_dim)
 
     @property
     def prec(self):
