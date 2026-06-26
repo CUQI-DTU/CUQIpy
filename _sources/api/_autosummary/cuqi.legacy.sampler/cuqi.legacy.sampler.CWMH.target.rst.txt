@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.CWMH.target
+===============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: CWMH.target

@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.get\_samples
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.get_samples

@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.MH.sample\_adapt
+====================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: MH.sample_adapt

@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.geometry
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Distribution.geometry

@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.preset
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.preset

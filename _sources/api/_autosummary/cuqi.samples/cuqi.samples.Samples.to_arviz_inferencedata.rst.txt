@@ -1,0 +1,6 @@
+cuqi.samples.Samples.to\_arviz\_inferencedata
+=============================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.to_arviz_inferencedata

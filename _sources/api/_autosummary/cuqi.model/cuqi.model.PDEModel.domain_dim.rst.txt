@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.domain\_dim
+===============================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: PDEModel.domain_dim

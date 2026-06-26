@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.is\_cond
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.is_cond

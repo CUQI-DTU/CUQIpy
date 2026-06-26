@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.fun\_shape
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.fun_shape

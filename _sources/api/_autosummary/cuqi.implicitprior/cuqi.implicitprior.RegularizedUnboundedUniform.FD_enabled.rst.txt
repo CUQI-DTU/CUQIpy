@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.FD\_enabled
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.FD_enabled

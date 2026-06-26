@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.fun\_is\_array
+==========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.fun_is_array

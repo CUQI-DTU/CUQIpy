@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.logpdf
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: CMRF.logpdf

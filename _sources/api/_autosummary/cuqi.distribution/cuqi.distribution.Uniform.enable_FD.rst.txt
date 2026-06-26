@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.enable\_FD
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Uniform.enable_FD

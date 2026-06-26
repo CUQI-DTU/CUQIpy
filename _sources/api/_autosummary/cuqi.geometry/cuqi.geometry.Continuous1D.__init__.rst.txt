@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous1D.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Continuous1D.__init__

@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.FD\_enabled
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointGaussianSqrtPrec.FD_enabled

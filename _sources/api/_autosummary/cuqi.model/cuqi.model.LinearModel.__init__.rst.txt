@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: LinearModel.__init__

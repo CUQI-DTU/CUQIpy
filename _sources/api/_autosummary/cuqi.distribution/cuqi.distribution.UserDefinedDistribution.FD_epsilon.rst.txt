@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.FD\_epsilon
+=====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UserDefinedDistribution.FD_epsilon

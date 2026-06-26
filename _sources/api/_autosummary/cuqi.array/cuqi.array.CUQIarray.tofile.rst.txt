@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.tofile
+===========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.tofile

@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.logd
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.logd

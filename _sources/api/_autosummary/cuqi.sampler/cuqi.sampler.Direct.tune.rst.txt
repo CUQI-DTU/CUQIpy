@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.tune
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.tune

@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.get\_samples
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.get_samples

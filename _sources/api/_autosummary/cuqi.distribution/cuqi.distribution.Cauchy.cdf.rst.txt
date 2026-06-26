@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.cdf
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.cdf

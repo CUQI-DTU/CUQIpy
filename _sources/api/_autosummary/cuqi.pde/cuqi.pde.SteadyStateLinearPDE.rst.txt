@@ -1,0 +1,36 @@
+SteadyStateLinearPDE
+====================
+
+.. currentmodule:: cuqi.pde
+
+.. autoclass:: SteadyStateLinearPDE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SteadyStateLinearPDE.__init__
+      ~SteadyStateLinearPDE.assemble
+      ~SteadyStateLinearPDE.interpolate_on_observed_domain
+      ~SteadyStateLinearPDE.observe
+      ~SteadyStateLinearPDE.solve
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SteadyStateLinearPDE.grid_obs
+      ~SteadyStateLinearPDE.grid_sol
+      ~SteadyStateLinearPDE.grids_equal
+   
+   

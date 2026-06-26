@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion\_Full.par\_shape
+==========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion_Full.par_shape

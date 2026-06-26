@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.plot\_envelope
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Image2D.plot_envelope

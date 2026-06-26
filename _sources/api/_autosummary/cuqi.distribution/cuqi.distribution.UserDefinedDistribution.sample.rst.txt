@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.sample
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.sample

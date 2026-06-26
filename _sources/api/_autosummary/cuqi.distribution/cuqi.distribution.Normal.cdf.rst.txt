@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.cdf
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.cdf

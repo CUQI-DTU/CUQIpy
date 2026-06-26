@@ -1,0 +1,35 @@
+SamplerRecommender
+==================
+
+.. currentmodule:: cuqi.experimental
+
+.. autoclass:: SamplerRecommender
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SamplerRecommender.__init__
+      ~SamplerRecommender.recommend
+      ~SamplerRecommender.recommend_HybridGibbs_sampling_strategy
+      ~SamplerRecommender.valid_HybridGibbs_sampling_strategy
+      ~SamplerRecommender.valid_samplers
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SamplerRecommender.ordering
+      ~SamplerRecommender.target
+   
+   

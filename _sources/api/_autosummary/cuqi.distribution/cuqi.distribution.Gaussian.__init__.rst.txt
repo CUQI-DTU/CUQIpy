@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.__init__

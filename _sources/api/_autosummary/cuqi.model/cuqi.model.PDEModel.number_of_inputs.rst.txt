@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.number\_of\_inputs
+======================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: PDEModel.number_of_inputs

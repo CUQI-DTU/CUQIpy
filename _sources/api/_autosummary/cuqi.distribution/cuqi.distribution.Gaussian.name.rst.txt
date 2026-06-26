@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.name
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.name

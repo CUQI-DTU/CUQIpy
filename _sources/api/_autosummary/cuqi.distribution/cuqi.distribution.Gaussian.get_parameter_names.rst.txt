@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.get\_parameter\_names
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.get_parameter_names

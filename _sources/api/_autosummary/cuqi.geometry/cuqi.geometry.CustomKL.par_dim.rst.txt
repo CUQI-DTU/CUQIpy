@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.par\_dim
+===============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.par_dim

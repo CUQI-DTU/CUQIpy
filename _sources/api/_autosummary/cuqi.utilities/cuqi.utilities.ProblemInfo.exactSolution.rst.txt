@@ -1,0 +1,6 @@
+cuqi.utilities.ProblemInfo.exactSolution
+========================================
+
+.. currentmodule:: cuqi.utilities
+
+.. autoattribute:: ProblemInfo.exactSolution

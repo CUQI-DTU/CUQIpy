@@ -1,0 +1,6 @@
+cuqi.density.Density.\_\_init\_\_
+=================================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: Density.__init__

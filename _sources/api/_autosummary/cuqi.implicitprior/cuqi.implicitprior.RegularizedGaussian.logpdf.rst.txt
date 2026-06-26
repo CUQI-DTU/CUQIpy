@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.logpdf
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.logpdf

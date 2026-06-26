@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.shift
+============================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: AffineModel.shift

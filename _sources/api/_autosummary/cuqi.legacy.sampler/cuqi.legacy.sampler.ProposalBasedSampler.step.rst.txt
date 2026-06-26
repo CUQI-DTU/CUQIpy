@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.ProposalBasedSampler.step
+=============================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: ProposalBasedSampler.step

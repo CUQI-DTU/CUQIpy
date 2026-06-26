@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.values
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.values

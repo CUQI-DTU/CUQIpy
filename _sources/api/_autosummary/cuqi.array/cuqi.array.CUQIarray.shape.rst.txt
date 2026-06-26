@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.shape
+==========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.shape

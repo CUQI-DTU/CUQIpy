@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.initialize
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.initialize

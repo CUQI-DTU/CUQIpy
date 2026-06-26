@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion\_Full.plot\_envelope
+==============================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: KLExpansion_Full.plot_envelope

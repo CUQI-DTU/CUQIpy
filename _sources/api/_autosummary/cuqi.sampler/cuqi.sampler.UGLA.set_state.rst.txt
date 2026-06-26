@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.set\_state
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.set_state

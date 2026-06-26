@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.rv
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Lognormal.rv

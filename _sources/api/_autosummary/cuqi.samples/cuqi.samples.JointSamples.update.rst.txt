@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.update
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.update

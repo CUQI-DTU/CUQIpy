@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.enable\_FD
+========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: MultipleLikelihoodPosterior.enable_FD

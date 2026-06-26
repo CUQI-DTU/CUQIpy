@@ -1,0 +1,6 @@
+cuqi.algebra.RandomVariable.condition
+=====================================
+
+.. currentmodule:: cuqi.algebra
+
+.. automethod:: RandomVariable.condition

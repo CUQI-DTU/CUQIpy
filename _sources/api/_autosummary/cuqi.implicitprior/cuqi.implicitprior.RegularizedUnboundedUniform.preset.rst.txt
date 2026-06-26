@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.preset
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.preset

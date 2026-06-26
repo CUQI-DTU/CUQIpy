@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.step
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.step

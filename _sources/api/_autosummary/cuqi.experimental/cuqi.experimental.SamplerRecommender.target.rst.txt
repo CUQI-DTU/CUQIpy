@@ -1,0 +1,6 @@
+cuqi.experimental.SamplerRecommender.target
+===========================================
+
+.. currentmodule:: cuqi.experimental
+
+.. autoproperty:: SamplerRecommender.target

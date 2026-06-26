@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.get\_state
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Conjugate.get_state

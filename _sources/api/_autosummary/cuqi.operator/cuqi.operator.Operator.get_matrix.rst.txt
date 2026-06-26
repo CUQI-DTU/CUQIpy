@@ -1,0 +1,6 @@
+cuqi.operator.Operator.get\_matrix
+==================================
+
+.. currentmodule:: cuqi.operator
+
+.. automethod:: Operator.get_matrix

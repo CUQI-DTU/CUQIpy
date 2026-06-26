@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.FD\_epsilon
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.FD_epsilon

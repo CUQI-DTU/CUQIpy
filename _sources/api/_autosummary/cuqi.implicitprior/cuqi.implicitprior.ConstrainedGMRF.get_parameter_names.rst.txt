@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.get\_parameter\_names
+========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.get_parameter_names

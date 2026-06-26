@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.get\_parameter\_names
+====================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedUnboundedUniform.get_parameter_names

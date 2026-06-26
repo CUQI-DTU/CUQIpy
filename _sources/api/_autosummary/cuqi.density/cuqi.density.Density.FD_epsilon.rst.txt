@@ -1,0 +1,6 @@
+cuqi.density.Density.FD\_epsilon
+================================
+
+.. currentmodule:: cuqi.density
+
+.. autoproperty:: Density.FD_epsilon

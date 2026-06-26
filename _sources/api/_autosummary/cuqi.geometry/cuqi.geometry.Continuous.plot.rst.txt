@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous.plot
+=============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Continuous.plot

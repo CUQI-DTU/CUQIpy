@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.get\_history
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.get_history

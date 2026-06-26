@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.is\_cond
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.is_cond

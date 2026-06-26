@@ -1,0 +1,6 @@
+cuqi.pde.SteadyStateLinearPDE.solve
+===================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: SteadyStateLinearPDE.solve

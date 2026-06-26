@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.validate\_target
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.validate_target

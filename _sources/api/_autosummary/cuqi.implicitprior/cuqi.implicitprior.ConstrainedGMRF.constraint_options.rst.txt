@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.constraint\_options
+======================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.constraint_options

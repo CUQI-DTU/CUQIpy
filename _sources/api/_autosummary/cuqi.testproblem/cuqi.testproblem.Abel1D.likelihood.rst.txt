@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.likelihood
+==================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Abel1D.likelihood

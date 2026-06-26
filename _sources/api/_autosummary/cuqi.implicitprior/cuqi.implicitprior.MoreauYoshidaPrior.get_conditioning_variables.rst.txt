@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.get\_conditioning\_variables
+==================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.get_conditioning_variables

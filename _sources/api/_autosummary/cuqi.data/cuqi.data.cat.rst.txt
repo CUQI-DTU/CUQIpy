@@ -1,0 +1,6 @@
+cat
+===
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: cat

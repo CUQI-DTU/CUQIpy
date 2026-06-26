@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.get\_conditioning\_variables
+====================================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.get_conditioning_variables

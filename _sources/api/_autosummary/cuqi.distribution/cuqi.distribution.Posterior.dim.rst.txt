@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.dim
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Posterior.dim

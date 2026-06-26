@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.funvec\_shape
+==========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.funvec_shape

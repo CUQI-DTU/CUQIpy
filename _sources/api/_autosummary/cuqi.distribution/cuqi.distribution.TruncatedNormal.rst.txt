@@ -1,0 +1,51 @@
+TruncatedNormal
+===============
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: TruncatedNormal
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~TruncatedNormal.__init__
+      ~TruncatedNormal.disable_FD
+      ~TruncatedNormal.enable_FD
+      ~TruncatedNormal.get_conditioning_variables
+      ~TruncatedNormal.get_mutable_variables
+      ~TruncatedNormal.get_parameter_names
+      ~TruncatedNormal.gradient
+      ~TruncatedNormal.logd
+      ~TruncatedNormal.logpdf
+      ~TruncatedNormal.pdf
+      ~TruncatedNormal.sample
+      ~TruncatedNormal.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~TruncatedNormal.FD_enabled
+      ~TruncatedNormal.FD_epsilon
+      ~TruncatedNormal.dim
+      ~TruncatedNormal.geometry
+      ~TruncatedNormal.high
+      ~TruncatedNormal.is_cond
+      ~TruncatedNormal.low
+      ~TruncatedNormal.mean
+      ~TruncatedNormal.name
+      ~TruncatedNormal.rv
+      ~TruncatedNormal.std
+   
+   

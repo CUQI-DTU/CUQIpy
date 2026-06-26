@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.logd
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.logd

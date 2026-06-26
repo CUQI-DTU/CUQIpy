@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.fun\_shape
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.fun_shape

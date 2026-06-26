@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.sqrtcov
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.sqrtcov

@@ -1,0 +1,43 @@
+Image2D
+=======
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: Image2D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Image2D.__init__
+      ~Image2D.fun2par
+      ~Image2D.fun2vec
+      ~Image2D.par2fun
+      ~Image2D.plot
+      ~Image2D.plot_envelope
+      ~Image2D.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Image2D.fun_dim
+      ~Image2D.fun_is_array
+      ~Image2D.fun_shape
+      ~Image2D.funvec_dim
+      ~Image2D.funvec_shape
+      ~Image2D.par_dim
+      ~Image2D.par_shape
+      ~Image2D.variables
+   
+   

@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.plot
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: MappedGeometry.plot

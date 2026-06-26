@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.UGLA.sample\_adapt
+======================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: UGLA.sample_adapt

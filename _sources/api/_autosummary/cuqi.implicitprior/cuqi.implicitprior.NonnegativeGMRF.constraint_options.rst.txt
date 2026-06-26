@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.constraint\_options
+======================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.constraint_options

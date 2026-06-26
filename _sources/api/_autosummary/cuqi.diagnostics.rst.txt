@@ -1,0 +1,39 @@
+diagnostics
+===========
+
+Module path: cuqi.diagnostics
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.diagnostics
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree: cuqi.diagnostics
+      :nosignatures:
+      :recursive:
+
+   
+      Geweke
+      spectrum
+      spectrum0
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

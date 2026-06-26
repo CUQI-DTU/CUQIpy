@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.geometry
+==================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UserDefinedDistribution.geometry

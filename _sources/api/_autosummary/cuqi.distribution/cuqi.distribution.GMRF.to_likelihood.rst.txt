@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.to\_likelihood
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.to_likelihood

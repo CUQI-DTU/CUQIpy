@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.FD\_epsilon
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.FD_epsilon

@@ -1,0 +1,6 @@
+cuqi.pde.LinearPDE.solve
+========================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: LinearPDE.solve

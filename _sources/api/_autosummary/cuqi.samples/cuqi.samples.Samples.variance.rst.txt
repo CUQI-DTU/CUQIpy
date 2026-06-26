@@ -1,0 +1,6 @@
+cuqi.samples.Samples.variance
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.variance

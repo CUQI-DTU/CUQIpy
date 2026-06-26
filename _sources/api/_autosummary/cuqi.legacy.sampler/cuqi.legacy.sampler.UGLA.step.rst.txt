@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.UGLA.step
+=============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: UGLA.step

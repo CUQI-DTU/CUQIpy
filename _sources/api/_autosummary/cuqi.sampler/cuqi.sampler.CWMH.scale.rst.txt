@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.scale
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: CWMH.scale

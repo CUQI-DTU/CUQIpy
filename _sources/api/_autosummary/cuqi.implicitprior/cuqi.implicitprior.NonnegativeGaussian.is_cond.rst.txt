@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.is\_cond
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.is_cond

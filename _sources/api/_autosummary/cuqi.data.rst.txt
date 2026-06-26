@@ -1,0 +1,47 @@
+data
+====
+
+Module path: cuqi.data
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.data
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree: cuqi.data
+      :nosignatures:
+      :recursive:
+
+   
+      astronaut
+      camera
+      cat
+      cookie
+      grains
+      imresize
+      p_power
+      rgb2gray
+      satellite
+      shepp_logan
+      threephases
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.fun\_is\_array
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.fun_is_array

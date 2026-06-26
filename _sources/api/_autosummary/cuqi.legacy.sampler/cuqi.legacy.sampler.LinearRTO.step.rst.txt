@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.LinearRTO.step
+==================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: LinearRTO.step

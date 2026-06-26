@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.dim
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PnPULA.dim

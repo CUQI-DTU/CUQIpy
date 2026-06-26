@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.pdf
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.pdf

@@ -1,0 +1,6 @@
+cuqi.experimental.SamplerRecommender.valid\_samplers
+====================================================
+
+.. currentmodule:: cuqi.experimental
+
+.. automethod:: SamplerRecommender.valid_samplers

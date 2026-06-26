@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.reshape
+============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.reshape

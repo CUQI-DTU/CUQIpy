@@ -1,0 +1,6 @@
+cuqi.algebra.RandomVariable.is\_transformed
+===========================================
+
+.. currentmodule:: cuqi.algebra
+
+.. autoproperty:: RandomVariable.is_transformed

@@ -1,0 +1,35 @@
+UserDefinedLikelihood
+=====================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoclass:: UserDefinedLikelihood
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UserDefinedLikelihood.__init__
+      ~UserDefinedLikelihood.get_parameter_names
+      ~UserDefinedLikelihood.gradient
+      ~UserDefinedLikelihood.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UserDefinedLikelihood.dim
+      ~UserDefinedLikelihood.model
+      ~UserDefinedLikelihood.name
+   
+   

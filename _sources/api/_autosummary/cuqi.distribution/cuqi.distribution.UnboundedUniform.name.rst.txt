@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.name
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.name

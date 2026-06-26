@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.dim
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RestorationPrior.dim

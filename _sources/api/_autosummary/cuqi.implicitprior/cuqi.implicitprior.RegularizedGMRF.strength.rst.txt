@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.strength
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGMRF.strength

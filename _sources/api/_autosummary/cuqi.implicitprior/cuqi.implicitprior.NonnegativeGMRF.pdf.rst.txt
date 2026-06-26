@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.pdf
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.pdf

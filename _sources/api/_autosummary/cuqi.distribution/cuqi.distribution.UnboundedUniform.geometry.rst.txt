@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.geometry
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.geometry

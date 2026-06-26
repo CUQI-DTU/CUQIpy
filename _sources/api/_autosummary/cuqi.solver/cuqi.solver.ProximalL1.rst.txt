@@ -1,0 +1,6 @@
+ProximalL1
+==========
+
+.. currentmodule:: cuqi.solver
+
+.. autofunction:: ProximalL1

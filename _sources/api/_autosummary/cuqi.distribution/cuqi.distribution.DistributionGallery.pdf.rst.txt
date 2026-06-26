@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.pdf
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.pdf

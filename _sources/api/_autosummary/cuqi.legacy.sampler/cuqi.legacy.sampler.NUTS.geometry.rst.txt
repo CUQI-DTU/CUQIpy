@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.NUTS.geometry
+=================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: NUTS.geometry

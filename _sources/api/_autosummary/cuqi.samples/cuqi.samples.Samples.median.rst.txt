@@ -1,0 +1,6 @@
+cuqi.samples.Samples.median
+===========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.median

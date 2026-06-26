@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous2D.fun\_is\_array
+=========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Continuous2D.fun_is_array

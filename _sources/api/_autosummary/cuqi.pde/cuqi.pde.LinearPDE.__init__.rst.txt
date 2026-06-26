@@ -1,0 +1,6 @@
+cuqi.pde.LinearPDE.\_\_init\_\_
+===============================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: LinearPDE.__init__

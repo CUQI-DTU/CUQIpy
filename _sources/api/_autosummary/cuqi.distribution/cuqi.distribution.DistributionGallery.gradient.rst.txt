@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.gradient
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.gradient

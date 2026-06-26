@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.plot\_envelope
+===========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: MappedGeometry.plot_envelope

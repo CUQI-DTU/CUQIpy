@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.par\_shape
+======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.par_shape

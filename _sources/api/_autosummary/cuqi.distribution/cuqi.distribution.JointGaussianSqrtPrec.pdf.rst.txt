@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.pdf
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.pdf

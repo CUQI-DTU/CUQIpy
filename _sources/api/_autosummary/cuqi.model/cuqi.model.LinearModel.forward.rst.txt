@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.forward
+==============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: LinearModel.forward

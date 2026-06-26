@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.to\_likelihood
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.to_likelihood

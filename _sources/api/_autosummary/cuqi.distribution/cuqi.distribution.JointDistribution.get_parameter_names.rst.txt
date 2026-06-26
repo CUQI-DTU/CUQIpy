@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.get\_parameter\_names
+=========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointDistribution.get_parameter_names

@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.rv
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.rv

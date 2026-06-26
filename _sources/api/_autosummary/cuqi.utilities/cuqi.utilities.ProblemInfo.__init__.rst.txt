@@ -1,0 +1,6 @@
+cuqi.utilities.ProblemInfo.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.utilities
+
+.. automethod:: ProblemInfo.__init__

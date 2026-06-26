@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.LinearRTO.\_\_init\_\_
+==========================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: LinearRTO.__init__

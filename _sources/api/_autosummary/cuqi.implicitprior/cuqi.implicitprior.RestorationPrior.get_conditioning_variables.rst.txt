@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.get\_conditioning\_variables
+================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.get_conditioning_variables

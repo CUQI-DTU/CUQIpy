@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.geometry
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.geometry

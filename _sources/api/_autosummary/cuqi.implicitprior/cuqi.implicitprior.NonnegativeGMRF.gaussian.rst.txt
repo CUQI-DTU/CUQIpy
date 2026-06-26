@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.gaussian
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.gaussian

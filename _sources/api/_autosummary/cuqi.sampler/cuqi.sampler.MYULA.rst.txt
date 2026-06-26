@@ -1,0 +1,47 @@
+MYULA
+=====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: MYULA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MYULA.__init__
+      ~MYULA.get_history
+      ~MYULA.get_samples
+      ~MYULA.get_state
+      ~MYULA.initialize
+      ~MYULA.load_checkpoint
+      ~MYULA.reinitialize
+      ~MYULA.sample
+      ~MYULA.save_checkpoint
+      ~MYULA.set_history
+      ~MYULA.set_state
+      ~MYULA.step
+      ~MYULA.tune
+      ~MYULA.validate_target
+      ~MYULA.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MYULA.current_point
+      ~MYULA.dim
+      ~MYULA.geometry
+      ~MYULA.target
+   
+   

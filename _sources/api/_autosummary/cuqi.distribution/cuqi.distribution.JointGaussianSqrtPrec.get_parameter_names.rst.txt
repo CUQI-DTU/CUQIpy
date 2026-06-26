@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.get\_parameter\_names
+=============================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.get_parameter_names

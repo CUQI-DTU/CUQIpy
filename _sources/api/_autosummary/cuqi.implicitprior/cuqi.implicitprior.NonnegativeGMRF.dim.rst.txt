@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.dim
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.dim

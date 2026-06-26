@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.geometry
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: DistributionGallery.geometry

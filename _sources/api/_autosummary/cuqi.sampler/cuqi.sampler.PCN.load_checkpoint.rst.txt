@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.load\_checkpoint
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.load_checkpoint

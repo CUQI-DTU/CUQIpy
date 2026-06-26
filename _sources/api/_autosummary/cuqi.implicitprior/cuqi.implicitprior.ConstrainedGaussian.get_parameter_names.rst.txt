@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.get\_parameter\_names
+============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGaussian.get_parameter_names

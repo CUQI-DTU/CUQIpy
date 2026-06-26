@@ -1,0 +1,41 @@
+Abel1D
+======
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoclass:: Abel1D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Abel1D.MAP
+      ~Abel1D.ML
+      ~Abel1D.UQ
+      ~Abel1D.__init__
+      ~Abel1D.get_components
+      ~Abel1D.sample_posterior
+      ~Abel1D.sample_prior
+      ~Abel1D.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Abel1D.data
+      ~Abel1D.likelihood
+      ~Abel1D.model
+      ~Abel1D.posterior
+      ~Abel1D.prior
+   
+   

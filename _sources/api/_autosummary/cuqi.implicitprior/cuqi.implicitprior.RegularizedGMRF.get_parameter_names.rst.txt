@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.get\_parameter\_names
+========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.get_parameter_names

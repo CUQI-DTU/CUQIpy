@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.mT
+=======================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.mT

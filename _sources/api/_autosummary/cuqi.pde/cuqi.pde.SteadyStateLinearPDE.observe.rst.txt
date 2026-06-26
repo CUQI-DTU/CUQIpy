@@ -1,0 +1,6 @@
+cuqi.pde.SteadyStateLinearPDE.observe
+=====================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: SteadyStateLinearPDE.observe

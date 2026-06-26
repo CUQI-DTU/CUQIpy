@@ -1,0 +1,49 @@
+TweediePrior
+============
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: TweediePrior
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~TweediePrior.__init__
+      ~TweediePrior.disable_FD
+      ~TweediePrior.enable_FD
+      ~TweediePrior.get_conditioning_variables
+      ~TweediePrior.get_mutable_variables
+      ~TweediePrior.get_parameter_names
+      ~TweediePrior.gradient
+      ~TweediePrior.logd
+      ~TweediePrior.logpdf
+      ~TweediePrior.pdf
+      ~TweediePrior.sample
+      ~TweediePrior.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~TweediePrior.FD_enabled
+      ~TweediePrior.FD_epsilon
+      ~TweediePrior.dim
+      ~TweediePrior.geometry
+      ~TweediePrior.is_cond
+      ~TweediePrior.name
+      ~TweediePrior.prior
+      ~TweediePrior.rv
+      ~TweediePrior.smoothing_strength
+   
+   

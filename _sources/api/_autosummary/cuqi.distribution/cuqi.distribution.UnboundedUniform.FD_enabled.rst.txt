@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.FD\_enabled
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.FD_enabled

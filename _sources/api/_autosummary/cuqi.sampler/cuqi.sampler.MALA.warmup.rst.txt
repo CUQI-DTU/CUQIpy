@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.warmup
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.warmup

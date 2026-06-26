@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.set\_state
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.set_state

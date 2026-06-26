@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.set\_state
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.set_state

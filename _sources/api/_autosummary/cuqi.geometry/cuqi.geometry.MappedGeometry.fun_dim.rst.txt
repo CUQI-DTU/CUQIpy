@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.fun\_dim
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.fun_dim

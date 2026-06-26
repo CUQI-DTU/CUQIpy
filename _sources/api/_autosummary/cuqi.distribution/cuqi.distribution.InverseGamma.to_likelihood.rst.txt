@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.to\_likelihood
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.to_likelihood

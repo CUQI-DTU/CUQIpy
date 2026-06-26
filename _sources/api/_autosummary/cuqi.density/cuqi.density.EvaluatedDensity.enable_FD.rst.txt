@@ -1,0 +1,6 @@
+cuqi.density.EvaluatedDensity.enable\_FD
+========================================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: EvaluatedDensity.enable_FD

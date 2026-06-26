@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.sample\_posterior
+==============================================
+
+.. currentmodule:: cuqi.problem
+
+.. automethod:: BayesianProblem.sample_posterior

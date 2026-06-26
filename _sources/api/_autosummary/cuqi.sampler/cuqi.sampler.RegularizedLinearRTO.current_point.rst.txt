@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.current\_point
+================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: RegularizedLinearRTO.current_point

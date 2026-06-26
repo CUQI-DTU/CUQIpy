@@ -1,0 +1,50 @@
+NUTS
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: NUTS
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NUTS.__init__
+      ~NUTS.get_history
+      ~NUTS.get_samples
+      ~NUTS.get_state
+      ~NUTS.initialize
+      ~NUTS.load_checkpoint
+      ~NUTS.reinitialize
+      ~NUTS.sample
+      ~NUTS.save_checkpoint
+      ~NUTS.set_history
+      ~NUTS.set_state
+      ~NUTS.step
+      ~NUTS.tune
+      ~NUTS.validate_target
+      ~NUTS.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NUTS.current_point
+      ~NUTS.dim
+      ~NUTS.geometry
+      ~NUTS.max_depth
+      ~NUTS.opt_acc_rate
+      ~NUTS.step_size
+      ~NUTS.target
+   
+   

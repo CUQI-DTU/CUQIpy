@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.enable\_FD
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.enable_FD

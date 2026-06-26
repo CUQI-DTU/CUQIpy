@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.rv
+==================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: TweediePrior.rv

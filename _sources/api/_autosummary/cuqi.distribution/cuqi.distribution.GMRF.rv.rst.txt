@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.rv
+=========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.rv

@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.get\_components
+============================================
+
+.. currentmodule:: cuqi.problem
+
+.. automethod:: BayesianProblem.get_components

@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.resize
+===========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.resize

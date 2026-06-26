@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.get\_parameter\_names
+============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.get_parameter_names

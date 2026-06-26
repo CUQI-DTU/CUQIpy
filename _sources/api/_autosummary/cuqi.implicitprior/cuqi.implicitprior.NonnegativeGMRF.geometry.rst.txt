@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.geometry
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.geometry

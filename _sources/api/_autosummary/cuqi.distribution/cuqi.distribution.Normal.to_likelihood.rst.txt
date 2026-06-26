@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.to\_likelihood
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.to_likelihood

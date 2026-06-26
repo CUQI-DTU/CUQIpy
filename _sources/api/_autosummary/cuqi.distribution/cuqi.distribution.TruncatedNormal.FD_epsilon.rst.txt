@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.FD\_epsilon
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.FD_epsilon

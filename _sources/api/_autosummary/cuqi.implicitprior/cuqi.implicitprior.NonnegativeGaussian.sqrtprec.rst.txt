@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.sqrtprec
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.sqrtprec

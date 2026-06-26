@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.ConjugateApprox.step
+========================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: ConjugateApprox.step

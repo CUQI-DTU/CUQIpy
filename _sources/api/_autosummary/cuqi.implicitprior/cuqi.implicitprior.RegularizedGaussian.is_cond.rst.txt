@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.is\_cond
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.is_cond

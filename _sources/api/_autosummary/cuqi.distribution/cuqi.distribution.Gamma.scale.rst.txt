@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.scale
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.scale

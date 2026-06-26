@@ -1,0 +1,41 @@
+RandomVariable
+==============
+
+.. currentmodule:: cuqi.algebra
+
+.. autoclass:: RandomVariable
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RandomVariable.__init__
+      ~RandomVariable.condition
+      ~RandomVariable.sample
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RandomVariable.dim
+      ~RandomVariable.distribution
+      ~RandomVariable.distributions
+      ~RandomVariable.expression
+      ~RandomVariable.geometry
+      ~RandomVariable.is_cond
+      ~RandomVariable.is_transformed
+      ~RandomVariable.name
+      ~RandomVariable.parameter_names
+      ~RandomVariable.tree
+   
+   

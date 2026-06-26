@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.logd
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.logd

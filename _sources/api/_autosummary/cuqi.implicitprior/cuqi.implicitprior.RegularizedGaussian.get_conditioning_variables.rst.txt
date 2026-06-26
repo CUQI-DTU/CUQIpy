@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.get\_conditioning\_variables
+===================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.get_conditioning_variables

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.FD\_enabled
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGMRF.FD_enabled

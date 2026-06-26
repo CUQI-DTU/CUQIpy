@@ -1,0 +1,47 @@
+geometry
+========
+
+Module path: cuqi.geometry
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.geometry
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.geometry
+    :nosignatures:
+    :recursive:
+
+   
+      Continuous
+      Continuous1D
+      Continuous2D
+      CustomKL
+      Discrete
+      Geometry
+      Image2D
+      KLExpansion
+      KLExpansion_Full
+      MappedGeometry
+      StepExpansion
+   
+   
+
+   
+   
+   
+
+
+

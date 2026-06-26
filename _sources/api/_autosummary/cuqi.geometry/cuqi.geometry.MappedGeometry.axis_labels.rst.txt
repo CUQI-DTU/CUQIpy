@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.axis\_labels
+=========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.axis_labels

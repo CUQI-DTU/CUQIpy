@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.logd
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.logd

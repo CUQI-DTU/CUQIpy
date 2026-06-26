@@ -1,0 +1,6 @@
+cuqi.samples.Samples.plot\_ci\_width
+====================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.plot_ci_width

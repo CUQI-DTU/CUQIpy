@@ -1,0 +1,6 @@
+cuqi.sampler.MH.dim
+===================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MH.dim

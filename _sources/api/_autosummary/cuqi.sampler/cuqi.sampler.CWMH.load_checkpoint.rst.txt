@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.load\_checkpoint
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.load_checkpoint

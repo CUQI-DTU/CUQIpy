@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.to\_likelihood
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.to_likelihood

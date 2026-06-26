@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.sample
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.sample

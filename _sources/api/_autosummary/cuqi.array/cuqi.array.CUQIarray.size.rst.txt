@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.size
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.size

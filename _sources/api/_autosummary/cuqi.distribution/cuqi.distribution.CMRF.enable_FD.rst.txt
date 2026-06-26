@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.enable\_FD
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: CMRF.enable_FD

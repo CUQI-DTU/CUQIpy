@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.dim
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ConjugateApprox.dim

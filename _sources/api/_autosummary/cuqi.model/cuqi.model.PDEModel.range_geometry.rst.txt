@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.range\_geometry
+===================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: PDEModel.range_geometry

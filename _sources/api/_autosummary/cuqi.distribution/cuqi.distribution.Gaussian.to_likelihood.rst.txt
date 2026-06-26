@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.to\_likelihood
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.to_likelihood

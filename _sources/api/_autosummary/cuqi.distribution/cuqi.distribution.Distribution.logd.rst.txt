@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.logd
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Distribution.logd

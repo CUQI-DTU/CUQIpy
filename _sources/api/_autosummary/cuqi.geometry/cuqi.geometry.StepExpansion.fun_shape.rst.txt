@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.fun\_shape
+======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.fun_shape

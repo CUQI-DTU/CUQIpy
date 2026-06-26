@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.initialize
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Conjugate.initialize

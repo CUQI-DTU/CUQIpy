@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.\_\_init\_\_
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Lognormal.__init__

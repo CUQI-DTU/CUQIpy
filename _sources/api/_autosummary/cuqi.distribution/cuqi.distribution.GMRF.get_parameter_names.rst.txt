@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.get\_parameter\_names
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.get_parameter_names

@@ -1,0 +1,49 @@
+MH
+==
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: MH
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MH.__init__
+      ~MH.get_history
+      ~MH.get_samples
+      ~MH.get_state
+      ~MH.initialize
+      ~MH.load_checkpoint
+      ~MH.reinitialize
+      ~MH.sample
+      ~MH.save_checkpoint
+      ~MH.set_history
+      ~MH.set_state
+      ~MH.step
+      ~MH.tune
+      ~MH.validate_proposal
+      ~MH.validate_target
+      ~MH.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MH.current_point
+      ~MH.dim
+      ~MH.geometry
+      ~MH.proposal
+      ~MH.target
+   
+   

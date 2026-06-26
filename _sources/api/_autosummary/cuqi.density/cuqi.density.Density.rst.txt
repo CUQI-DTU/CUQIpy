@@ -1,0 +1,38 @@
+Density
+=======
+
+.. currentmodule:: cuqi.density
+
+.. autoclass:: Density
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Density.__init__
+      ~Density.disable_FD
+      ~Density.enable_FD
+      ~Density.get_parameter_names
+      ~Density.gradient
+      ~Density.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Density.FD_enabled
+      ~Density.FD_epsilon
+      ~Density.dim
+      ~Density.name
+   
+   

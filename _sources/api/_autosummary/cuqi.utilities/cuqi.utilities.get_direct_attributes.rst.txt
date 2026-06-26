@@ -1,0 +1,6 @@
+get\_direct\_attributes
+=======================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: get_direct_attributes

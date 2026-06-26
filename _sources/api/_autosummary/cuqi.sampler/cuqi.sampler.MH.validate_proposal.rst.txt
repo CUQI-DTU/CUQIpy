@@ -1,0 +1,6 @@
+cuqi.sampler.MH.validate\_proposal
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.validate_proposal

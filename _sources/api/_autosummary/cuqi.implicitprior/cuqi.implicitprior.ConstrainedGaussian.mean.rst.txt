@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.mean
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.mean

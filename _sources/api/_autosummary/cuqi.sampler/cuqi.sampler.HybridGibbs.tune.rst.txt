@@ -1,0 +1,6 @@
+cuqi.sampler.HybridGibbs.tune
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: HybridGibbs.tune

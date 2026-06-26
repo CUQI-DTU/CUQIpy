@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.transpose
+==============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.transpose

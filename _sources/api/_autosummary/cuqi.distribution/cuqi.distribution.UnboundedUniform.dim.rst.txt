@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.dim
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UnboundedUniform.dim

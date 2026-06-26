@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.preset
+=========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.preset

@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.byteswap
+=============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.byteswap

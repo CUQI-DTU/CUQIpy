@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.save\_checkpoint
+=============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ConjugateApprox.save_checkpoint

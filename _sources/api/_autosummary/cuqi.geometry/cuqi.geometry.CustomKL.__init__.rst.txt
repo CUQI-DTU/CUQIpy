@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: CustomKL.__init__

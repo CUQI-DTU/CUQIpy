@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.name
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: SmoothedLaplace.name

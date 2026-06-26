@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.validate\_target
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.validate_target

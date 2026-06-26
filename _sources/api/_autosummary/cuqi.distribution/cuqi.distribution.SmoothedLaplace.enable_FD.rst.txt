@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.enable\_FD
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.enable_FD

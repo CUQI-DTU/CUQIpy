@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.gradient
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.gradient

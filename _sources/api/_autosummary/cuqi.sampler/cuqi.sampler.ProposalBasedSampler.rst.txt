@@ -1,0 +1,49 @@
+ProposalBasedSampler
+====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: ProposalBasedSampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ProposalBasedSampler.__init__
+      ~ProposalBasedSampler.get_history
+      ~ProposalBasedSampler.get_samples
+      ~ProposalBasedSampler.get_state
+      ~ProposalBasedSampler.initialize
+      ~ProposalBasedSampler.load_checkpoint
+      ~ProposalBasedSampler.reinitialize
+      ~ProposalBasedSampler.sample
+      ~ProposalBasedSampler.save_checkpoint
+      ~ProposalBasedSampler.set_history
+      ~ProposalBasedSampler.set_state
+      ~ProposalBasedSampler.step
+      ~ProposalBasedSampler.tune
+      ~ProposalBasedSampler.validate_proposal
+      ~ProposalBasedSampler.validate_target
+      ~ProposalBasedSampler.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ProposalBasedSampler.current_point
+      ~ProposalBasedSampler.dim
+      ~ProposalBasedSampler.geometry
+      ~ProposalBasedSampler.proposal
+      ~ProposalBasedSampler.target
+   
+   

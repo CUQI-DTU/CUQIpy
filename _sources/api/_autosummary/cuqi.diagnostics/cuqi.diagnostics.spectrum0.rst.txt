@@ -1,0 +1,6 @@
+spectrum0
+=========
+
+.. currentmodule:: cuqi.diagnostics
+
+.. autofunction:: spectrum0

@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.mean
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.mean

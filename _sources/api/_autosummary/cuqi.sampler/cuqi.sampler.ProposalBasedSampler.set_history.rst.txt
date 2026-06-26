@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.set\_history
+==============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ProposalBasedSampler.set_history

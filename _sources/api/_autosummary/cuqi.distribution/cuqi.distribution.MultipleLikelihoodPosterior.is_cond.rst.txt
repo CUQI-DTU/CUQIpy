@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.is\_cond
+======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: MultipleLikelihoodPosterior.is_cond

@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.solve
+=====================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: TimeDependentLinearPDE.solve

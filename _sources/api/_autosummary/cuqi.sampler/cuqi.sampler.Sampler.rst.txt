@@ -1,0 +1,47 @@
+Sampler
+=======
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: Sampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Sampler.__init__
+      ~Sampler.get_history
+      ~Sampler.get_samples
+      ~Sampler.get_state
+      ~Sampler.initialize
+      ~Sampler.load_checkpoint
+      ~Sampler.reinitialize
+      ~Sampler.sample
+      ~Sampler.save_checkpoint
+      ~Sampler.set_history
+      ~Sampler.set_state
+      ~Sampler.step
+      ~Sampler.tune
+      ~Sampler.validate_target
+      ~Sampler.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Sampler.current_point
+      ~Sampler.dim
+      ~Sampler.geometry
+      ~Sampler.target
+   
+   

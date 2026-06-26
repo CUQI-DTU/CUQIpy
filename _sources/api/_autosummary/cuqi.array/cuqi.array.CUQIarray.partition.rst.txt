@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.partition
+==============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.partition

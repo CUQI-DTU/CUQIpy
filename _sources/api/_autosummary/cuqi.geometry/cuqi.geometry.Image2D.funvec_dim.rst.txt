@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.funvec\_dim
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Image2D.funvec_dim

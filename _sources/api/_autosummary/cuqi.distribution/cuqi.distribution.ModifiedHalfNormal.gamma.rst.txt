@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.gamma
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.gamma

@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.plot
+================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: StepExpansion.plot

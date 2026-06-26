@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.FD\_epsilon
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: MoreauYoshidaPrior.FD_epsilon

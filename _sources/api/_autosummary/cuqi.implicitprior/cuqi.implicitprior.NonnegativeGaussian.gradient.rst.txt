@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.gradient
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.gradient

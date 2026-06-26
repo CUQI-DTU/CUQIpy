@@ -1,0 +1,6 @@
+count\_nonzero
+==============
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: count_nonzero

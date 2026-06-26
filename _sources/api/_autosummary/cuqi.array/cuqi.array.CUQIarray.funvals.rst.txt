@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.funvals
+============================
+
+.. currentmodule:: cuqi.array
+
+.. autoproperty:: CUQIarray.funvals

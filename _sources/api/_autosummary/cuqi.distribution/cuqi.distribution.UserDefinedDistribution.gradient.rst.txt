@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.gradient
+==================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.gradient

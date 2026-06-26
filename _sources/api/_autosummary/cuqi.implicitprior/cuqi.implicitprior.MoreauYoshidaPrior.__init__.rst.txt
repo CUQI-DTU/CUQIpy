@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.\_\_init\_\_
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.__init__

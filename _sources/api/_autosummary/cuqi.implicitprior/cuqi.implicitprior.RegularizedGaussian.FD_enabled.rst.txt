@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.FD\_enabled
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.FD_enabled

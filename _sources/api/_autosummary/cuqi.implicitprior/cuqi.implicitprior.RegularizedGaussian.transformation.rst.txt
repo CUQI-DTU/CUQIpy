@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.transformation
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.transformation

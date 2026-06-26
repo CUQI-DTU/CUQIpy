@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.\_\_init\_\_
+=========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ConjugateApprox.__init__

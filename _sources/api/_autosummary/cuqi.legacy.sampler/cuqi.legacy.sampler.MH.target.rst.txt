@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.MH.target
+=============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: MH.target

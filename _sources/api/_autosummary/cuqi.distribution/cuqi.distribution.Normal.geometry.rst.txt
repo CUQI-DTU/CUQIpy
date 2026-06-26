@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.geometry
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.geometry

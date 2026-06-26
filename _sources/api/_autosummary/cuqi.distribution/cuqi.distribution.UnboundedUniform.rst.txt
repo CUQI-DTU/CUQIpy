@@ -1,0 +1,47 @@
+UnboundedUniform
+================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: UnboundedUniform
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UnboundedUniform.__init__
+      ~UnboundedUniform.disable_FD
+      ~UnboundedUniform.enable_FD
+      ~UnboundedUniform.get_conditioning_variables
+      ~UnboundedUniform.get_mutable_variables
+      ~UnboundedUniform.get_parameter_names
+      ~UnboundedUniform.gradient
+      ~UnboundedUniform.logd
+      ~UnboundedUniform.logpdf
+      ~UnboundedUniform.pdf
+      ~UnboundedUniform.sample
+      ~UnboundedUniform.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UnboundedUniform.FD_enabled
+      ~UnboundedUniform.FD_epsilon
+      ~UnboundedUniform.dim
+      ~UnboundedUniform.geometry
+      ~UnboundedUniform.is_cond
+      ~UnboundedUniform.name
+      ~UnboundedUniform.rv
+   
+   

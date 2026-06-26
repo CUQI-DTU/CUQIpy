@@ -1,0 +1,6 @@
+cuqi.sampler.HybridGibbs.warmup
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: HybridGibbs.warmup

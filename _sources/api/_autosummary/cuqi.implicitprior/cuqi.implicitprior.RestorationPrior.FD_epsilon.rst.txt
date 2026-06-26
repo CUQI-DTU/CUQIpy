@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.FD\_epsilon
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RestorationPrior.FD_epsilon

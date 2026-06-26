@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.get\_parameter\_names
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.get_parameter_names

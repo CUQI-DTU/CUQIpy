@@ -1,0 +1,46 @@
+MappedGeometry
+==============
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: MappedGeometry
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MappedGeometry.__init__
+      ~MappedGeometry.fun2par
+      ~MappedGeometry.fun2vec
+      ~MappedGeometry.par2fun
+      ~MappedGeometry.plot
+      ~MappedGeometry.plot_envelope
+      ~MappedGeometry.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MappedGeometry.axis_labels
+      ~MappedGeometry.fun_dim
+      ~MappedGeometry.fun_is_array
+      ~MappedGeometry.fun_shape
+      ~MappedGeometry.funvec_dim
+      ~MappedGeometry.funvec_shape
+      ~MappedGeometry.grid
+      ~MappedGeometry.mesh
+      ~MappedGeometry.par_dim
+      ~MappedGeometry.par_shape
+      ~MappedGeometry.variables
+   
+   

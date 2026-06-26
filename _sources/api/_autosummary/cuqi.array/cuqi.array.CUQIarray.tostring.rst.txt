@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.tostring
+=============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.tostring

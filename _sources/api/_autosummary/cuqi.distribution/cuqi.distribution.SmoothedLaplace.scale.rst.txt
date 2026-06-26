@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.scale
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: SmoothedLaplace.scale

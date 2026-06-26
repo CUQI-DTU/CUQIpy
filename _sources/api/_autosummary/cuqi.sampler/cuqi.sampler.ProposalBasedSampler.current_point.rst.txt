@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.current\_point
+================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ProposalBasedSampler.current_point

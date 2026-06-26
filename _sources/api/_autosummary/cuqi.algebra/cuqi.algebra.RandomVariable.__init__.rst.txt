@@ -1,0 +1,6 @@
+cuqi.algebra.RandomVariable.\_\_init\_\_
+========================================
+
+.. currentmodule:: cuqi.algebra
+
+.. automethod:: RandomVariable.__init__

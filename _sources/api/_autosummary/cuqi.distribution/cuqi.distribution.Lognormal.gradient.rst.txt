@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.gradient
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Lognormal.gradient

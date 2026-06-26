@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.sqrtcov
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.sqrtcov

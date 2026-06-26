@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.LinearRTO.likelihoods
+=========================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: LinearRTO.likelihoods

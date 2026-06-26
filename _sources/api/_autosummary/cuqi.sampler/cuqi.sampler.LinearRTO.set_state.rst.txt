@@ -1,0 +1,6 @@
+cuqi.sampler.LinearRTO.set\_state
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: LinearRTO.set_state

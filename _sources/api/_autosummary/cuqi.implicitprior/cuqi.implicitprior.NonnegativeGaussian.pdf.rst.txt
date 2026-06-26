@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.pdf
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.pdf

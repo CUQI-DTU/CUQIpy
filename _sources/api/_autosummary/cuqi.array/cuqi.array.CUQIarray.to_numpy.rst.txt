@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.to\_numpy
+==============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.to_numpy

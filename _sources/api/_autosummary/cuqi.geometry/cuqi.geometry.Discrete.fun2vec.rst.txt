@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.fun2vec
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Discrete.fun2vec

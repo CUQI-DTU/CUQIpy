@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.prec
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGMRF.prec

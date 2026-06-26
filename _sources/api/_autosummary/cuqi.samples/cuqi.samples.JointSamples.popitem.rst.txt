@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.popitem
+=================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.popitem

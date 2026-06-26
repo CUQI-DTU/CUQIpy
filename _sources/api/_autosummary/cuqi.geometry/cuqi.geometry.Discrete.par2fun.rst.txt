@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.par2fun
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Discrete.par2fun

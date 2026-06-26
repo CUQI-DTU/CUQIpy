@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.shift
+============================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: LinearModel.shift

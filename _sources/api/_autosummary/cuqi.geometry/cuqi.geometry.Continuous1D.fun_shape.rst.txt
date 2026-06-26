@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous1D.fun\_shape
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Continuous1D.fun_shape

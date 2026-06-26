@@ -1,0 +1,50 @@
+pde
+===
+
+Module path: cuqi.pde
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.pde
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree: cuqi.pde
+      :nosignatures:
+      :recursive:
+
+   
+      FD_spatial_gradient
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.pde
+    :nosignatures:
+    :recursive:
+
+   
+      LinearPDE
+      PDE
+      SteadyStateLinearPDE
+      TimeDependentLinearPDE
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+count\_constant\_components\_1D
+===============================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: count_constant_components_1D

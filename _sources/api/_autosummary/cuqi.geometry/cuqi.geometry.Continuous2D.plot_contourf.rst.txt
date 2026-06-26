@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous2D.plot\_contourf
+=========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Continuous2D.plot_contourf
