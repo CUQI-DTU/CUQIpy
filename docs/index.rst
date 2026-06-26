@@ -195,12 +195,19 @@ A number of plugins are available as separate packages that expand the functiona
 
    - `CUQIpy-PyTorch: <https://github.com/CUQI-DTU/CUQIpy-PyTorch>`_ A plugin providing access to the automatic differentiation framework of `PyTorch <https://pytorch.org>`_ within CUQIpy. It allows gradient-based sampling methods without manually providing derivative information of distributions and forward models.
 
+💻 Maintainers
+--------------
+- `Nicolai André Brogaard Riis <https://github.com/nabriis>`_
 
-🌟 Contributors
-------------
+- `Amal Mohammed A Alghamdi <https://github.com/amal-ghamdi>`_
 
-A big shoutout to our passionate team! Discover the talented individuals behind CUQIpy
-`here <https://github.com/CUQI-DTU/CUQIpy/graphs/contributors>`__.
+- `Chao Zhang <https://github.com/chaozg>`_
+
+- `Jakob Sauer Jørgensen <https://github.com/jakobsj>`_
+
+🌟 Community contributors
+------------------------
+A big shoutout to the community members who have contributed to CUQIpy! Their `contributions <https://github.com/CUQI-DTU/CUQIpy/graphs/contributors>`_ are much appreciated.
 
 📖 How to cite CUQIpy
 ---------------
