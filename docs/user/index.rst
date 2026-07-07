@@ -9,17 +9,20 @@ The main resources for users are structured as follows.
 - :doc:`Getting started <getting_started>`
    Get CUQIpy up and running on your system and learn the basics.
 
-- :doc:`Tutorials <_auto_tutorials/index>`
-   To learn about the features of CUQIpy. Tutorials are step-by-step guides for learning about CUQIpy and how to use it for uncertainty quantification.
+.. - :doc:`Tutorials <_auto_tutorials/index>`
+..    To learn about the features of CUQIpy. Tutorials are step-by-step guides for learning about CUQIpy and how to use it for uncertainty quantification.
 
 - :doc:`How-To Guides <_auto_howtos/index>`
    To solve a specific task/problem using CUQIpy. How-to guides are more in-depth guides for specific features of CUQIpy. They are *recipes* for how to do a specific thing and assume a basic understanding of CUQIpy.
 
-- :doc:`Background <background/index>`
-   To understand how CUQIpy works. This section contains information about the underlying mathematics, theory and computational algorithms used in CUQIpy.
+.. - :doc:`Background <background/index>`
+..    To understand how CUQIpy works. This section contains information about the underlying mathematics, theory and computational algorithms used in CUQIpy.
 
 - :doc:`API Reference <../api/index>`
    To see documentation of the CUQIpy API. This contains an overview of all the modules, classes and methods in CUQIpy.
+
+- :doc:`CUQI Book <https://cuqi-dtu.github.io/CUQI-Book/>`_
+   CUQI Book provides a more detailed exposition of the theory and algorithms underlying CUQIpy, along with guidance on its use and selected research applications.
 
 - :doc:`Papers and citation <papers>`
    To find the official CUQIpy papers to cite and a list of papers that use CUQIpy.
