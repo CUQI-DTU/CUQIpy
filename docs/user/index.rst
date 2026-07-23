@@ -15,7 +15,7 @@ The main resources for users are structured as follows.
 - :doc:`API Reference <../api/index>`
    To see documentation of the CUQIpy API. This contains an overview of all the modules, classes and methods in CUQIpy.
 
-- :doc:`CUQI Book <https://cuqi-dtu.github.io/CUQI-Book/>`_
+- `CUQI Book <https://cuqi-dtu.github.io/CUQI-Book/>`_
    CUQI Book provides a more detailed exposition of the theory and algorithms underlying CUQIpy, along with guidance on its use and selected research applications.
 
 - :doc:`Papers and citation <papers>`
