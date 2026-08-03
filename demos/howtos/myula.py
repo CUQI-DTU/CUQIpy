@@ -36,17 +36,17 @@ A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
 # ----------------------
 # The goal is to solve this inverse problem by sampling from the posterior
 # distribution given by :math:`\pi(x|y) \propto \pi(x) \pi(y|x)`.
-# We assume a Gaussian likelihood, ie :math:`- \log \pi(y|x) = \|Ax-y \|_2^2/2 \texttt{sigma2}`
+# We assume a Gaussian likelihood, ie :math:`- \log \pi(y|x) = \|Ax-y \|_2^2/2 \mathtt{sigma2}`
 # and a prior such that :math:`- \log \pi (x) =  g(x)` with :math:`g` convex.
 # To sample from :math:`\pi(x|y)`, we are going to apply a ULA based algorithm,
 # MYULA (https://arxiv.org/pdf/1612.07471).
 # We recall that ULA
 #
 # .. math::
-#       x_{k+1} = x_k + \texttt{scale} \nabla \log \pi(x_k |y) + \sqrt{2 \texttt{scale}} z_{k+1}
+#       x_{k+1} = x_k + \mathtt{scale} \nabla \log \pi(x_k |y) + \sqrt{2 \mathtt{scale}} z_{k+1}
 #
 # .. math::
-#       x_{k+1} = x_k + \texttt{scale} \nabla \log \pi(y | x_k) + \texttt{scale} \nabla \log \pi(x_k) + \sqrt{2 \texttt{scale}} z_{k+1}
+#       x_{k+1} = x_k + \mathtt{scale} \nabla \log \pi(y | x_k) + \mathtt{scale} \nabla \log \pi(x_k) + \sqrt{2 \mathtt{scale}} z_{k+1}
 #
 # with :math:`(z_k)_{k \in \mathbb{N}^*}` a sequence of independent and
 # identically distributed Gaussian random variables
@@ -54,43 +54,41 @@ A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
 #
 # In the case where :math:`\log \pi(x)` is not differentiable we can
 # unfortunately not apply ULA. The idea is to consider a surrogate
-# posterior density :math:`\pi_{\texttt{smoothing_strength}} (x|y) \propto \pi(y|x) \pi_{\texttt{smoothing_strength}} (x)`
+# posterior density :math:`\pi_{\mathtt{smoothing\_strength}} (x|y) \propto \pi(y|x) \pi_{\mathtt{smoothing\_strength}} (x)`
 # where
 #
 # .. math::
-#       \pi_{\texttt{smoothing_strength}}(x) \propto \exp(- g_{\texttt{smoothing_strength}} (x))
+#       \pi_{\mathtt{smoothing\_strength}}(x) \propto \exp(- g_{\mathtt{smoothing\_strength}} (x))
 #
-# and :math:`g_{\texttt{smoothing_strength}}` is the
-# :math:`\texttt{smoothing_strength}`-Moreau envelope of :math:`g`, ie
-#
-# .. math::
-#       g_\texttt{smoothing_strength}(x) = \operatorname{inf}_z \| x- z \|_2^2/2\texttt{smoothing_strength} + g(z).
-#
-# :math:`g_{\texttt{smoothing_strength}}` is continuously differentiable with :math:`1/\texttt{smoothing_strength}`-Lipschitz gradient and s.t
+# and :math:`g_{\mathtt{smoothing\_strength}}` is the
+# :math:`\mathtt{smoothing\_strength}`-Moreau envelope of :math:`g`, ie
 #
 # .. math::
-#       \nabla g_{\texttt{smoothing_strength}} (x) = (x- \operatorname{prox}_g^{\texttt{smoothing_strength}} (x))/\texttt{smoothing_strength}
+#       g_{\mathtt{smoothing\_strength}}(x) = \operatorname{inf}_z \| x- z \|_2^2/2\mathtt{smoothing\_strength} + g(z).
+#
+# :math:`g_{\mathtt{smoothing\_strength}}` is continuously differentiable with :math:`1/\mathtt{smoothing\_strength}`-Lipschitz gradient and s.t
+#
+# .. math::
+#       \nabla g_{\mathtt{smoothing\_strength}} (x) = (x- \operatorname{prox}_g^{\mathtt{smoothing\_strength}} (x))/\mathtt{smoothing\_strength}
 #
 # with
 #
 # .. math::
-#       \operatorname{prox}_g^{\texttt{smoothing_strength}} (x) = \operatorname{argmin}_z \|x-z \|_2^2/2\texttt{smoothing_strength} + g(z)
+#       \operatorname{prox}_g^{\mathtt{smoothing\_strength}} (x) = \operatorname{argmin}_z \|x-z \|_2^2/2\mathtt{smoothing\_strength} + g(z)
 #
 # See https://link.springer.com/chapter/10.1007/978-3-319-48311-5_31 for more details.
 #
 # MYULA consists in applying ULA to a smoothed target distribution. It reads
 #
 # .. math::
-#       \begin{align*}
-#       x_{k+1} &= x_k + \texttt{scale} \nabla \log \pi_{\texttt{smoothing_strength}}(x_k |y) + \sqrt{2 \texttt{scale}} z_{k+1}\\
-#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) + \texttt{scale} \nabla \log \pi_{\texttt{smoothing_strength}}(x_k) + \sqrt{2 \texttt{scale}} z_{k+1}\\
-#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) - \texttt{scale} (x_k - \operatorname{prox}_g^{\texttt{smoothing_strength}} (x_k))/{\texttt{smoothing_strength}} + \sqrt{2 \texttt{scale}} z_{k+1}.
-#       \end{align*}
+#       x_{k+1} &= x_k + \mathtt{scale} \nabla \log \pi_{\mathtt{smoothing\_strength}}(x_k |y) + \sqrt{2 \mathtt{scale}} z_{k+1}\\
+#       &= x_k + \mathtt{scale} \nabla \log \pi(y | x_k) + \mathtt{scale} \nabla \log \pi_{\mathtt{smoothing\_strength}}(x_k) + \sqrt{2 \mathtt{scale}} z_{k+1}\\
+#       &= x_k + \mathtt{scale} \nabla \log \pi(y | x_k) - \mathtt{scale} (x_k - \operatorname{prox}_g^{\mathtt{smoothing\_strength}} (x_k))/{\mathtt{smoothing\_strength}} + \sqrt{2 \mathtt{scale}} z_{k+1}.
 #
-# where :math:`\texttt{smoothing_strength}` corresponds to the smoothing strength of :math:`g`.
+# where :math:`\mathtt{smoothing\_strength}` corresponds to the smoothing strength of :math:`g`.
 #
-# To illustrate MYULA, we will consider :math:`g(x) = \texttt{regularization_strength} \  TV(x) = \texttt{regularization_strength} \|\nabla x \|_{2, 1}`,
-# where :math:`\texttt{regularization_strength}` is the regularization parameter which
+# To illustrate MYULA, we will consider :math:`g(x) = \mathtt{regularization\_strength} \  TV(x) = \mathtt{regularization\_strength} \|\nabla x \|_{2, 1}`,
+# where :math:`\mathtt{regularization\_strength}` is the regularization parameter which
 # controls the regularization strength induced by TV.
 
 # %%
@@ -99,12 +97,10 @@ A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
 # Then consider the following Bayesian Inverse Problem:
 #
 # .. math::
-#    \begin{align*}
-#    \mathbf{x} &\sim \exp (- \texttt{regularization_strength} \|\nabla x \|_{2,1})\\
-#    \mathbf{y}_{obs} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \texttt{sigma2}\,\mathbf{I}) \ ,
-#    \end{align*}
+#    \mathbf{x} &\sim \exp (- \mathtt{regularization\_strength} \|\nabla x \|_{2,1})\\
+#    \mathbf{y}_{obs} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \mathtt{sigma2}\,\mathbf{I}) \ ,
 #
-# with :math:`\texttt{sigma2}=0.05^2`.
+# with :math:`\mathtt{sigma2}=0.05^2`.
 
 # %%
 # Likelihood definition
@@ -120,12 +116,12 @@ likelihood = y(y=y_obs)
 # RestorationPrior and MoreauYoshidaPrior
 # ---------------------------------------
 # To apply MYULA, we need to define the Moreau-Yoshida prior
-# :math:`\pi_{\texttt{smoothing_stength}}(x)`.
+# :math:`\pi_{\mathtt{smoothing\_strength}}(x)`.
 # Evaluating this surrogate prior is doable but too intensive from
 # a computational point of view as it requires to solve an optimization problem.
 # However to apply MYULA, we only require access to
-# :math:`\operatorname{prox}_{\texttt{regularization_strength}\ TV}^{\texttt{smoothing_strength}}`.
-# :math:`\operatorname{prox}_{\texttt{regularization_strength}\ TV}^{\texttt{smoothing_strength}}`
+# :math:`\operatorname{prox}_{\mathtt{regularization\_strength}\ TV}^{\mathtt{smoothing\_strength}}`.
+# :math:`\operatorname{prox}_{\mathtt{regularization\_strength}\ TV}^{\mathtt{smoothing\_strength}}`
 # is a denoising operator (also called denoiser), which takes a signal as input
 # and returns a less noisy
 # signal. In CUQIPy, we talk about restoration operators (also called restorators).
@@ -138,20 +134,20 @@ likelihood = y(y=y_obs)
 # RestorationPrior definition
 # ---------------------------
 # A restorator, is associated with a parameter called
-# :math:`\texttt{restoration_strength}`. This parameter indicates how strong is
+# :math:`\mathtt{restoration\_strength}`. This parameter indicates how strong is
 # the restoration. For example, when this restorator is a denoiser, an operator
-# taking an signal as input and returning a less noisy signal, :math:`\texttt{restoration_strength}`
+# taking an signal as input and returning a less noisy signal, :math:`\mathtt{restoration\_strength}`
 # can correspond to the  denoising level.
 # In the following, we consider the denoiser
-# :math:`\operatorname{prox}_{\texttt{regularization_strength}\ TV}^{\texttt{restoration_strength}}`.
+# :math:`\operatorname{prox}_{\mathtt{regularization\_strength}\ TV}^{\mathtt{restoration\_strength}}`.
 # We use the implementation provided by Scikit-Image. But we can use any solver
 # to compute this quantity.
 # We emphasize that we have for any :math:`g`
 #
 # .. math::
-#       \operatorname{prox}_{\texttt{regularization_strength}\  g}^{\texttt{smoothing_strength}} = \operatorname{prox}_{g}^{\texttt{weight}} ,
+#       \operatorname{prox}_{\mathtt{regularization\_strength}\  g}^{\mathtt{smoothing\_strength}} = \operatorname{prox}_{g}^{\mathtt{weight}} ,
 #
-# with :math:`\texttt{weight} = \texttt{regularization_strength} \times  \texttt{smoothing_strength}`.
+# with :math:`\mathtt{weight} = \mathtt{regularization\_strength} \times  \mathtt{smoothing\_strength}`.
 regularization_strength = 10
 restoration_strength = 0.5 * sigma2
 from skimage.restoration import denoise_tv_chambolle
@@ -164,7 +160,7 @@ def prox_g(x, regularization_strength=None, restoration_strength=None):
 
 # %%
 # We save all the important variables into the variable
-# :math:`\texttt{restorator_kwargs}`.
+# :math:`\mathtt{restorator\_kwargs}`.
 restorator_kwargs = {}
 restorator_kwargs["regularization_strength"] = regularization_strength
 # %%
@@ -202,13 +198,13 @@ print(
 # Definition of the Moreau-Yoshida prior
 # --------------------------------------
 # It is a smoothed version from the target prior. Its definition requires a prior
-# of type RestorationPrior and a scalar parameter :math:`\texttt{smoothing_strength}`
+# of type RestorationPrior and a scalar parameter :math:`\mathtt{smoothing\_strength}`
 # which controls the strength of the smoothing. We must have
-# :math:`\texttt{smoothing_strength}=\texttt{restoration_strength}`.
+# :math:`\mathtt{smoothing\_strength}=\mathtt{restoration\_strength}`.
 #
 # As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the
-# smoothing parameter :math:`\texttt{smoothing_strength} \approx \texttt{sigma2}`,
-# ie :math:`\texttt{smoothing_strength}= 0.5 \ \texttt{sigma2}`.
+# smoothing parameter :math:`\mathtt{smoothing\_strength} \approx \mathtt{sigma2}`,
+# ie :math:`\mathtt{smoothing\_strength}= 0.5 \ \mathtt{sigma2}`.
 myprior = MoreauYoshidaPrior(prior=restorator, smoothing_strength=restoration_strength)
 
 # %%
@@ -221,18 +217,18 @@ smoothed_posterior = Posterior(likelihood, myprior)
 # %%
 # Parameters of the MYULA sampler
 # -------------------------------
-# We let run MYULA for :math:`\texttt{Ns}=10^4`
-# iterations. We discard the :math:`\texttt{Nb}=1000` first burn-in samples of
+# We let run MYULA for :math:`\mathtt{Ns}=10^4`
+# iterations. We discard the :math:`\mathtt{Nb}=1000` first burn-in samples of
 # the Markov chain. Furthermore, as MCMC methods generate
 # correlated samples, we also perform a thinning: we only consider 1 samples
-# every :math:`\texttt{Nt}=20`
+# every :math:`\mathtt{Nt}=20`
 # samples to compute our quantities of interest.
-# :math:`\texttt{scale}` is set wrt the recommendation of Durmus et al.
+# :math:`\mathtt{scale}` is set wrt the recommendation of Durmus et al.
 # (https://arxiv.org/pdf/1612.07471). It must be smaller than the inverse of the
 # Lipschitz constant of the gradient of the log-posterior density. In this setting,
 # The Lipschitz constant of the gradient of likelihood log-density is
-# :math:`\|A^TA \|_2^2/\texttt{sigma2}` and the one of the log-prior is
-# :math:`1/\texttt{smoothing_strength}`.
+# :math:`\|A^TA \|_2^2/\mathtt{sigma2}` and the one of the log-prior is
+# :math:`1/\mathtt{smoothing\_strength}`.
 Ns = 10000
 Nb = 1000
 Nt = 20
@@ -280,7 +276,7 @@ posterior = Posterior(likelihood, restorator)
 # %%
 # Definition of the MYULA sampler
 # -------------------------------
-# Again, we must have :math:`\texttt{smoothing_strength}=\texttt{restoration_strength}`.
+# Again, we must have :math:`\mathtt{smoothing\_strength}=\mathtt{restoration\_strength}`.
 myula_sampler = MYULA(
     target=posterior, scale=scale, smoothing_strength=restoration_strength
 )
