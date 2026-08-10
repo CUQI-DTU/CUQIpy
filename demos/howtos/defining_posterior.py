@@ -29,10 +29,8 @@ A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
 # Then consider the following Bayesian model
 #
 # .. math::
-#    \begin{align*}
-#    \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, 0.1\,\mathbf{I})\\
-#    \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2\,\mathbf{I})
-#    \end{align*}
+#    \mathbf{x} \sim \mathcal{N}(\mathbf{0}, 0.1\,\mathbf{I})\\
+#    \mathbf{y} \sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2\,\mathbf{I})
 #
 # which can be written in CUQIpy as
 
@@ -64,10 +62,8 @@ posterior.logd(np.ones(A.domain_dim))
 # Suppose we had two forward models :math:`\mathbf{A}` and :math:`\mathbf{B}`:
 #
 # .. math::
-#    \begin{align*}
-#    \mathbf{y} &= \mathbf{A}\mathbf{x}\\
-#    \mathbf{d} &= \mathbf{B}\mathbf{x}\\
-#    \end{align*}
+#    \mathbf{y} = \mathbf{A}\mathbf{x}\\
+#    \mathbf{d} = \mathbf{B}\mathbf{x}
 
 # Both observations come from the same unknown x
 A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
@@ -77,11 +73,9 @@ B, d_obs, _ = cuqi.testproblem.Deconvolution1D(PSF="Defocus", noise_std=0.02).ge
 # Then consider the following Bayesian model
 #
 # .. math::
-#    \begin{align*}
-#    \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, 0.1\,\mathbf{I})\\
-#    \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2\mathbf{I})\\
-#    \mathbf{d} &\sim \mathcal{N}(\mathbf{B}\mathbf{x}, 0.01^2\mathbf{I})
-#    \end{align*}
+#    \mathbf{x} \sim \mathcal{N}(\mathbf{0}, 0.1\,\mathbf{I})\\
+#    \mathbf{y} \sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2\mathbf{I})\\
+#    \mathbf{d} \sim \mathcal{N}(\mathbf{B}\mathbf{x}, 0.01^2\mathbf{I})
 
 x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
 y = cuqi.distribution.Gaussian(A(x), 0.05**2)
@@ -115,11 +109,9 @@ posterior2.logd(np.ones(A.domain_dim))
 # we have the following 3 forward models
 #
 # .. math::
-#    \begin{align*}
-#    \mathbf{y} &= \mathbf{A}\mathbf{x}\\
-#    \mathbf{d} &= \mathbf{B}\mathbf{x}\\
-#    \mathbf{b} &= C(\mathbf{x})
-#    \end{align*}
+#    \mathbf{y} = \mathbf{A}\mathbf{x}\\
+#    \mathbf{d} = \mathbf{B}\mathbf{x}\\
+#    \mathbf{b} = C(\mathbf{x})
 #
 # where :math:`C` is a nonlinear function.
 
@@ -133,15 +125,13 @@ b_obs = 16
 # Then consider the following Bayesian model
 #
 # .. math::
-#    \begin{align*}
-#    q          &\sim \mathcal{U}(0.1, 10)\\
-#    l          &\sim \mathrm{Gamma}(1, 1)\\
-#    s          &\sim \mathrm{Gamma}(1, 10^{-2})\\
-#    \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, l^{-1}\mathbf{I})\\
-#    \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, s^{-1}\mathbf{I})\\
-#    \mathbf{d} &\sim \mathcal{N}(\mathbf{B}\mathbf{x}, 0.01\mathbf{I})\\
-#    \mathbf{b} &\sim \mathcal{L}(\mathbf{C}(\mathbf{x}), q)
-#    \end{align*}
+#    q          \sim \mathcal{U}(0.1, 10)\\
+#    l          \sim \mathrm{Gamma}(1, 1)\\
+#    s          \sim \mathrm{Gamma}(1, 10^{-2})\\
+#    \mathbf{x} \sim \mathcal{N}(\mathbf{0}, l^{-1}\mathbf{I})\\
+#    \mathbf{y} \sim \mathcal{N}(\mathbf{A}\mathbf{x}, s^{-1}\mathbf{I})\\
+#    \mathbf{d} \sim \mathcal{N}(\mathbf{B}\mathbf{x}, 0.01\mathbf{I})\\
+#    \mathbf{b} \sim \mathcal{L}(\mathbf{C}(\mathbf{x}), q)
 
 q = cuqi.distribution.Uniform(0.1, 10)
 l = cuqi.distribution.Gamma(1, 1)
