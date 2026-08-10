@@ -127,7 +127,7 @@ class MoreauYoshidaPrior(Distribution):
             \mathrm{prox}_g^{\mathrm{smoothing\_strength}}(x) = \operatorname{argmin}_z 0.5 \| x-z \|_2^2/\mathrm{smoothing\_strength} + g(z) .
 
     Consequently, we can apply any gradient-based algorithm with
-    :math:`g_{\text{smoothing_strength}}` in lieu of g. These algorithms do not require the
+    :math:`g_{\mathrm{smoothing\_strength}}` in lieu of g. These algorithms do not require the
     full knowledge of :math:`g_{\mathrm{smoothing\_strength}}` but only its gradient. The gradient
     of :math:`g_{\mathrm{smoothing\_strength}}` is fully determined by :math:`\mathrm{prox}_g^{\mathrm{smoothing\_strength}}`
     and :math:`\mathrm{smoothing\_strength}`.
