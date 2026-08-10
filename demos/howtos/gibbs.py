@@ -2,28 +2,28 @@
 Gibbs sampling
 ==============
 
-    This tutorial shows how to use CUQIpy to perform Gibbs sampling.
-    Gibbs sampling is a Markov chain Monte Carlo (MCMC) method for
-    sampling a joint probability distribution.
+This tutorial shows how to use CUQIpy to perform Gibbs sampling.
+Gibbs sampling is a Markov chain Monte Carlo (MCMC) method for
+sampling a joint probability distribution.
 
-    Opposed to jointly sampling the distribution simultaneously, Gibbs
-    sampling samples the variables of the distribution sequentially,
-    one variable at a time. When a variable represents a random vector, the
-    whole vector is sampled simultaneously.
-    
-    The sampling of each variable is done by sampling from the conditional
-    distribution of that variable given (fixed, previously sampled) values
-    of the other variables.
+Opposed to jointly sampling the distribution simultaneously, Gibbs
+sampling samples the variables of the distribution sequentially,
+one variable at a time. When a variable represents a random vector, the
+whole vector is sampled simultaneously.
 
-    This is often a very efficient way of sampling from a joint
-    distribution if the conditional distributions are easy to sample
-    from. This is one way to exploit the structure of the joint
-    distribution. On the other hand, if the conditional distributions
-    are highly correlated and/or are difficult to sample from, then
-    Gibbs sampling can be very inefficient.
+The sampling of each variable is done by sampling from the conditional
+distribution of that variable given (fixed, previously sampled) values
+of the other variables.
 
-    For these reasons, Gibbs sampling is often a double-edged sword,
-    that needs to be used in the right context.
+This is often a very efficient way of sampling from a joint
+distribution if the conditional distributions are easy to sample
+from. This is one way to exploit the structure of the joint
+distribution. On the other hand, if the conditional distributions
+are highly correlated and/or are difficult to sample from, then
+Gibbs sampling can be very inefficient.
+
+For these reasons, Gibbs sampling is often a double-edged sword,
+that needs to be used in the right context.
 
 """
 # %%
@@ -77,12 +77,10 @@ plt.title("Observed data")
 #
 # .. math::
 #
-#     \begin{align}
-#         d &\sim \mathrm{Gamma}(1, 10^{-4}) \\
-#         l &\sim \mathrm{Gamma}(1, 10^{-4}) \\
-#         \mathbf{x} &\sim \mathrm{GMRF}(\mathbf{0}, d) \\
-#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, l^{-1} \mathbf{I}_m)
-#     \end{align}
+#     d \sim \mathrm{Gamma}(1, 10^{-4}) \\
+#     l \sim \mathrm{Gamma}(1, 10^{-4}) \\
+#     \mathbf{x} \sim \mathrm{GMRF}(\mathbf{0}, d) \\
+#     \mathbf{y} \sim \mathcal{N}(\mathbf{A} \mathbf{x}, l^{-1} \mathbf{I}_m)
 #
 # where :math:`\mathbf{y}` is the observed data, and :math:`\mathbf{x}`
 # is the unknown signal. The hyperparameters :math:`d` and :math:`l` are
