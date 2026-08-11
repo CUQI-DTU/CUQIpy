@@ -1,0 +1,24 @@
+ScipyLBFGSB
+===========
+
+.. currentmodule:: cuqi.solver
+
+.. autoclass:: ScipyLBFGSB
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ScipyLBFGSB.__init__
+      ~ScipyLBFGSB.solve
+   
+   
+
+   
+   
+   

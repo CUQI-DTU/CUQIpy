@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.ProposalBasedSampler.target
+===============================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: ProposalBasedSampler.target

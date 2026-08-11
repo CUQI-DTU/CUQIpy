@@ -1,0 +1,6 @@
+cuqi.operator.FirstOrderFiniteDifference.\_\_init\_\_
+=====================================================
+
+.. currentmodule:: cuqi.operator
+
+.. automethod:: FirstOrderFiniteDifference.__init__

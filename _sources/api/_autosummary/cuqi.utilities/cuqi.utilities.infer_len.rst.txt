@@ -1,0 +1,6 @@
+infer\_len
+==========
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: infer_len

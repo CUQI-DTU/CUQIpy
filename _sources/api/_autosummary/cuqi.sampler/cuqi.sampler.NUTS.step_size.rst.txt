@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.step\_size
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: NUTS.step_size

@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.tune
+======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.tune

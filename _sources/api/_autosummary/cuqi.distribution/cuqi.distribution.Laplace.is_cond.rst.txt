@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.is\_cond
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Laplace.is_cond

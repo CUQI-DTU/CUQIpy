@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.get\_mutable\_variables
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.get_mutable_variables

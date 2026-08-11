@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.name
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.name

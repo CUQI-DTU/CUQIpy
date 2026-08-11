@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.gradient
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace.gradient

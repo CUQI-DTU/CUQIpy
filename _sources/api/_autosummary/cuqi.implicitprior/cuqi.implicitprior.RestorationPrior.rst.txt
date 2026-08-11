@@ -1,0 +1,48 @@
+RestorationPrior
+================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: RestorationPrior
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RestorationPrior.__init__
+      ~RestorationPrior.disable_FD
+      ~RestorationPrior.enable_FD
+      ~RestorationPrior.get_conditioning_variables
+      ~RestorationPrior.get_mutable_variables
+      ~RestorationPrior.get_parameter_names
+      ~RestorationPrior.gradient
+      ~RestorationPrior.logd
+      ~RestorationPrior.logpdf
+      ~RestorationPrior.pdf
+      ~RestorationPrior.restore
+      ~RestorationPrior.sample
+      ~RestorationPrior.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RestorationPrior.FD_enabled
+      ~RestorationPrior.FD_epsilon
+      ~RestorationPrior.dim
+      ~RestorationPrior.geometry
+      ~RestorationPrior.is_cond
+      ~RestorationPrior.name
+      ~RestorationPrior.rv
+   
+   

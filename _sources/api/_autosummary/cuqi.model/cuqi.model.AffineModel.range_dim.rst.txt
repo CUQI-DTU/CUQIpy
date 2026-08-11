@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.range\_dim
+=================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: AffineModel.range_dim

@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.enable\_FD
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.enable_FD

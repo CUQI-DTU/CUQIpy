@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.gradient
+===============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: AffineModel.gradient

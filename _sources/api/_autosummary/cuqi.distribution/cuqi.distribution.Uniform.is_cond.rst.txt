@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.is\_cond
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Uniform.is_cond

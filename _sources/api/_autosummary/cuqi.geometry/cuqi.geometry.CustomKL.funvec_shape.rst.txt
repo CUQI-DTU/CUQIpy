@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.funvec\_shape
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.funvec_shape

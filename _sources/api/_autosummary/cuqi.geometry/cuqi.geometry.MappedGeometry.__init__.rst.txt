@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.\_\_init\_\_
+=========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: MappedGeometry.__init__

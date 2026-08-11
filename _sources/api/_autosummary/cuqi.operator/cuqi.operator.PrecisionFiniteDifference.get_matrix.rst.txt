@@ -1,0 +1,6 @@
+cuqi.operator.PrecisionFiniteDifference.get\_matrix
+===================================================
+
+.. currentmodule:: cuqi.operator
+
+.. automethod:: PrecisionFiniteDifference.get_matrix

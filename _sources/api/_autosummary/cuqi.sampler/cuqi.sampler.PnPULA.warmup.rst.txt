@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.warmup
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.warmup

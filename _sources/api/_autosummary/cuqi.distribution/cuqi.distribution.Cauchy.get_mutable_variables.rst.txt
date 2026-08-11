@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.get\_mutable\_variables
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.get_mutable_variables

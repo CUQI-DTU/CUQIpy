@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.std
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.std

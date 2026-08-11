@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.sample
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.sample

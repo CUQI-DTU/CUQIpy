@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.get\_parameter\_names
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.get_parameter_names

@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.current\_point
+=====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Conjugate.current_point

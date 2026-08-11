@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.get\_mutable\_variables
+===========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.get_mutable_variables

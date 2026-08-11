@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.tune
+=====================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.tune

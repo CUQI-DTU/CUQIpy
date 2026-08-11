@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.geometry
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointDistribution.geometry

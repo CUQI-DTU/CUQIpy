@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.mean
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.mean

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.disable\_FD
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.disable_FD

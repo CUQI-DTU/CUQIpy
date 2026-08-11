@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.FD\_enabled
+======================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.FD_enabled

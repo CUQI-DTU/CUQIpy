@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.domain\_geometry
+=======================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: AffineModel.domain_geometry

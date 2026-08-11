@@ -1,0 +1,6 @@
+cuqi.sampler.MH.set\_history
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.set_history

@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.pdf
+==========================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.pdf

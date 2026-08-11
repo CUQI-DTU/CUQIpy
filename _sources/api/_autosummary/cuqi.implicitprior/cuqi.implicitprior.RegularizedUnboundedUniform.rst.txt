@@ -1,0 +1,59 @@
+RegularizedUnboundedUniform
+===========================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: RegularizedUnboundedUniform
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedUnboundedUniform.__init__
+      ~RegularizedUnboundedUniform.constraint_options
+      ~RegularizedUnboundedUniform.disable_FD
+      ~RegularizedUnboundedUniform.enable_FD
+      ~RegularizedUnboundedUniform.get_conditioning_variables
+      ~RegularizedUnboundedUniform.get_mutable_variables
+      ~RegularizedUnboundedUniform.get_parameter_names
+      ~RegularizedUnboundedUniform.gradient
+      ~RegularizedUnboundedUniform.logd
+      ~RegularizedUnboundedUniform.logpdf
+      ~RegularizedUnboundedUniform.pdf
+      ~RegularizedUnboundedUniform.regularization_options
+      ~RegularizedUnboundedUniform.sample
+      ~RegularizedUnboundedUniform.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedUnboundedUniform.FD_enabled
+      ~RegularizedUnboundedUniform.FD_epsilon
+      ~RegularizedUnboundedUniform.cov
+      ~RegularizedUnboundedUniform.dim
+      ~RegularizedUnboundedUniform.gaussian
+      ~RegularizedUnboundedUniform.geometry
+      ~RegularizedUnboundedUniform.is_cond
+      ~RegularizedUnboundedUniform.mean
+      ~RegularizedUnboundedUniform.name
+      ~RegularizedUnboundedUniform.prec
+      ~RegularizedUnboundedUniform.preset
+      ~RegularizedUnboundedUniform.proximal
+      ~RegularizedUnboundedUniform.rv
+      ~RegularizedUnboundedUniform.sqrtcov
+      ~RegularizedUnboundedUniform.sqrtprec
+      ~RegularizedUnboundedUniform.strength
+      ~RegularizedUnboundedUniform.transformation
+   
+   

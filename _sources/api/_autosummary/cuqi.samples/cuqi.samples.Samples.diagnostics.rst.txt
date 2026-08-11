@@ -1,0 +1,6 @@
+cuqi.samples.Samples.diagnostics
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.diagnostics

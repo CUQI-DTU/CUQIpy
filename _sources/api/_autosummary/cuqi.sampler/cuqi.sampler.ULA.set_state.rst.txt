@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.set\_state
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.set_state

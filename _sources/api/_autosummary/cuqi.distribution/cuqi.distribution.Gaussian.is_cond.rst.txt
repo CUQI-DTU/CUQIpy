@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.is\_cond
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.is_cond

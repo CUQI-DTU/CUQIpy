@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.gradient
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.gradient

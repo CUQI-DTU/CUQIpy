@@ -1,0 +1,6 @@
+count\_within\_bounds
+=====================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: count_within_bounds

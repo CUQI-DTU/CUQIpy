@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.gradient
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.gradient

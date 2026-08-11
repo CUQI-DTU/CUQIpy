@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.get\_mutable\_variables
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.get_mutable_variables

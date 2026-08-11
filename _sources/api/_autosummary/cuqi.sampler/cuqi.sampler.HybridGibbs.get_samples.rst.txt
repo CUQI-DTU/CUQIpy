@@ -1,0 +1,6 @@
+cuqi.sampler.HybridGibbs.get\_samples
+=====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: HybridGibbs.get_samples

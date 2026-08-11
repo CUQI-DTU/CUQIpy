@@ -1,0 +1,50 @@
+SmoothedLaplace
+===============
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: SmoothedLaplace
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SmoothedLaplace.__init__
+      ~SmoothedLaplace.disable_FD
+      ~SmoothedLaplace.enable_FD
+      ~SmoothedLaplace.get_conditioning_variables
+      ~SmoothedLaplace.get_mutable_variables
+      ~SmoothedLaplace.get_parameter_names
+      ~SmoothedLaplace.gradient
+      ~SmoothedLaplace.logd
+      ~SmoothedLaplace.logpdf
+      ~SmoothedLaplace.pdf
+      ~SmoothedLaplace.sample
+      ~SmoothedLaplace.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SmoothedLaplace.FD_enabled
+      ~SmoothedLaplace.FD_epsilon
+      ~SmoothedLaplace.beta
+      ~SmoothedLaplace.dim
+      ~SmoothedLaplace.geometry
+      ~SmoothedLaplace.is_cond
+      ~SmoothedLaplace.location
+      ~SmoothedLaplace.name
+      ~SmoothedLaplace.rv
+      ~SmoothedLaplace.scale
+   
+   

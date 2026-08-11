@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.ptp
+========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.ptp

@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.set\_state
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.set_state

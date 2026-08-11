@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.dim
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Lognormal.dim

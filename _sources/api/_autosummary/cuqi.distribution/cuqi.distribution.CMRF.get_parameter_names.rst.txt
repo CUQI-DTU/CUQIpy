@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.get\_parameter\_names
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: CMRF.get_parameter_names

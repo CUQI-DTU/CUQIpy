@@ -1,0 +1,6 @@
+cuqi.sampler.MH.get\_state
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.get_state

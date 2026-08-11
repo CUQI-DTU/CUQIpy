@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.FD\_epsilon
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointGaussianSqrtPrec.FD_epsilon

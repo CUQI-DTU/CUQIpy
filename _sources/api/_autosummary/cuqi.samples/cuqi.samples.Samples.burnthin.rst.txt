@@ -1,0 +1,6 @@
+cuqi.samples.Samples.burnthin
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.burnthin

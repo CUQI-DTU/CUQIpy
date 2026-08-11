@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.par\_dim
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.par_dim

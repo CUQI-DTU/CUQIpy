@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.warmup
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.warmup

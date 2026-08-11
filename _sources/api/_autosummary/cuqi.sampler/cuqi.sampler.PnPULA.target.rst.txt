@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.target
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PnPULA.target

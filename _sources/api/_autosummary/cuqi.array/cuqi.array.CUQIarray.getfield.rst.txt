@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.getfield
+=============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.getfield

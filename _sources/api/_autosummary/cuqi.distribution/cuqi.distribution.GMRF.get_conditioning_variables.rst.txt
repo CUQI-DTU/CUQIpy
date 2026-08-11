@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.get\_conditioning\_variables
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.get_conditioning_variables

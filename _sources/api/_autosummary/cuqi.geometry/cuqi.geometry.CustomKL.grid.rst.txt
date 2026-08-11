@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.grid
+===========================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.grid

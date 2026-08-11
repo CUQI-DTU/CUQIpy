@@ -1,0 +1,6 @@
+cuqi.operator.FirstOrderFiniteDifference.dim
+============================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: FirstOrderFiniteDifference.dim

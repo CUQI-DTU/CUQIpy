@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.\_\_init\_\_
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.__init__

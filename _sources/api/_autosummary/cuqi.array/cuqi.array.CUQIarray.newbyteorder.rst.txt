@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.newbyteorder
+=================================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.newbyteorder

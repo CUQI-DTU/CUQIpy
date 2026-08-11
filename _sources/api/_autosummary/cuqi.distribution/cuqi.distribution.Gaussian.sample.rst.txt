@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.sample
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.sample

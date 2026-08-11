@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.sample
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.sample

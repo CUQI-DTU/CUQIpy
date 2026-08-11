@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.NUTS.sample\_adapt
+======================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: NUTS.sample_adapt

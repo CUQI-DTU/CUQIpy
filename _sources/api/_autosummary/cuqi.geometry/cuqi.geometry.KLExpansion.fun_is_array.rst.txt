@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.fun\_is\_array
+========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.fun_is_array

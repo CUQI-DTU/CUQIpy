@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.sample
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.sample

@@ -1,0 +1,6 @@
+cuqi.solver.FISTA.\_\_init\_\_
+==============================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: FISTA.__init__

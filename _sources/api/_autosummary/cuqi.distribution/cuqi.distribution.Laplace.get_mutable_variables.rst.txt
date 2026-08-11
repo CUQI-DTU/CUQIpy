@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.get\_mutable\_variables
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace.get_mutable_variables

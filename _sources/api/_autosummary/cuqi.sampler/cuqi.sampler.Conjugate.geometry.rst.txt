@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.geometry
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Conjugate.geometry

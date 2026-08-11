@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.initialize
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.initialize

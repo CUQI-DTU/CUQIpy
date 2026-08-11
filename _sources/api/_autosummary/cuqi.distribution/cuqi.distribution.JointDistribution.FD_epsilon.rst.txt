@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.FD\_epsilon
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointDistribution.FD_epsilon

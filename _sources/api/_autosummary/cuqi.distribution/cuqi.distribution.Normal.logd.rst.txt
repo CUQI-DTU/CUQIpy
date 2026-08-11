@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.logd
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.logd

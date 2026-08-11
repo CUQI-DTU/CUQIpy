@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.\_\_init\_\_
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.__init__

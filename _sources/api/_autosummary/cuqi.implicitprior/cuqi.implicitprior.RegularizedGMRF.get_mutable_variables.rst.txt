@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.get\_mutable\_variables
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.get_mutable_variables

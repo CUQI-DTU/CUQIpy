@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.coefs\_inverse
+========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.coefs_inverse

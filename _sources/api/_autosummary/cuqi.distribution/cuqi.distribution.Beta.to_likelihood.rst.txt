@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.to\_likelihood
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.to_likelihood

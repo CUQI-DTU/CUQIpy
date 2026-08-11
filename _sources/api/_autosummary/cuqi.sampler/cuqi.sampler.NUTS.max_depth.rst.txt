@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.max\_depth
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: NUTS.max_depth

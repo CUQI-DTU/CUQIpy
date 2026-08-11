@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.reinitialize
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.reinitialize

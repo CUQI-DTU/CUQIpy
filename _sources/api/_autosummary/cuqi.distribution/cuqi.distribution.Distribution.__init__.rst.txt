@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.\_\_init\_\_
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Distribution.__init__

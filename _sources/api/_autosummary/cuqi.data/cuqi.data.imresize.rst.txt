@@ -1,0 +1,6 @@
+imresize
+========
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: imresize

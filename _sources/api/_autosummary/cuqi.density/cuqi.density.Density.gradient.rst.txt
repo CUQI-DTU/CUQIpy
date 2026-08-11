@@ -1,0 +1,6 @@
+cuqi.density.Density.gradient
+=============================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: Density.gradient

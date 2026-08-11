@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.FD\_epsilon
+======================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.FD_epsilon

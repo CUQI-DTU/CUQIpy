@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.vec2fun
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: KLExpansion.vec2fun

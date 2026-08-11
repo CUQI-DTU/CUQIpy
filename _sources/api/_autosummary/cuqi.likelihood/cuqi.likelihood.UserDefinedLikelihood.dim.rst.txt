@@ -1,0 +1,6 @@
+cuqi.likelihood.UserDefinedLikelihood.dim
+=========================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: UserDefinedLikelihood.dim

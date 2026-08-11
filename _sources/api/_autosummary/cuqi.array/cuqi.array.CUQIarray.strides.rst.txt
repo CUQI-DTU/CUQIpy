@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.strides
+============================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.strides

@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: LMRF.__init__

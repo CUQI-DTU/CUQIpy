@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.get\_state
+============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: RegularizedLinearRTO.get_state

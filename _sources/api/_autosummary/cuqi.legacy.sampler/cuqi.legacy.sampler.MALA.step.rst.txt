@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.MALA.step
+=============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: MALA.step

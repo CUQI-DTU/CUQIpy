@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.\_\_init\_\_
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointDistribution.__init__

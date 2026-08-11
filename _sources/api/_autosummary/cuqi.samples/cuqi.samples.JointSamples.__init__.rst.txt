@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.\_\_init\_\_
+======================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.__init__

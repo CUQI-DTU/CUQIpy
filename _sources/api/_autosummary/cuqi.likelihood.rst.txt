@@ -1,0 +1,38 @@
+likelihood
+==========
+
+Module path: cuqi.likelihood
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.likelihood
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.likelihood
+    :nosignatures:
+    :recursive:
+
+   
+      Likelihood
+      UserDefinedLikelihood
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.current\_point
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: CWMH.current_point

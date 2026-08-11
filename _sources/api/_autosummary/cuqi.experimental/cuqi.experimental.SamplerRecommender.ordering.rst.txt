@@ -1,0 +1,6 @@
+cuqi.experimental.SamplerRecommender.ordering
+=============================================
+
+.. currentmodule:: cuqi.experimental
+
+.. autoproperty:: SamplerRecommender.ordering

@@ -1,0 +1,6 @@
+approx\_derivative
+==================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: approx_derivative

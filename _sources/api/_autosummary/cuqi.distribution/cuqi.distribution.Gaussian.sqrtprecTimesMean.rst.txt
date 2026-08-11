@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.sqrtprecTimesMean
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.sqrtprecTimesMean

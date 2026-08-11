@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.get\_mutable\_variables
+=============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.get_mutable_variables

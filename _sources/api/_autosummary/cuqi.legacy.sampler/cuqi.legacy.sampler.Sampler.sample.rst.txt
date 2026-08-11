@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.Sampler.sample
+==================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: Sampler.sample

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.is\_cond
+============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RestorationPrior.is_cond

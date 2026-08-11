@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.disable\_FD
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.disable_FD

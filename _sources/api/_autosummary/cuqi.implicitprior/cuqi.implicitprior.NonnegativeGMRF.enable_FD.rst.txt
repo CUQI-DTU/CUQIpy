@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.enable\_FD
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.enable_FD

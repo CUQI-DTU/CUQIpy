@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.enable\_FD
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.enable_FD

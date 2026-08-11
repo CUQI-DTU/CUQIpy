@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.gradient
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.gradient

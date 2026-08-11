@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.sample
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.sample

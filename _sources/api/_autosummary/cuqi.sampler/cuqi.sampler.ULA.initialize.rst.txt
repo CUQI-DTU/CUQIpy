@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.initialize
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.initialize

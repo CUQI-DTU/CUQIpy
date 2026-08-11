@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.dim
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: DistributionGallery.dim

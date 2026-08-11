@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.fromkeys
+==================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.fromkeys

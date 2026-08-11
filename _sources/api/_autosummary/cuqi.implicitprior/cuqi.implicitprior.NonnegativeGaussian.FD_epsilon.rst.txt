@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.FD\_epsilon
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.FD_epsilon

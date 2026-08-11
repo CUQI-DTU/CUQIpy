@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.rv
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Cauchy.rv

@@ -1,0 +1,6 @@
+cuqi.sampler.Conjugate.validate\_target
+=======================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Conjugate.validate_target

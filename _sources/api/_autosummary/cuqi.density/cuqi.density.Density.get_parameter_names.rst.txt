@@ -1,0 +1,6 @@
+cuqi.density.Density.get\_parameter\_names
+==========================================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: Density.get_parameter_names

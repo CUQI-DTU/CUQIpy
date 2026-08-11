@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.tobytes
+============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.tobytes

@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.save\_checkpoint
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.save_checkpoint

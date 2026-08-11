@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. automethod:: Likelihood.__init__

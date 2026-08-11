@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.decay\_rate
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.decay_rate

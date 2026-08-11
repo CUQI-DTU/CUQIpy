@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.MAP
+================================
+
+.. currentmodule:: cuqi.problem
+
+.. automethod:: BayesianProblem.MAP

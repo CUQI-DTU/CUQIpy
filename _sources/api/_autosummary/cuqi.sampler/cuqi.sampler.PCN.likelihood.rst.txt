@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.likelihood
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PCN.likelihood

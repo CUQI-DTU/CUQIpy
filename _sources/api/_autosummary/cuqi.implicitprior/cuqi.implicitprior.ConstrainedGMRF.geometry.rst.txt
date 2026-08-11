@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.geometry
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.geometry

@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.plot
+===========================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Discrete.plot

@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.logd
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.logd

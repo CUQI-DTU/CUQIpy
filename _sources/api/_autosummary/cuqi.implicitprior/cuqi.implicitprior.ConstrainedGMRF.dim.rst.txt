@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.dim
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.dim

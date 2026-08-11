@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.get\_parameter\_names
+============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.get_parameter_names

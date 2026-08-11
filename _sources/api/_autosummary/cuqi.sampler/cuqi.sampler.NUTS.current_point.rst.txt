@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.current\_point
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: NUTS.current_point

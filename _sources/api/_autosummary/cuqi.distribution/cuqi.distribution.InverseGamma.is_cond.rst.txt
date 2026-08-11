@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.is\_cond
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: InverseGamma.is_cond

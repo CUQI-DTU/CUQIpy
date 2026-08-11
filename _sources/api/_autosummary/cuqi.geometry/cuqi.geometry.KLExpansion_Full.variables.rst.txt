@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion\_Full.variables
+=========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion_Full.variables

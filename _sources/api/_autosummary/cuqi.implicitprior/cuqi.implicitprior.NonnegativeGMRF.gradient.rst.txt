@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.gradient
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.gradient

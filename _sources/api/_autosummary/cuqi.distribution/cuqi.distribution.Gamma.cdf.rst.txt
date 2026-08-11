@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.cdf
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.cdf

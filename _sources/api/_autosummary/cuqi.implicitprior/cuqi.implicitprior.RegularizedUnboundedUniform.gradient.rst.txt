@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.gradient
+=======================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedUnboundedUniform.gradient

@@ -1,0 +1,47 @@
+Direct
+======
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: Direct
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Direct.__init__
+      ~Direct.get_history
+      ~Direct.get_samples
+      ~Direct.get_state
+      ~Direct.initialize
+      ~Direct.load_checkpoint
+      ~Direct.reinitialize
+      ~Direct.sample
+      ~Direct.save_checkpoint
+      ~Direct.set_history
+      ~Direct.set_state
+      ~Direct.step
+      ~Direct.tune
+      ~Direct.validate_target
+      ~Direct.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Direct.current_point
+      ~Direct.dim
+      ~Direct.geometry
+      ~Direct.target
+   
+   

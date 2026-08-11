@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.get\_mutable\_variables
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Uniform.get_mutable_variables

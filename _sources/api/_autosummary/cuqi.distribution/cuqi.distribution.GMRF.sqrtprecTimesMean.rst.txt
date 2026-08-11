@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.sqrtprecTimesMean
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.sqrtprecTimesMean

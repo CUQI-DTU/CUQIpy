@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.fun2par
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: CustomKL.fun2par

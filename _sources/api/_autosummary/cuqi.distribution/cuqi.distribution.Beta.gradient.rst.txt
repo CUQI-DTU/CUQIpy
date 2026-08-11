@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.gradient
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.gradient

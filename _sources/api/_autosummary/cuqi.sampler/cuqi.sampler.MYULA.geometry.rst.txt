@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.geometry
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MYULA.geometry

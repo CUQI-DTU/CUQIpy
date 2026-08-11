@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.prec
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.prec

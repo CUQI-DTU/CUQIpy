@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.FD\_epsilon
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Posterior.FD_epsilon

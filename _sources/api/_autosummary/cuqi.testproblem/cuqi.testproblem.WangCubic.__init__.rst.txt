@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: WangCubic.__init__

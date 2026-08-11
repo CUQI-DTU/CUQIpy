@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.shape
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.shape

@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.posterior
+====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: WangCubic.posterior

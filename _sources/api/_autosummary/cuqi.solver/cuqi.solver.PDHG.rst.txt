@@ -1,0 +1,23 @@
+PDHG
+====
+
+.. currentmodule:: cuqi.solver
+
+.. autoclass:: PDHG
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PDHG.__init__
+   
+   
+
+   
+   
+   

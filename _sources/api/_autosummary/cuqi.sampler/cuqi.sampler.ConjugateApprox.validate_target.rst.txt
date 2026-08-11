@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.validate\_target
+=============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ConjugateApprox.validate_target

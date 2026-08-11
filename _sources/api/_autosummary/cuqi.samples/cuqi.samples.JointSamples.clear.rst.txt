@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.clear
+===============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.clear

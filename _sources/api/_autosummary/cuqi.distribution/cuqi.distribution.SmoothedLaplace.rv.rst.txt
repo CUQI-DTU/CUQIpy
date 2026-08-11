@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.rv
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: SmoothedLaplace.rv

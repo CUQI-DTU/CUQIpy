@@ -1,0 +1,38 @@
+TimeDependentLinearPDE
+======================
+
+.. currentmodule:: cuqi.pde
+
+.. autoclass:: TimeDependentLinearPDE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~TimeDependentLinearPDE.__init__
+      ~TimeDependentLinearPDE.assemble
+      ~TimeDependentLinearPDE.assemble_step
+      ~TimeDependentLinearPDE.interpolate_on_observed_domain
+      ~TimeDependentLinearPDE.observe
+      ~TimeDependentLinearPDE.solve
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~TimeDependentLinearPDE.grid_obs
+      ~TimeDependentLinearPDE.grid_sol
+      ~TimeDependentLinearPDE.grids_equal
+      ~TimeDependentLinearPDE.method
+   
+   

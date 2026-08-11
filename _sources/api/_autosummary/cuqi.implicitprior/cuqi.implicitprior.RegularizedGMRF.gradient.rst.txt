@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.gradient
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.gradient

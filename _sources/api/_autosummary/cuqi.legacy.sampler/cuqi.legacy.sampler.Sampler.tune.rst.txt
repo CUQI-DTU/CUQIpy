@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.Sampler.tune
+================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: Sampler.tune

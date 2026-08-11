@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.pdf
+===================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.pdf

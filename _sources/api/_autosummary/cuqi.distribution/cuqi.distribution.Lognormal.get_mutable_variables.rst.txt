@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.get\_mutable\_variables
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Lognormal.get_mutable_variables

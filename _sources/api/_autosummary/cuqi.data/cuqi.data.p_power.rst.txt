@@ -1,0 +1,6 @@
+p\_power
+========
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: p_power

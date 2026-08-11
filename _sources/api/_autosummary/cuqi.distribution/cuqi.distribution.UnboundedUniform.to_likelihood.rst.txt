@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.to\_likelihood
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.to_likelihood

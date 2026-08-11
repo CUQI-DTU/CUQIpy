@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.is\_cond
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.is_cond

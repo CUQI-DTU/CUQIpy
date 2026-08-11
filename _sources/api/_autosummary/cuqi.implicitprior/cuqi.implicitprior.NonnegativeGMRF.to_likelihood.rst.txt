@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.to\_likelihood
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.to_likelihood

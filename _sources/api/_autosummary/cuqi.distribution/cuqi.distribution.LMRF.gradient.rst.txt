@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.gradient
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: LMRF.gradient

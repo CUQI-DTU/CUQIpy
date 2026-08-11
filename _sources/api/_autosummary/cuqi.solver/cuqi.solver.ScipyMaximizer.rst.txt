@@ -1,0 +1,24 @@
+ScipyMaximizer
+==============
+
+.. currentmodule:: cuqi.solver
+
+.. autoclass:: ScipyMaximizer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ScipyMaximizer.__init__
+      ~ScipyMaximizer.solve
+   
+   
+
+   
+   
+   

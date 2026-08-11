@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.mean
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.mean

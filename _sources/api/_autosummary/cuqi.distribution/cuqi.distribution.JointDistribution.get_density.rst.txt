@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.get\_density
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointDistribution.get_density

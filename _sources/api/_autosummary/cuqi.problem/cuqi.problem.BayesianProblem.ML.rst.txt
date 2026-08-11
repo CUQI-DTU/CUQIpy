@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.ML
+===============================
+
+.. currentmodule:: cuqi.problem
+
+.. automethod:: BayesianProblem.ML

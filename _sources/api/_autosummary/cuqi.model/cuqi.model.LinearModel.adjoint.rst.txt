@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.adjoint
+==============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: LinearModel.adjoint

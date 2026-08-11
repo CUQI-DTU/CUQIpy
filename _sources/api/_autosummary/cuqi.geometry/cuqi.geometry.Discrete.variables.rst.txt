@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.variables
+================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Discrete.variables

@@ -1,0 +1,6 @@
+cookie
+======
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: cookie

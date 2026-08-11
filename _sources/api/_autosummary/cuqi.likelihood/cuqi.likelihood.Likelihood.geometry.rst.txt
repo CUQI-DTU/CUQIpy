@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.geometry
+===================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.geometry

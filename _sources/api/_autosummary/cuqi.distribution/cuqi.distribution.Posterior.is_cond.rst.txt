@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.is\_cond
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Posterior.is_cond

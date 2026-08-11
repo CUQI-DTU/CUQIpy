@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.validate\_target
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.validate_target

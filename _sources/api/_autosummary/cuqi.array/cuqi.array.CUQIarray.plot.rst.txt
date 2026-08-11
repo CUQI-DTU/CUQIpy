@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.plot
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.plot

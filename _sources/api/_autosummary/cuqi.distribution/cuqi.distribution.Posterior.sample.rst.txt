@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.sample
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.sample

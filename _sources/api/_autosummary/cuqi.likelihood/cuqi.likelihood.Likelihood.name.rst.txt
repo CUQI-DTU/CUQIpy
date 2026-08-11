@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.name
+===============================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.name

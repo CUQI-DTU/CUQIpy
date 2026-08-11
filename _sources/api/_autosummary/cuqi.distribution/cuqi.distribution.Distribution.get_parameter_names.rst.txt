@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.get\_parameter\_names
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Distribution.get_parameter_names

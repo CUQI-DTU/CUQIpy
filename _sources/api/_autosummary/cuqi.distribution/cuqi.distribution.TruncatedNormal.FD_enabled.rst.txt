@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.FD\_enabled
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.FD_enabled

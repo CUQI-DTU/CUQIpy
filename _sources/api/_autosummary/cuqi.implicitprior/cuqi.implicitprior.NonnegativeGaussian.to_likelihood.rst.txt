@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.to\_likelihood
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.to_likelihood

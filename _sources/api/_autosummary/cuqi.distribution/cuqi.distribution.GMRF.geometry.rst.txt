@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.geometry
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.geometry

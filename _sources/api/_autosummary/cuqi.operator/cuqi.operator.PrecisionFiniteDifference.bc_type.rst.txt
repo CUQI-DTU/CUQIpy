@@ -1,0 +1,6 @@
+cuqi.operator.PrecisionFiniteDifference.bc\_type
+================================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: PrecisionFiniteDifference.bc_type

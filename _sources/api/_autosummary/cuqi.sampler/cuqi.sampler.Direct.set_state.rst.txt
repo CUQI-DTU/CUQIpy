@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.set\_state
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Direct.set_state

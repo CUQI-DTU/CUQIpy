@@ -1,0 +1,6 @@
+piecewise\_linear\_1D\_DoF
+==========================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: piecewise_linear_1D_DoF

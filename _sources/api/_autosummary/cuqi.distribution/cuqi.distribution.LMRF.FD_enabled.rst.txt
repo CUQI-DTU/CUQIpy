@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.FD\_enabled
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: LMRF.FD_enabled

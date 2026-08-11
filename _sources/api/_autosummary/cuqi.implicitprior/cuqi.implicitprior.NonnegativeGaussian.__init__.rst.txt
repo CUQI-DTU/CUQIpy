@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.\_\_init\_\_
+===================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.__init__

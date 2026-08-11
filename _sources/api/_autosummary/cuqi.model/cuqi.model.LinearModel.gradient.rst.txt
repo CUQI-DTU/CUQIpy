@@ -1,0 +1,6 @@
+cuqi.model.LinearModel.gradient
+===============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: LinearModel.gradient

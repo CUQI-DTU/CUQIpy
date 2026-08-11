@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.disable\_FD
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.disable_FD

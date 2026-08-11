@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.plot\_envelope
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: CustomKL.plot_envelope

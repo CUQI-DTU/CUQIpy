@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.sample
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace.sample

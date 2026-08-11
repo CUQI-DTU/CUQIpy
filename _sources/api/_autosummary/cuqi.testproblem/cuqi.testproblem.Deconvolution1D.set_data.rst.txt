@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution1D.set\_data
+==========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconvolution1D.set_data

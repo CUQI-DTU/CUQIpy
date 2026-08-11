@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.get\_samples
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.get_samples

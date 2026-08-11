@@ -1,0 +1,6 @@
+cuqi.sampler.MH.target
+======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MH.target

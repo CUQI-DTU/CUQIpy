@@ -1,0 +1,6 @@
+cuqi.solver.ScipyMinimizer.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: ScipyMinimizer.__init__

@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.\_\_init\_\_
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.__init__

@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.get\_conditioning\_variables
+===============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.get_conditioning_variables

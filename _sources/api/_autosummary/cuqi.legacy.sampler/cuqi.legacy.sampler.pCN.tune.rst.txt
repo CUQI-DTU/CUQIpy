@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.pCN.tune
+============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: pCN.tune

@@ -1,0 +1,37 @@
+AffineModel
+===========
+
+.. currentmodule:: cuqi.model
+
+.. autoclass:: AffineModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~AffineModel.__init__
+      ~AffineModel.forward
+      ~AffineModel.gradient
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~AffineModel.domain_dim
+      ~AffineModel.domain_geometry
+      ~AffineModel.number_of_inputs
+      ~AffineModel.range_dim
+      ~AffineModel.range_geometry
+      ~AffineModel.shift
+   
+   

@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.load\_checkpoint
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.load_checkpoint

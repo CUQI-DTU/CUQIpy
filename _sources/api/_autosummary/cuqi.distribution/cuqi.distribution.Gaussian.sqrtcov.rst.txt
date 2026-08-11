@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.sqrtcov
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.sqrtcov

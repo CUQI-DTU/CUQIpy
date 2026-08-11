@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.sample
+=========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.sample

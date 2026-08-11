@@ -1,0 +1,6 @@
+get\_non\_default\_args
+=======================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: get_non_default_args

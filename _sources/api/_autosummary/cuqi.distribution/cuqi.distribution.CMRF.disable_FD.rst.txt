@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.disable\_FD
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: CMRF.disable_FD

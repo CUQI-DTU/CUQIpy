@@ -1,0 +1,6 @@
+cuqi.sampler.LinearRTO.sample
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: LinearRTO.sample

@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.FD\_epsilon
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Laplace.FD_epsilon

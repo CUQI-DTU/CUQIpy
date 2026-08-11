@@ -1,0 +1,6 @@
+cuqi.likelihood.UserDefinedLikelihood.get\_parameter\_names
+===========================================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. automethod:: UserDefinedLikelihood.get_parameter_names

@@ -1,0 +1,6 @@
+cuqi.density.EvaluatedDensity.logd
+==================================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: EvaluatedDensity.logd

@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous2D.fun\_dim
+===================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Continuous2D.fun_dim

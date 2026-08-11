@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.current\_point
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PCN.current_point

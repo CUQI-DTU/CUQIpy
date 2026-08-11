@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.dim
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.dim

@@ -1,0 +1,6 @@
+cuqi.algebra.RandomVariable.name
+================================
+
+.. currentmodule:: cuqi.algebra
+
+.. autoproperty:: RandomVariable.name

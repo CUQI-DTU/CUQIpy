@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.get\_parameter\_names
+===================================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: MultipleLikelihoodPosterior.get_parameter_names

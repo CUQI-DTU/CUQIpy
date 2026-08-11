@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.get\_state
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.get_state

@@ -1,0 +1,6 @@
+get\_indirect\_variables
+========================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: get_indirect_variables

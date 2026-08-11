@@ -1,0 +1,6 @@
+cuqi.samples.Samples.compute\_ci
+================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.compute_ci

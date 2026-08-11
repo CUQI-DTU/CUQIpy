@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.prior
+======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PCN.prior

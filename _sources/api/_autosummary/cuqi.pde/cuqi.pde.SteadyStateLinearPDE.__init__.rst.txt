@@ -1,0 +1,6 @@
+cuqi.pde.SteadyStateLinearPDE.\_\_init\_\_
+==========================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: SteadyStateLinearPDE.__init__

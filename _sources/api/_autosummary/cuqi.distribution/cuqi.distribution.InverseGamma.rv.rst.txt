@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.rv
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: InverseGamma.rv

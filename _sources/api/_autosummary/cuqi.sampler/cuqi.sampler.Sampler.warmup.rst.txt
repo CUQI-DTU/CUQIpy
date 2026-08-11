@@ -1,0 +1,6 @@
+cuqi.sampler.Sampler.warmup
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Sampler.warmup

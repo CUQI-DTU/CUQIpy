@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.plot
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: KLExpansion.plot

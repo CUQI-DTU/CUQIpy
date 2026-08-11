@@ -1,0 +1,50 @@
+UGLA
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: UGLA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UGLA.__init__
+      ~UGLA.get_history
+      ~UGLA.get_samples
+      ~UGLA.get_state
+      ~UGLA.initialize
+      ~UGLA.load_checkpoint
+      ~UGLA.reinitialize
+      ~UGLA.sample
+      ~UGLA.save_checkpoint
+      ~UGLA.set_history
+      ~UGLA.set_state
+      ~UGLA.step
+      ~UGLA.tune
+      ~UGLA.validate_target
+      ~UGLA.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UGLA.current_point
+      ~UGLA.dim
+      ~UGLA.geometry
+      ~UGLA.likelihood
+      ~UGLA.model
+      ~UGLA.prior
+      ~UGLA.target
+   
+   

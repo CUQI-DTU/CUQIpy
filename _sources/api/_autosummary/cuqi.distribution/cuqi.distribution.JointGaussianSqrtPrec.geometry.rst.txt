@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.geometry
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointGaussianSqrtPrec.geometry

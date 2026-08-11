@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: AffineModel.__init__

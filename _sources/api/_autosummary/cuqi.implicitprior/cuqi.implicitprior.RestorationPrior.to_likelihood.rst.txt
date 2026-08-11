@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.to\_likelihood
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.to_likelihood

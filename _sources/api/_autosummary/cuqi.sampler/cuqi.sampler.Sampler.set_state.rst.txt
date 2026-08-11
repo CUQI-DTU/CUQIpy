@@ -1,0 +1,6 @@
+cuqi.sampler.Sampler.set\_state
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Sampler.set_state

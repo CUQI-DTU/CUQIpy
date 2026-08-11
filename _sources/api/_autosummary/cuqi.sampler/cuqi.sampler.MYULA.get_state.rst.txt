@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.get\_state
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.get_state

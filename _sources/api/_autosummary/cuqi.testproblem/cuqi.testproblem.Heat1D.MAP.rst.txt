@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat1D.MAP
+===========================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Heat1D.MAP

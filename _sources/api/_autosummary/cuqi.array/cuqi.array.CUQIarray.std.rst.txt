@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.std
+========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.std

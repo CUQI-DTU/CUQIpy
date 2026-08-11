@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.sqrtprec
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: GMRF.sqrtprec

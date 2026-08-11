@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.validate\_target
+==================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: RegularizedLinearRTO.validate_target

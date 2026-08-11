@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.RegularizedLinearRTO.target
+===============================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: RegularizedLinearRTO.target

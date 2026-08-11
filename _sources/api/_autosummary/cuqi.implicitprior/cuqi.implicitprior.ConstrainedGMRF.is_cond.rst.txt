@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.is\_cond
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.is_cond

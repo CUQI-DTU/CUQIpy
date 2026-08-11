@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.fun2par
+===================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: StepExpansion.fun2par

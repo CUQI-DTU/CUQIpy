@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.fun\_dim
+===============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Geometry.fun_dim

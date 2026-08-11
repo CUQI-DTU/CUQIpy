@@ -1,0 +1,41 @@
+WangCubic
+=========
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoclass:: WangCubic
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~WangCubic.MAP
+      ~WangCubic.ML
+      ~WangCubic.UQ
+      ~WangCubic.__init__
+      ~WangCubic.get_components
+      ~WangCubic.sample_posterior
+      ~WangCubic.sample_prior
+      ~WangCubic.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~WangCubic.data
+      ~WangCubic.likelihood
+      ~WangCubic.model
+      ~WangCubic.posterior
+      ~WangCubic.prior
+   
+   

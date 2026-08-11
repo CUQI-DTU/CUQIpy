@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.get\_mutable\_variables
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.get_mutable_variables

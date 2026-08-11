@@ -1,0 +1,6 @@
+rgb2gray
+========
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: rgb2gray

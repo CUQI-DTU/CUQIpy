@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.regularization\_options
+==============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.regularization_options

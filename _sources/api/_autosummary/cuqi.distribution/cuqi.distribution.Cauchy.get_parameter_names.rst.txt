@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.get\_parameter\_names
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.get_parameter_names

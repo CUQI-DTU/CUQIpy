@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.mesh
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.mesh

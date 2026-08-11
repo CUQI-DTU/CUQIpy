@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.view
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.view

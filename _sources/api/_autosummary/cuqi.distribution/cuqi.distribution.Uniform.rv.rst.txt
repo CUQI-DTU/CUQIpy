@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.rv
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Uniform.rv

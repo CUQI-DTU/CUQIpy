@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.sample
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.sample

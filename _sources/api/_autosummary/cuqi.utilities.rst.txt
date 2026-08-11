@@ -1,0 +1,64 @@
+utilities
+=========
+
+Module path: cuqi.utilities
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.utilities
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree: cuqi.utilities
+      :nosignatures:
+      :recursive:
+
+   
+      approx_derivative
+      approx_gradient
+      check_if_conditional_from_attr
+      count_constant_components_1D
+      count_constant_components_2D
+      count_nonzero
+      count_within_bounds
+      force_ndarray
+      get_direct_attributes
+      get_indirect_variables
+      get_non_default_args
+      get_writeable_attributes
+      get_writeable_properties
+      infer_len
+      piecewise_linear_1D_DoF
+      plot_1D_density
+      plot_2D_density
+      sparse_cholesky
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.utilities
+    :nosignatures:
+    :recursive:
+
+   
+      ProblemInfo
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.vec2fun
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Geometry.vec2fun

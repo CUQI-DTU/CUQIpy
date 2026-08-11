@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.get\_mutable\_variables
+==============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.get_mutable_variables

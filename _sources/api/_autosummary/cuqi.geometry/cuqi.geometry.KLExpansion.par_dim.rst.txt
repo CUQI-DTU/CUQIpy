@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.par\_dim
+==================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.par_dim

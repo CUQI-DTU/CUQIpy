@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.is\_cond
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: DistributionGallery.is_cond

@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.par\_shape
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.par_shape

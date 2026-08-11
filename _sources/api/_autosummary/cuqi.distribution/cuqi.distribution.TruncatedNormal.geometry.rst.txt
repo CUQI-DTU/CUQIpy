@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.geometry
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.geometry

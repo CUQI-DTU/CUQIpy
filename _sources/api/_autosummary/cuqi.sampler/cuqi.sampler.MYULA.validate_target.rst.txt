@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.validate\_target
+===================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.validate_target

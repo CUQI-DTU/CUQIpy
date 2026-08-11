@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.\_\_init\_\_
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.__init__

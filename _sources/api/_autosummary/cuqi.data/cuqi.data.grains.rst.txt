@@ -1,0 +1,6 @@
+grains
+======
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: grains

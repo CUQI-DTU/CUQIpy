@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.smoothing\_strength
+=========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: MoreauYoshidaPrior.smoothing_strength

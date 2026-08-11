@@ -1,0 +1,40 @@
+operator
+========
+
+Module path: cuqi.operator
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.operator
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.operator
+    :nosignatures:
+    :recursive:
+
+   
+      FirstOrderFiniteDifference
+      Operator
+      PrecisionFiniteDifference
+      SecondOrderFiniteDifference
+   
+   
+
+   
+   
+   
+
+
+

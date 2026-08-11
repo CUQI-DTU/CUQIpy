@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.plot\_envelope
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Discrete.plot_envelope

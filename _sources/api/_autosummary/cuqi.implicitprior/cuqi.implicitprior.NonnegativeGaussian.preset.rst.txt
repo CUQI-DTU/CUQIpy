@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.preset
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.preset

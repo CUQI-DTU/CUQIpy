@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.sqrtcov
+======================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.sqrtcov

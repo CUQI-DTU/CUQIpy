@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.transformation
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.transformation

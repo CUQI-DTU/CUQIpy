@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.dim
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Cauchy.dim

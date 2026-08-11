@@ -1,0 +1,6 @@
+Geweke
+======
+
+.. currentmodule:: cuqi.diagnostics
+
+.. autofunction:: Geweke

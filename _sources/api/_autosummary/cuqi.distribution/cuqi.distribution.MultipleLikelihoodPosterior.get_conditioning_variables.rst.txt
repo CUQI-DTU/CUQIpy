@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.get\_conditioning\_variables
+==========================================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: MultipleLikelihoodPosterior.get_conditioning_variables

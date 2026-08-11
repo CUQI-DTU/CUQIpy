@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.sample\_posterior
+=========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel1D.sample_posterior

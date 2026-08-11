@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.prior
+==================================
+
+.. currentmodule:: cuqi.problem
+
+.. autoproperty:: BayesianProblem.prior

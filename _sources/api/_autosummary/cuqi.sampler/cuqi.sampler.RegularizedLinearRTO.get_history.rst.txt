@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.get\_history
+==============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: RegularizedLinearRTO.get_history

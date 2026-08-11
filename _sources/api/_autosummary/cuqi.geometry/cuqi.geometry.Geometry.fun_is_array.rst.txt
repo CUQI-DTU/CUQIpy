@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.fun\_is\_array
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Geometry.fun_is_array

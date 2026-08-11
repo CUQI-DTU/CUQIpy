@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.__init__

@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.get\_mutable\_variables
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.get_mutable_variables

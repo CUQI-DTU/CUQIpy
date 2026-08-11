@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.logd
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace.logd

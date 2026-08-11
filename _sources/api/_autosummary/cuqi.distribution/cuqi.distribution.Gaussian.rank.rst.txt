@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.rank
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.rank

@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.dim
+==============================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.dim

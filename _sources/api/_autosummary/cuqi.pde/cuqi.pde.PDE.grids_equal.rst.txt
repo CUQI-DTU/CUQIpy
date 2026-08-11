@@ -1,0 +1,6 @@
+cuqi.pde.PDE.grids\_equal
+=========================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: PDE.grids_equal

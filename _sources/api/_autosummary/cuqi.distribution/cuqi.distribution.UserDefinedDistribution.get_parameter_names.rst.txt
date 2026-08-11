@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.get\_parameter\_names
+===============================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.get_parameter_names

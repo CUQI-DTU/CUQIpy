@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.geometry
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.geometry

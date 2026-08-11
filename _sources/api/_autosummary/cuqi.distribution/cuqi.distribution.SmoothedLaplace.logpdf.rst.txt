@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.logpdf
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.logpdf

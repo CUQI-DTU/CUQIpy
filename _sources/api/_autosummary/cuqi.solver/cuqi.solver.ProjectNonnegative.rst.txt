@@ -1,0 +1,6 @@
+ProjectNonnegative
+==================
+
+.. currentmodule:: cuqi.solver
+
+.. autofunction:: ProjectNonnegative

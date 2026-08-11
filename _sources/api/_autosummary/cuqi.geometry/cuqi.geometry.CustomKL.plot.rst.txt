@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.plot
+===========================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: CustomKL.plot

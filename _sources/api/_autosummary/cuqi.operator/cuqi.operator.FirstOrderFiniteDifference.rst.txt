@@ -1,0 +1,36 @@
+FirstOrderFiniteDifference
+==========================
+
+.. currentmodule:: cuqi.operator
+
+.. autoclass:: FirstOrderFiniteDifference
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~FirstOrderFiniteDifference.__init__
+      ~FirstOrderFiniteDifference.get_matrix
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~FirstOrderFiniteDifference.T
+      ~FirstOrderFiniteDifference.bc_type
+      ~FirstOrderFiniteDifference.dim
+      ~FirstOrderFiniteDifference.num_nodes
+      ~FirstOrderFiniteDifference.physical_dim
+      ~FirstOrderFiniteDifference.shape
+   
+   

@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.dim
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UserDefinedDistribution.dim

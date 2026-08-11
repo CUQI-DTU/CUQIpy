@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.sample
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.sample

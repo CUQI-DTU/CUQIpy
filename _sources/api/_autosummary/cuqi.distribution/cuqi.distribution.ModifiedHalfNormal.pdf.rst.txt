@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.pdf
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.pdf

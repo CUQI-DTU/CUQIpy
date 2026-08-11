@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.logd
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Uniform.logd

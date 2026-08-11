@@ -1,0 +1,6 @@
+cuqi.likelihood.UserDefinedLikelihood.\_\_init\_\_
+==================================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. automethod:: UserDefinedLikelihood.__init__

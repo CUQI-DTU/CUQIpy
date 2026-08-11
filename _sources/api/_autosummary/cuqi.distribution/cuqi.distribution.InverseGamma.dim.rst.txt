@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.dim
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: InverseGamma.dim

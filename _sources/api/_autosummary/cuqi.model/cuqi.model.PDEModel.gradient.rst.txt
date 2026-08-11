@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.gradient
+============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: PDEModel.gradient

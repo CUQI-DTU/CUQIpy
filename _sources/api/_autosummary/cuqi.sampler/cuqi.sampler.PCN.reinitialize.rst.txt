@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.reinitialize
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.reinitialize

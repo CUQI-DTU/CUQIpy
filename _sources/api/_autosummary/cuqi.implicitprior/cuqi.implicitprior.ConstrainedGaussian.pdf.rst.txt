@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.pdf
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGaussian.pdf

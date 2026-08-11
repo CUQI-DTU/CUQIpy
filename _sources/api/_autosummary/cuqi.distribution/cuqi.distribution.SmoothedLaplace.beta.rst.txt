@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.beta
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: SmoothedLaplace.beta

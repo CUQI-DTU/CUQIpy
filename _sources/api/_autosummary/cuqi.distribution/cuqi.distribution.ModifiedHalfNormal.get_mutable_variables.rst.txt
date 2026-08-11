@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.get\_mutable\_variables
+============================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.get_mutable_variables

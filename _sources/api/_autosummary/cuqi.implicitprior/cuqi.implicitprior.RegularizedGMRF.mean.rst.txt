@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.mean
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGMRF.mean

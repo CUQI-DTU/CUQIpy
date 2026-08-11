@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.proximal
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGMRF.proximal

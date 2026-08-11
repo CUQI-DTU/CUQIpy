@@ -1,0 +1,6 @@
+cuqi.distribution.GMRF.get\_mutable\_variables
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: GMRF.get_mutable_variables

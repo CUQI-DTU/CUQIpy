@@ -1,0 +1,6 @@
+cuqi.pde.LinearPDE.interpolate\_on\_observed\_domain
+====================================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: LinearPDE.interpolate_on_observed_domain

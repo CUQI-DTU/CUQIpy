@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.funvec\_dim
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.funvec_dim

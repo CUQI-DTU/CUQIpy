@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.mean
+=========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.mean

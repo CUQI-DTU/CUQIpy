@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.warmup
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.warmup

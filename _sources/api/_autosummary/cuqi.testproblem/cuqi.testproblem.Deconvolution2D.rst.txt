@@ -1,0 +1,41 @@
+Deconvolution2D
+===============
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoclass:: Deconvolution2D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Deconvolution2D.MAP
+      ~Deconvolution2D.ML
+      ~Deconvolution2D.UQ
+      ~Deconvolution2D.__init__
+      ~Deconvolution2D.get_components
+      ~Deconvolution2D.sample_posterior
+      ~Deconvolution2D.sample_prior
+      ~Deconvolution2D.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Deconvolution2D.data
+      ~Deconvolution2D.likelihood
+      ~Deconvolution2D.model
+      ~Deconvolution2D.posterior
+      ~Deconvolution2D.prior
+   
+   

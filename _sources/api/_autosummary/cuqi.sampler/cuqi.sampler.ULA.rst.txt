@@ -1,0 +1,47 @@
+ULA
+===
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: ULA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ULA.__init__
+      ~ULA.get_history
+      ~ULA.get_samples
+      ~ULA.get_state
+      ~ULA.initialize
+      ~ULA.load_checkpoint
+      ~ULA.reinitialize
+      ~ULA.sample
+      ~ULA.save_checkpoint
+      ~ULA.set_history
+      ~ULA.set_state
+      ~ULA.step
+      ~ULA.tune
+      ~ULA.validate_target
+      ~ULA.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ULA.current_point
+      ~ULA.dim
+      ~ULA.geometry
+      ~ULA.target
+   
+   

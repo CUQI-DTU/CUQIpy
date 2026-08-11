@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.disable\_FD
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGaussian.disable_FD
