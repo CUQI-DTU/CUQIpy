@@ -7,7 +7,7 @@ The main modules are:
    - :doc:`cuqi.distribution <_autosummary/cuqi.distribution>` for defining probability distributions.
    - :doc:`cuqi.model <_autosummary/cuqi.model>` for defining deterministic models.
    - :doc:`cuqi.sampler <_autosummary/cuqi.sampler>` for sampling from probability distributions.
-   - :doc:`cuqi.inference <_autosummary/cuqi.implicitprior>` for defining implicit priors.
+   - :doc:`cuqi.implicitprior <_autosummary/cuqi.implicitprior>` for defining implicit priors.
 
 The following modules provide higher-level interfaces:
    - :doc:`cuqi.testproblem <_autosummary/cuqi.testproblem>` for defining specific test problems.

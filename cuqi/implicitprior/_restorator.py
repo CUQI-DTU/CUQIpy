@@ -98,7 +98,7 @@ class RestorationPrior(Distribution):
 
 
 class MoreauYoshidaPrior(Distribution):
-    """    
+    r"""    
     This class defines (implicit) smoothed priors for which we can apply 
     gradient-based algorithms. The smoothing is performed using
     the Moreau-Yoshida envelope of the target prior potential.
@@ -106,42 +106,47 @@ class MoreauYoshidaPrior(Distribution):
     In the following we give a detailed explanation of the
     Moreau-Yoshida smoothing.
     
-    We consider a density such that - \log\pi(x) = -g(x) with g convex, lsc,
+    We consider a density such that :math:`- \log\pi(x) = -g(x)` with g convex, lsc,
     proper but not differentiable. Consequently, we cannot apply any
     algorithm requiring the gradient of g.
     Idea:
     We consider the Moreau envelope of g defined as
     
-    g_{smoothing_strength} (x) = inf_z 0.5*\| x-z \|_2^2/smoothing_strength + g(z).
+    .. math::
+
+        g_{\mathrm{smoothing\_strength}} (x) = \inf_z 0.5 \| x-z \|_2^2/\mathrm{smoothing\_strength} + g(z).
     
-    g_{smoothing_strength} has some nice properties
-        - g_{smoothing_strength}(x)-->g(x) as smoothing_strength-->0 for all x
-        - \nabla g_{smoothing_strength} is 1/smoothing_strength-Lipschitz
-        - \nabla g_{smoothing_strength}(x) = (x - prox_g^{smoothing_strength}(x))/smoothing_strength for all x with 
+    :math:`g_{\mathrm{smoothing\_strength}}` has some nice properties
+
+    - :math:`g_{\mathrm{smoothing\_strength}}(x) \to g(x)` as :math:`\mathrm{smoothing\_strength} \to 0` for all x
+    - :math:`\nabla g_{\mathrm{smoothing\_strength}}` is :math:`1/\mathrm{smoothing\_strength}`-Lipschitz
+    - :math:`\nabla g_{\mathrm{smoothing\_strength}}(x) = (x - \mathrm{prox}_g^{\mathrm{smoothing\_strength}}(x))/\mathrm{smoothing\_strength}` for all x with 
         
-        prox_g^{smoothing_strength}(x) = argmin_z 0.5*\| x-z \|_2^2/smoothing_strength + g(z) .
+        .. math::
+
+            \mathrm{prox}_g^{\mathrm{smoothing\_strength}}(x) = \operatorname{argmin}_z 0.5 \| x-z \|_2^2/\mathrm{smoothing\_strength} + g(z) .
 
     Consequently, we can apply any gradient-based algorithm with
-    g_{smoothing_strength} in lieu of g. These algorithms do not require the
-    full knowledge of g_{smoothing_strength} but only its gradient. The gradient
-    of g_{smoothing_strength} is fully determined by prox_g^{smoothing_strength}
-    and smoothing_strength.
+    :math:`g_{\mathrm{smoothing\_strength}}` in lieu of g. These algorithms do not require the
+    full knowledge of :math:`g_{\mathrm{smoothing\_strength}}` but only its gradient. The gradient
+    of :math:`g_{\mathrm{smoothing\_strength}}` is fully determined by :math:`\mathrm{prox}_g^{\mathrm{smoothing\_strength}}`
+    and :math:`\mathrm{smoothing\_strength}`.
     It is important as, although there exists an explicit formula for
-    g_{smoothing_strength}, it is rarely used in practice, as it would require
+    :math:`g_{\mathrm{smoothing\_strength}}`, it is rarely used in practice, as it would require
     us to solve an optimization problem each time we want to 
-    estimate g_{smoothing_strength}. Furthermore, there exist cases where we dont't
-    the regularization g with which the mapping prox_g^{smoothing_strength} is
+    estimate :math:`g_{\mathrm{smoothing\_strength}}`. Furthermore, there exist cases where we dont't
+    the regularization g with which the mapping :math:`\mathrm{prox}_g^{\mathrm{smoothing\_strength}}` is
     associated.
 
     Remark (Proximal operators are denoisers):
         We consider the denoising inverse problem x = u + n, with
-        n \sim \mathcal{N}(0, smoothing_strength I).
+        :math:`n \sim \mathcal{N}(0, \mathrm{smoothing\_strength} \, I)`.
         A mapping solving a denoising inverse problem is called denoiser. It takes
         the noisy observation x as an input and returns a less noisy version of x
         which is an estimate of u.
-        We assume a prior density \pi(u) \propto exp(- g(u)).
+        We assume a prior density :math:`\pi(u) \propto \exp(- g(u))`.
         Then the MAP estimate is given by 
-            x_MAP = \argmin_z 0.5 \| x - z \|_2^2/smoothing_strength + g(z) = prox_g^smoothing_strength(x)
+            :math:`x_{\mathrm{MAP}} = \operatorname{argmin}_z 0.5 \| x - z \|_2^2/\mathrm{smoothing\_strength} + g(z) = \mathrm{prox}_g^{\mathrm{smoothing\_strength}}(x)`
         Then proximal operators are denoisers. 
     
     Remark (Denoisers are not necessarily proximal operators): Data-driven
