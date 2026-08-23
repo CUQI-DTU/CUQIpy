@@ -1,0 +1,20 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: "cuqipy"
+  version: {{ data.get('version') }}
+
+source:
+  path: .
+
+requirements:
+  build:
+  - python
+  run:
+    {% for req in data.get('install_requires', []) %}
+      - {{ req }}
+    {% endfor %}
+
+about:
+  home: 
+  license_file: LICENSE
