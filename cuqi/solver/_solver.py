@@ -287,7 +287,8 @@ class CGLS(object):
     b : ndarray.
     x0 : ndarray. Initial guess.
     maxit : The maximum number of iterations.
-    tol : The numerical tolerance for convergence checks.
+    tol : Relative convergence tolerance for the residual of the normal equations:
+          ||s_k|| / ||s_0|| <= tol, where s = A^T(b - Ax) - shift*x.
     shift : The shift parameter (s) shown above.
     """    
     def __init__(self, A, b, x0, maxit, tol=1e-6, shift=0):
@@ -349,7 +350,8 @@ class CGLS(object):
             # convergence
             normx = LA.norm(x)
             xmax = max(xmax, normx)
-            flag = (norms <= norms0*self.tol) or (normx*self.tol >= 1)
+            flag = (norms <= norms0*self.tol) # or (normx*self.tol >= 1)
+            # NOTE: (normx*self.tol >= 1) is removed as it is not clear (for now) when it happens.
             # resNE = norms / norms0
 
         shrink = normx/xmax
