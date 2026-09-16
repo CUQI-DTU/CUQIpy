@@ -235,7 +235,9 @@ def test_UnboundedUniform_sample():
                           'high':np.array([5,7, 7,6])}),
                           (cuqi.distribution.Gaussian, 
                           {'mean':np.array([0, 0, 0, 0]),
-                          'sqrtcov':np.array([1, 1, 1, 1])})
+                          'sqrtcov':np.array([1, 1, 1, 1])}),
+                          (cuqi.distribution.Poisson,
+                          {'rate':np.array([1, 2, 3, 4])})
                           ])
 def test_distribution_contains_geometry(distribution, kwargs):
     rng = np.random.RandomState(3)
@@ -884,3 +886,63 @@ def test_Smoothed_Laplace():
 
     # gradient (vector Smoothed Laplace vs analytical)
     assert np.allclose(vector_smoothed_laplace.gradient(x), -1/scale)
+
+# ----------------- Poisson tests -----------------
+@pytest.mark.parametrize("rate", [1e-2, 1e-1, 1, 2, 5, 10, 100])
+@pytest.mark.parametrize("value", [0, 1, 2, 5, 10])
+def test_Poisson_pdf(rate, value):
+    P = cuqi.distribution.Poisson(rate)
+    assert np.isclose(P.pdf(value), scipy_stats.poisson(rate).pmf(value))
+
+@pytest.mark.parametrize("rate", [1e-2, 1e-1, 1, 2, 5, 10, 100])
+@pytest.mark.parametrize("value", [0, 1, 2, 5, 10])
+def test_Poisson_logpdf(rate, value):
+    P = cuqi.distribution.Poisson(rate)
+    assert np.isclose(P.logpdf(value), scipy_stats.poisson(rate).logpmf(value))
+
+def test_Poisson_vector():
+    rate = np.array([1.5, 3.0, 5.2])
+    value = np.array([1, 4, 5])
+    P = cuqi.distribution.Poisson(rate)
+    expected_logpdf = np.sum(scipy_stats.poisson(rate).logpmf(value))
+    assert np.isclose(P.logpdf(value), expected_logpdf)
+    assert np.isclose(P.pdf(value), np.exp(expected_logpdf))
+
+@pytest.mark.parametrize("rate", [1, 5, 10])
+def test_Poisson_sample(rate):
+    rng = np.random.RandomState(0)
+    P = cuqi.distribution.Poisson(rate)
+    cuqi_samples = P.sample(5, rng=rng)
+
+    rng2 = np.random.RandomState(0)
+    np_samples = rng2.poisson(lam=rate, size=(5, 1)).T
+
+    assert np.allclose(cuqi_samples.samples, np_samples)
+
+def test_Poisson_vector_sample():
+    rate = np.array([2.0, 5.0, 10.0])
+    rng = np.random.RandomState(42)
+    P = cuqi.distribution.Poisson(rate)
+    samples = P.sample(100, rng=rng)
+
+    assert samples.shape == (3, 100)
+    assert np.all(samples.samples >= 0)
+    assert np.all(np.equal(np.mod(samples.samples, 1), 0))
+
+def test_Poisson_out_of_range_values():
+    """ Test that the logpdf is -inf for negative or non-integer values """
+    P = cuqi.distribution.Poisson(5.0)
+    assert np.isneginf(P.logpdf(-1))
+    assert np.isneginf(P.logpdf(1.5))
+
+def test_Poisson_conditioning():
+    """ Test conditioning Poisson on rate and converting to likelihood """
+    P = cuqi.distribution.Poisson(rate=None)
+    assert P.get_conditioning_variables() == ['rate']
+
+    P_cond = P(rate=np.array([2.0, 4.0]))
+    assert P_cond.dim == 2
+
+    data = np.array([2, 5])
+    likelihood = P_cond.to_likelihood(data)
+    assert np.isclose(likelihood.logd(), P_cond.logpdf(data))

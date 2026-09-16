@@ -1,6 +1,7 @@
 from ._distribution import Distribution
 from ._beta import Beta
 from ._cauchy import Cauchy
+from ._poisson import Poisson
 from ._cmrf import CMRF
 from ._gamma import Gamma
 from ._modified_half_normal import ModifiedHalfNormal

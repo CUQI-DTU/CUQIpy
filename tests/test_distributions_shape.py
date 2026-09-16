@@ -19,16 +19,19 @@ ignore_list = [
 # Define cases to skip (these are TODO)
 skip_logd = [
     cuqi.distribution.Gamma, # Missing force_ndarray
+    cuqi.distribution.Poisson, # Single-parameter distribution; prepare_dist requires two positional args
 ]
 skip_sample = [
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.ModifiedHalfNormal,
     cuqi.distribution.Lognormal,
+    cuqi.distribution.Poisson, # Single-parameter distribution; prepare_dist requires two positional args
 ]
 skip_gradient = [
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.Lognormal,
     cuqi.distribution.InverseGamma,
+    cuqi.distribution.Poisson, # Single-parameter distribution; prepare_dist requires two positional args
 ]
 
 # Get all classes in the cuqi.distribution module, and ignore the ones in ignore list
