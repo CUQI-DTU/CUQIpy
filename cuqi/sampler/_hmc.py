@@ -271,7 +271,7 @@ class NUTS(Sampler):
             n += n_prime
             dpoints = point_plus - point_minus
             s = s_prime *\
-                int((dpoints @ r_minus.T) >= 0) * int((dpoints @ r_plus.T) >= 0)
+                int(np.squeeze((dpoints @ r_minus.T) >= 0)) * int(np.squeeze((dpoints @ r_plus.T) >= 0))
             j += 1
             self._current_alpha_ratio = alpha/n_alpha
 
@@ -372,8 +372,12 @@ class NUTS(Sampler):
                 point_k, r, grad, v*epsilon)
             Ham_prime = logd_prime - self._Kfun(r_prime, 'eval') # Hamiltonian
                                                                  # eval
-            n_prime = int(log_u <= Ham_prime)     # if particle is in the slice
-            s_prime = int(log_u < Delta_max + Ham_prime)     # check U-turn
+            # NumPy >= 2.4 turns int() on 1-element arrays into a TypeError
+            # (previously a DeprecationWarning).  The comparison may be
+            # shape-(1,) when the target logpdf returns arrays, so squeeze to
+            # a 0-d value first (identical semantics for true scalars).
+            n_prime = int(np.squeeze(log_u <= Ham_prime))     # if particle is in the slice
+            s_prime = int(np.squeeze(log_u < Delta_max + Ham_prime))     # check U-turn
             #
             diff_Ham = Ham_prime - Ham
 
@@ -426,7 +430,7 @@ class NUTS(Sampler):
                 n_alpha_prime += n_alpha_2prime
                 dpoints = point_plus - point_minus
                 s_prime = s_2prime *\
-                    int((dpoints@r_minus.T)>=0) * int((dpoints@r_plus.T)>=0)
+                    int(np.squeeze((dpoints@r_minus.T)>=0)) * int(np.squeeze((dpoints@r_plus.T)>=0))
                 n_prime += n_2prime
 
         return point_minus, r_minus, grad_minus, point_plus, r_plus, grad_plus,\
